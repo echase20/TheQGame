@@ -1,33 +1,32 @@
-1. Interface of the component
-The game-observer mechanism should have a user-friendly interface that allows the user to easily navigate and interact with the system. The interface should include the following components:
+Dear CEOS,<br>
+From: Dilan Piscatello and Wilson Glass<br>
+CC: Matthias Felleisen<br>
+Subject: Planning the Game Observer<br>
 
-- A dashboard that displays the current state of the game, including the score and any other relevant information.
-class game_observer:
+## Designing the Game Observer Mechanism:
 
-    def __init__(self, game_state):
-        # Initialize the view
+<p>The observer should be able to see three main components about the game:</p>
+<p>The observer should be able to view all of the players current scores</p>
+<p>def observe_scores() </p>
 
-    def render(self):
-        # Renders the current game state
+<p> The observer should be able to have a live updated map of the game </p>
+<p> def observe_map() </p>
 
-    def update_state(self, new_state):
-        # Update the rendering based on the game state
-    
-    def on_mouse_click(self):
-        # Shows the next turn after a mouse click by the client
+<p>The observer should be able to see the number of referee tiles that are left in the deck.</p>
+<p> def observe_of_ref_tiles() </p>
 
-2. Interaction with the observer's view
-A single person may wish to interact with the observer's view in a number of ways. For example, they may want to:
- - Scrollable functionality to view the game board
- - A pause or quit function
+<p> The observer should have some way of signing up to the referee to get game. 
+This can be at any time and does not need to be at the start of the game. 
+This would be a method in the referee class singing up the player </p>
+<p> def join_game_as_observer(observer) </p>
 
-3. Observer's view interacting with existing systems
-- The view will rely on the game state for its information regarding player, player_scores, tiles, and actions made to update the map.
+<p> The observer should be able to freely leave and join at their liking. An observer joining can come and go as they please.
+</p>
 
-Observer            Game_State
-|                       |
-|      update_state     |
-| --------------------> |
-|                       |
-|  new rendering        | 
-| <---------------------|
+The game observer should not be a component in the game state as they do not affect anything in the gamestate. The
+observers have the ability to watch over the gamestate and can view some public knowledge. They observers will
+not be able to view private information about the players like the hands they have as there could be cheating involved.
+
+
+Thank you,
+Dilan Piscatello and Wilson Glass

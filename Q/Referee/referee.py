@@ -1,241 +1,183 @@
-import sys
-sys.path.insert(1,'../Common')
-import game_state as g
-sys.path.insert(1,'../Player')
-import player as p
+from copy import deepcopy
+from typing import List, Set, Dict
+
+from Q.Common.Board.tile import Tile
+from Q.Common.map import Map
+from Q.Common.player_game_state import PlayerGameState
+from Q.Common.rulebook import Rulebook
+from Q.Player.turn import Turn
+from Q.Player.turn_outcome import TurnOutcome
+from Q.Referee.pair_results import PairResults
+from Q.Player.player import Player
+from Q.Common.game_state import GameState
 
 
-"""
-# Referee function
-# Input: A list of players
-# Output: List of names of the winners and List of names of the eliminated players
+class Referee:
+    """
+    Anytime a player API function, take-turn, win, setup, new-tiles, throws an error, we remove this player from the game.
+    We plan to add implementation for timeouts when there is more clarity
+    Represents a referee for the Q game
+    """
 
-Abnormal Interactions Taken of Care:
-- If a player tries to exchange with more tiles then the ref has left
-- If a player tries to place a tile that it does not have
-- If a player tries to place a tile out of bounds, on another tiles, or in an invalid spot, (ergo, any invalid move)
-- If a player passes an to the referee something that is not one of pass, replace, or a list of actions
-"""
-def referee(players: list) -> (list, list):
-    winners = []
-    eliminated = []
-    # Create a new game state
-    game = g.game_state()
-    game._players = players
+    @staticmethod
+    def main(player_list: List[Player]) -> PairResults:
+        """
+        executes the Q game for a given list of players
+        :param player_list: list of players that will play the game
+        :return winners and kicked players
+        """
+        game_state = GameState()
+        game_state.setup_state()
+        Referee.setup_players(player_list, game_state)
+        Referee.signup_players(player_list, game_state)
 
-    # Set up the Game with players
-    for player in game._players:
-        tiles = game.TileBag(6)
-        game_map = game._map
-        player.setup(game_map, tiles)
+        return Referee.run_game(game_state, player_list)
 
-    game._active_player = game._players[0]
+    @staticmethod
+    def run_game(game_state: GameState, player_list: List[Player]) -> PairResults:
+        """
+        Runs the given game state to completion
+        :param player_list: the list of players of the game
+        :param game_state: the given game state to run the game on
+        :return: winners and kicked players
+        """
+        while not Referee.is_game_over(game_state, player_list):
 
-    all_tiles_placed = False
-    player_placed_all_tiles = False
-    # While there are still tiles in the bag
-    while not (game._game_over() and all_tiles_placed and player_placed_all_tiles):
-        pass_or_replace_count = 0
-        for _ in range(len(game._players)):
-            turn_action = game._active_player.takeTurn(game)
-            if turn_action == "pass":
-                game._rotate_players()
-                pass_or_replace_count += 1
-            if turn_action == "replace":
-                #check that the ref has enough tiles to replace
-                if len(game._active_player.bag_of_tiles) > game.ref_tiles_left():
-                    eliminated.append(game._active_player.name)
-                    game._players.remove(game._active_player)
-                else:
-                    game._active_player.newTiles(game._tile_bag(len(game._active_player.bag_of_tiles)))
-                    game._rotate_players()          
-                    pass_or_replace_count += 1
-            if type(turn_action) == list:
-                    hand_length = len(game._active_player.bag_of_tiles)
-                    still_player = True
-                    for tile in turn_action:
-                        #check to see the player has the tiles it wishes to place
-                        if tile[0] not in game._active_player.bag_of_tiles:
-                            eliminated.append(game._active_player.name)
-                            game._players.remove(game._active_player)
-                            still_player = False
-                            break
-                        try:
-                            # try to place the tile and removes that tile from the players hand if successful
-                            game.place_tile(tile[1][0], tile[1][1], tile[0])
-                            if len(game._active_player.bag_of_tiles) != 0:
-                                game._active_player.bag_of_tiles.remove(tile[0])
-                            else:
-                                all_tiles_placed = True
-                        except(TypeError):
-                            eliminated.append(game._active_player.name)
-                            game._players.remove(game._active_player)
-                            still_player = False
-                            break
-                        # if the player completed a legal move, give them tiles back and score the action
-                    if still_player:
-                        if len(game._active_player.bag_of_tiles) == 0:
-                            player_placed_all_tiles = True
-                            break
-                        if len(game._ref_tiles) < len(turn_action):
-                            all_tiles_placed = True
-                        else:
-                            game._active_player.bag_of_tiles.extend(game.TileBag(len(turn_action)))
-                            row_list = []
-                            col_list = []
-                            tile_list = []
-                            for action in turn_action:
-                                row_list.append(action[1][0])
-                                col_list.append(action[1][1])
-                                tile_list.append(action[0])
-                            points = game._score_point(row_list,col_list,tile_list,hand_length)
-                            game._active_player.score += points
-                            game._rotate_players()
+            current_player = player_list.pop(0)
+            pub_data = game_state.extract_public_player_data()
+            try:
+                turn = current_player.take_turn(pub_data)
+                player_name = current_player.name()
+            except Exception as E:
+                Referee.remove_current_player(game_state, current_player)
+                continue
+
+            if not Referee.is_valid_move(turn, game_state.rulebook, deepcopy(game_state.map), game_state.players[player_name], pub_data.num_ref_tiles):
+                Referee.remove_current_player(game_state, current_player)
             else:
-                raise TypeError("The given input is not of type: String.")
-            if pass_or_replace_count == len(game._players):
-                break
-    score_list = []
-    # find the winner at the end of the game based on score
-    for player in game._players:
-        score_list.append(player.score)
-        winning_player_index = score_list.index(max(score_list))
-    for i in range(len(players)):
-        if i == winning_player_index:
-            player.win(True)
-            winners.append(players[i])
-        else:
-            player.win(False)
-    return winners, eliminated
-            
+                game_state.process_turn(turn, player_name)
+                if not len(game_state.players[player_name].hand):
+                    break
+                new_tiles = game_state.draw_tiles_for_player(player_name)
+                Referee.send_player_tiles(new_tiles, current_player, game_state)
+                player_list.append(current_player)
+        game_results = game_state.return_pair_of_results()
+        Referee.send_results(game_results.winners, player_list, game_state)
+        return game_state.return_pair_of_results()
 
+    @staticmethod
+    def is_game_over(game_state: GameState, players: List[Player]):
+        """
+        is the game over according to the referee
+        :param game_state: the game state of which may be over
+        :param players: the players in the game
+        :return: true if the game is over
+        """
+        return not players or game_state.played_all_tiles() or game_state.has_all_passed_or_exchanged_for_a_round()
 
+    @staticmethod
+    def send_results(winner_names: Set[str], players_left: List[Player], game_state):
+        """
+        sends the results of the game to the respective player who are winners and losers
+        :param players_left: the players left in the game
+        :param winner_names: the names of the winners of the game
+        :param game_state: the current game state
+        """
+        for player in players_left:
+            try:
+                if player.name() in winner_names:
+                    player.win(True)
+                else:
+                    player.win(False)
+            except:
+                Referee.remove_current_player(game_state, player)
 
-
-
-# Referee function
-# Input: A list of players
-# Output: List of names of the winners and List of names of the eliminated players
-
-# The only diference with this function is that is takes in a premade game state for testing purposes
-
-def referee(players: list, premade_game: g, tile_hands: list, player_scores: list) -> (list, list):
-    winners = []
-    eliminated = []
-    # Create a new game state
-    game = premade_game
-    game._players = players
-    # Set up the Game with players
-    to_be_eliminated = []
-    i = 0
-    for player in game._players:
-        game_map = game._map
-        # If a bad player tries to set up, it will raise an exception
+    @staticmethod
+    def send_player_tiles(new_tiles: List[Tile], player: Player, game_state: GameState):
+        """
+        sends a player new tiles by calling the player new-tiles API function
+        :param new_tiles: the new tiles the player will receive
+        :param player: the player who you are sending the update to
+        :param game_state: the current game state
+        """
+        if not new_tiles:
+            return
         try:
-            player.setup(game_map, tile_hands[i], player_scores[i])
-        except(Exception):
-            eliminated.append(player.name)
-            to_be_eliminated.append(player)
-        i=i+1
-    for player in to_be_eliminated:
-        game._players.remove(player)
-       
-        
+            player.newTiles(new_tiles)
+        except:
+            Referee.remove_current_player(game_state, player)
 
-    game._active_player = game._players[0]
-    all_tiles_placed = False
-    player_placed_all_tiles = False
-    # While there are still tiles in the bag
-    while not (game._game_over() and all_tiles_placed and player_placed_all_tiles):
-        pass_or_replace_count = 0
-        for _ in range(len(game._players)):
+    @staticmethod
+    def is_valid_move(turn: Turn, rulebook: Rulebook, given_map: Map, current_player: PlayerGameState, num_of_ref_tiles: int):
+        """
+        is this a valid move according to the rulebook?
+        :param turn: the turn the player wants to perform
+        :param rulebook: the rules of the game
+        :param given_map: the map tiles are placed on
+        :param current_player: the player that is currently trying to place tiles
+        :param num_of_ref_tiles: the num of ref tiles in the game
+        :return: true if the turn is valid according to the rulebook else false
+        """
+        copy_hand = current_player.hand.copy()
+        for tile in turn.placements.values():
+            if tile not in copy_hand:
+                return False
+            copy_hand.remove(tile)
+
+        if turn.turn_outcome == TurnOutcome.PLACED:
+            return rulebook.valid_placements(given_map, turn.placements)
+        if turn.turn_outcome == TurnOutcome.REPLACED:
+            return rulebook.valid_replacement(num_of_ref_tiles, current_player.hand)
+        return True
+
+
+    @staticmethod
+    def start_from_state(player_list: List[Player], game_state: GameState) -> PairResults:
+        """
+        Initializes players in at a particular given state
+        :param player_list: the players in the game
+        :param game_state: game state to copy the map from
+        :return: winners and kicked players
+        """
+        Referee.setup_players(player_list, game_state)
+        return Referee.run_game(game_state, player_list)
+
+    @staticmethod
+    def signup_players(player_list: List[Player], game_state: GameState):
+        """
+        Starts the game with the given players and some given game
+        :param player_list: the players to be added to the game
+        :param game_state: the game state where the players sign up to
+        """
+        copy_map = deepcopy(game_state.map)
+        for player in player_list:
+            hand = game_state.draw_tiles(6)
+            player_game_state = PlayerGameState(hand, 0, False, TurnOutcome.PLACED)
+            game_state.signup_player(player_game_state, player.name())
             try:
-                turn_action = game._active_player.takeTurn(game)
-            except(Exception):
-                eliminated.append(game._active_player.name)
-                game._players.remove(game._active_player)
-                game._rotate_players()
-            if turn_action == "pass":
-                game._rotate_players()
-                pass_or_replace_count += 1
-            elif turn_action == "replace":
-                #check that the ref has enough tiles to replace
-                if len(game._active_player.bag_of_tiles) > game.ref_tiles_left():
-                    eliminated.append(game._active_player.name)
-                    game._players.remove(game._active_player)
-                    game._rotate_players()
-                else:
-                    try:
-                        game._active_player.newTiles(game.TileBag(len(game._active_player.bag_of_tiles)))
-                        game._rotate_players()          
-                        pass_or_replace_count += 1
-                    except(Exception):
-                        eliminated.append(game._active_player.name)
-                        game._players.remove(game._active_player)
-                        game._rotate_players()
-            elif type(turn_action) == list:
-                    hand_length = len(game._active_player.bag_of_tiles)
-                    still_player = True
-                    for tile in turn_action:
-                        #check to see the player has the tiles it wishes to place
-                        if tile[0] not in game._active_player.bag_of_tiles:
-                            eliminated.append(game._active_player.name)
-                            game._players.remove(game._active_player)
-                            game._rotate_players()
-                            still_player = False
-                            break
-                        try:
-                            # try to place the tile and removes that tile from the players hand if successful
-                            game.place_tile(tile[1][0], tile[1][1], tile[0])
-                            game._active_player.bag_of_tiles.remove(tile[0])
-                            
-                        except(TypeError):
-                            eliminated.append(game._active_player.name)
-                            game._players.remove(game._active_player)
-                            game._rotate_players()
-                            still_player = False
-                            break
-                        # if the player completed a legal move, give them tiles back and score the action
-                    if still_player:
-                        if len(game._active_player.bag_of_tiles) == 0:
-                            player_placed_all_tiles = True
-                        if len(game._ref_tiles) < len(turn_action):
-                            game._active_player.bag_of_tiles.extend(game.TileBag(len(game._ref_tiles)))
-                        else:
-                            game._active_player.bag_of_tiles.extend(game.TileBag(len(turn_action)))
-                        row_list = []
-                        col_list = []
-                        tile_list = []
-                        for action in turn_action:
-                            row_list.append(action[1][0])
-                            col_list.append(action[1][1])
-                            tile_list.append(action[0])
-                        points = game._score_point(row_list,col_list,tile_list,hand_length)
-                        game._active_player.score += points
-                        game._rotate_players()
-                        still_player = False
-            else:
-                raise TypeError("The given input is not of type: String.")
-        if pass_or_replace_count == len(game._players):
-            break
-    score_list = []
-    # find the winner at the end of the game based on score
-    for player in game._players:
-        score_list.append(player.score)
-        winning_player_index = score_list.index(max(score_list))
-    for i in range(len(players)):
-        if i == winning_player_index:
-            # If a bad player tries to win, it will raise an exception
+                player.setup(copy_map, hand)
+            except:
+                Referee.remove_current_player(game_state, player)
+
+    @staticmethod
+    def setup_players(player_list: List[Player], game_state: GameState):
+        """
+        setups the player by calling the setup API for each player
+        :param player_list: the players to be setup
+        :param game_state: the state of the game
+        """
+        for player in player_list:
             try:
-                players[i].win(True)
-                winners.append(players[i].name)
-            except(Exception):
-                eliminated.append(players[i].name)
-                game._players.remove(game._players[i])
-        else:
-            try:
-                players[i].win(False)
-            except(Exception):
-                eliminated.append(players[i].name)
-                game._players.remove(game._players[i])
-    return winners, eliminated
+                player.setup(game_state.map, game_state.players[player.name()].hand.copy())
+            except:
+                Referee.remove_current_player(game_state, player)
+
+    @staticmethod
+    def remove_current_player(game_state: GameState, current_player: Player):
+        """
+        removes the current play from the gamestate
+        NOTE: may need to call continue ofter this function to not add the player back to the queue
+        :param game_state: the game state of the game
+        :param current_player: the current player which is being removed
+        """
+        game_state.players[current_player.name()].misbehaved = True

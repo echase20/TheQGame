@@ -1,43 +1,33 @@
-# Game-state Component Interface
+Dear CEOS,<br>
+From: Dilan Piscatello and Wilson Glass<br>
+CC: Matthias Felleisen<br>
+Subject: Planning the Referee State<br>
 
-The game-state component should implement the following interface:
+## Task: Design the Referee Component:
+### Communication between the Referee and the GameState
 
-## Properties
+<b> def save_state() </b> <br>
+Saves this current state of the game for later use. 
+This would be called after each turn.
 
-- `players`: An array of player objects representing the players in the game.
-- `current_player`: The player object representing the player whose turn it currently is.
-- `game_over`: A boolean indicating whether the game is over or not.
+<b> def pause_game() </b> <br>
+Pauses the current game at the current state. 
+This would occur if any of the players disconnect.
+Saves the current players
 
-## Methods
+<b> def resume_game() </b> <br>
+Resumes the current game at some previously saved state.
+The game would resume if all the players that signed up are active again.
+Refresh all players with their current player game state.
 
-- `start_game()`: Initializes the game state and starts the game.
-- `end_game()`: Ends the game and sets the `game_over` property to `true`.
-- `save_state()`: Saves the current state of the game to a file.
-- `load_state()`: Loads a previously saved state of the game from a file.
-- `next_turn()`: Advances the game to the next turn.
+<b> def end_game() </b> <br>
+Ends the game for all players currently playing the game.
+Sends win/loss messages with a final leaderboard to the all players.
 
-# Interaction Protocol Ref-GameState
+<b> def start_game() </b> <br>
+Starts the game for the given players in the game.
+gets the initial player game states which include the basic information 
 
-The referee and game state components should interact according to the following protocol:
 
-1. The referee component initializes the game state component by calling its `start_game()` method.
-
-2. The referee component checks the `game_over` property of the game state component to determine if the game is over.
-
-3. If the game is not over, the referee component retrieves the `current_player` property of the game state component to determine whose turn it is.
-
-4. The referee component prompts the current player to make a move.
-
-5. The current player proposes a move and the referee checks the validity of the move.
-
-6. If the move is valid the referee updates the game state component accordingly.
-
-7. The game state component updates the `current_player` property to the next player.
-
-8. The game state component checks if the game is over and updates the `game_over` property accordingly.
-
-9. The referee component repeats steps 2-7 until the game is over.
-
-10. The referee component calls the game state component's `end_game()` method to end the game.
-
-Note: The `save_state()` and `load_state()` methods can be used to save and load the game state to and from a file, respectively, but are not part of the interaction protocol between the referee and game state components.
+Thank you,
+Dilan Piscatello and Wilson Glass

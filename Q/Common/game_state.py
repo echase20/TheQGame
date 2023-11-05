@@ -1,593 +1,255 @@
-import map as Map
-import player_obs as Player
-from os import environ
-environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
-import pygame
-from map import Tile
-import ShapeRenderer as ShapeRenderer
-from collections import deque 
 import random
-"""
-- GAME STATE DATA REPRESENTATION -
-The class game_state represents a game state of the Q Game. 
-In accord with the functionalities of a game state, the game_state class keeps track of the following data as fields:
-    1. self._map  --> The map representation of the game from map.py
-    2. self._players --> a list representing the players (2 to 4) that are currently in the game
-    3. self._active_player --> the Player object to make the current turn.
-    4. self._active_player_index --> the index of the active Player object within the list self._players
-    5. self._ref_tiles --> The list (stack) of tiles that the referee currently has. 
-    _ref_tiles will be set to a list including all 1080 possible tiles.
-"""
+from copy import deepcopy
+from typing import List, Dict, Set
 
-class game_state:
-    def __init__(self, end_game_bonus, q_score_bonus):
-        """
-        Initializes a game state object with a map, players, active player, referee tiles, end game bonus and q score bonus.
+from Q.Common.player_game_state import PlayerGameState
+from Q.Common.rulebook import Rulebook
+from Q.Common.Board.tile import Tile
+from Q.Common.map import Map
+from Q.Common.Board.pos import Pos
+from Q.Common.render import Render
+from Q.Player.turn import Turn
+from Q.Player.turn_outcome import TurnOutcome
+from Q.Common.Board.tile_color import TileColor
+from Q.Common.Board.tile_shape import TileShape
+from Q.Player.public_player_data import PublicPlayerData
+from Q.Referee.pair_results import PairResults
 
-        Parameters:
-        end_game_bonus (int): Bonus points for the player with the most completed features at the end of the game.
-        q_score_bonus (int): Bonus points for the player with the highest q score at the end of the game.
-        """
-        self._map = Map.Map()
-        self._players = []            
-        self._active_player = None
-        self._active_player_index = 0
-        self._ref_tiles = deque()          
-        self.init_ref_tile_bag()
-        self.end_game_bonus = end_game_bonus
-        self.q_score_bonus = q_score_bonus
-
-    def set_map(self, map : Map.Map):
-        """
-        Set the map of the game to the given map.
-
-        Parameters:
-        map (Map.Map): A Map object to be saved as the map of the game state.
-        """
-        self._map = map
-
-    def set_ref_tiles(self, tiles: deque):
-        self._ref_tiles = tiles
-
-    def get_map(self):
-        """
-        Returns the map of the game.
-        """
-        return self._map
-
-    def get_players(self):
-        """
-        Returns the list of players.
-        """
-        return self._players
-    
-    def init_ref_tile_bag(self) -> None:
-        """
-        Creates the ref tile bag.
-        """
-        shapes = ['star', '8star', 'square', 'circle', 'clover', 'diamond']
-        colors = ['red', 'green', 'blue', 'yellow', 'orange', 'purple']
-        for shape in shapes:
-            for color in colors:
-                for _ in range(30):
-                    self._ref_tiles.append(Tile(shape, color))
-        random.shuffle(self._ref_tiles)
-        
-    def init_ref_tile_bag_testing(self) -> None:
-        """
-        Creates the ref tile bag for testing.
-        """
-        self._ref_tiles.clear()
-        shapes = ['star', '8star', 'square', 'circle', 'clover', 'diamond']
-        colors = ['red', 'green', 'blue', 'yellow', 'orange', 'purple']
-        for shape in shapes:
-            for color in colors:
-                for _ in range(1):
-                    self._ref_tiles.append(Tile(shape, color))
+NUM_OF_Q_TILES = 1080
+MAX_NUM_OF_PLAYERS = 4
+NUM_OF_EACH_KIND = 30
+MAX_NUM_OF_TILES_IN_PLAYER_HAND = 6
 
 
-        
-    def TileBag(self,number_of_tiles) -> list:
-        """
-        Creates the player tile bag with the number of tiles.
+class GameState:
+    """
+    Represents the state of the game available to the referee
+    """
 
-        Parameters:
-        number_of_tiles (int): The number of tiles to be added to the player tile bag.
+    def __init__(self, config: PublicPlayerData = None, tiles: List[Tile] = [],
+                 player_game_states: Dict[str, PlayerGameState] = {}, given_map: Map = Map(), random_seed=None,
+                 rulebook=Rulebook()):
+        """
+        :param config: the player public data - used for testing
+        :param tiles: the tiles in which the ref hold
+        :param player_game_states: the states of all players
+        :param given_map: the map at which you place tiles on
+        :param random_seed: the seed of the referee deck
+        :param rulebook: the rules of the game
+        """
+        self.players: Dict[str, PlayerGameState] = player_game_states
+        self.rulebook = rulebook
+        self.consecutive_exc_or_rep = 0
 
-        Returns:
-        list: A list of tiles.
-        """
-        new_bag = []
-        for _ in range(number_of_tiles):
-            new_tile = self._ref_tiles.popleft()
-            new_bag.append(new_tile)
-
-        return new_bag
-    
-    def _game_over(self) -> bool:
-        """
-        Checks if the game is over.
-
-        Returns:
-        bool: True if the game is over, False otherwise.
-        """
-        #Checking that there are a correct amount of players
-        if len(self._players) < 2:
-            return True
-        elif len(self._players) > 4:
-            return True
-        elif self.ref_tiles_left == 0:
-            return True
-        return False
-    
-    def check_dup_id(self, id : int) -> bool:
-        """
-        Checks that a player of the given id already exist in the list.
-
-        Parameters:
-        id (int): An unique integer that identifies the Player object.
-
-        Returns:
-        bool: True if a player of the same id exists, False otherwise.
-        """
-        for player in self._players:
-            if player.get_id() == id:
-                return True
-        return False
-    
-    def ref_tiles_left(self):
-        """
-        Returns the number of tiles left in the referee's stack.
-        """
-        return len(self._ref_tiles)
-
-    def add_player(self, player : Player.Player):
-        """
-        Adds the given player to the list.
-
-        Parameters:
-        player (Player.Player): The Player object to be added to the game state's list of players.
-        """
-        if type(player) is Player.Player:
-            # If a player with the same id does not already exist in the game
-            if not self.check_dup_id(player.get_id()):
-                self._players.append(player)
-            else:
-                raise ValueError("A player with the given ID already exists in this game.")
+        if config:
+            self.referee_deck = self.create_randomize_deck(config.num_ref_tiles, random_seed)
+            self.map = config.current_map
+            self.scores: Dict[str: int] = config.scores
         else:
-            raise TypeError("The input is not of type Player.")
-    
-    def _sort_by_age(self):
-        """
-        Sorts the list of players in the order of their ages.
-        """
-        self._players.sort(key=(lambda player : player.get_info()['age']), reverse=True)
-
-    def _rotate_players(self):
-        """
-        Moves the active player's index to the next player.
-        """
-        # Calculate the next player's index (order) within the list
-        self._active_player_index = (len(self._players) + self._active_player_index + 1) % len(self._players)
-        # Set the active player to the player of the next index
-        self._active_player = self._players[self._active_player_index]
-    
-    def _print_map(self):
-        """
-        Gets the current map state of the game.
-        """
-        return self._map.print_map()
-    
-
-    def get_game_info(self) -> dict:
-        """
-        Extracts the data to be sent to a player when it is its turn.
-
-        Returns:
-        dict: A dictionary that is a data representation for all the information the current player will receive.
-        """
-        # Order of gameplay
-        order = self._get_order()
-        # id of the current player
-        active_player = self._active_player.get_id()
-        # scores    
-        scores = self._get_all_scores()
-        # ref's tiles? 
-        num_tiles = len(self._ref_tiles)
-
-        return {"Gameplay Order" : order, 
-                "Current Turn Player ID" : active_player, 
-                "Player Scores" : scores, 
-                "Tiles remaining:" : num_tiles}
-
-    # Returns the list of strings (player ids) in the order of the gameplay
-    def _get_order(self) -> list:
-        ids_in_order = []
-        
-        for player in self._players:
-            ids_in_order.append(player.get_id())
-        
-        return ids_in_order
-    
-    # Compile a dictionary where the each key is each player's id and each value is the player's 
-    # according score
-    def _get_all_scores(self) -> list:
-        all_scores = dict()
-
-        for player in self._players:
-            all_scores[str(player.get_id())] = player.get_info()['score']
-
-        return all_scores
-    
-    """
-    Functionality #2: for completing a turn action.
-    
-    - The function takes in a string representing the current player's choice for its turn.
-    - The choice can either be "pass", "exchange", or "place", according to the rules
-      of the Q Game.
-        1. If the input choice is neither of the above, throw an exception explaining the error.
-        2. If the choice is "pass", the game state will move on to the next player in the game's order
-           by invoking the function rotate_players.
-        3. If the choice is "exchange", the game state will invoke exchange_tiles (place holder for 
-           milestone #3).
-        4. If the choice is "place", the tate will invoke place_tile (place holder for 
-           milestone #3).
-    - Not yet implemented - The method should eventually check to make sure that only the active player
-      is allowed these choices during their turn.
-    """
-
-
-    """
-    This method calculates points scored for a series of placements
-
-    Args:
-    row_list (list): The list of row coordinates for the placements to be scored
-    col_list (list): The list of column coordinates for the placements to be scored
-    tile_list (list): The list of tiles for the placements to be scored
-    tiles_left (int): The number of tiles in the hand of the player who made the placements
-
-    Returns:
-    int: The points scored on the series of placements
-    """
-    def _score_point(self, row_list, col_list, tile_list, tiles_left):
-        points = 0
-        #checks if the player has placed all their tiles
-        if len(tile_list) == tiles_left:
-            points = points + self.end_game_bonus
-        points = points + len(tile_list)
-        row_visited = []
-        col_visited = []
-        for i in range(len(row_list)):
-            continuous_points,row_visited,col_visited = self._continuous_sequence_points(row_list[i], col_list[i], row_visited, col_visited)
-            points = points + continuous_points
-            q_points_color = self._q_score_color(row_list[i], col_list[i],tile_list[i]) 
-            q_points_shape = self._q_score_shape(row_list[i], col_list[i],tile_list[i])
-            points += q_points_color + q_points_shape
-        return points    
-    
-    # Returns the number of continuous sequence of tiles that the given tile is a part of
-    
-    def _continuous_sequence_points(self, row ,col,row_visited,col_visited):
-            """
-            Calculates the number of points in a continuous sequence of tiles starting from the given row and column.
-            A sequence is considered continuous if it contains only non-None tiles and is either in a row or a column.
-            The method returns the number of points in the sequence, as well as the updated row_visited and col_visited lists.
-            
-            Args:
-            - row: int, the row index of the starting tile
-            - col: int, the column index of the starting tile
-            - row_visited: list of int, the list of row indices that have already been visited in the current sequence
-            - col_visited: list of int, the list of column indices that have already been visited in the current sequence
-            
-            Returns:
-            - final_total: int, the number of points in the continuous sequence
-            - row_visited: list of int, the updated row_visited list
-            - col_visited: list of int, the updated col_visited list
-            """
-            orig_row = row
-            orig_col = col
-            points = set()
-            in_row = False
-            in_column = False
-            #left
-            while (self._map._get_tile(row,col-1) != None):
-                if row in row_visited:
-                    break
-                in_row = True
-                points.add((row,col-1))
-                col = col -1
-            col = orig_col
-            #right
-            while (self._map._get_tile(row,col+1) != None):
-                if row in row_visited:
-                    break
-                in_row = True
-                points.add((row,col+1))
-                col = col + 1
-            col = orig_col
-            #up
-            while (self._map._get_tile(row-1,col) != None):
-                if col in col_visited:
-                    break
-                in_column = True
-                points.add((row-1,col))
-                row = row - 1
-            row = orig_row
-            #down
-            while (self._map._get_tile(row+1,col) != None):
-                if col in col_visited:
-                    break
-                in_column = True
-                points.add((row+1,col))
-                row = row + 1
-            row = orig_row
-
-            #adds the original tile for score calculation
-            points.add((row,col))
-            final_total = len(points)
-            if in_row and in_column:
-                final_total = final_total + 1
-            if in_row:
-                row_visited.append(row)
-            if in_column:
-                col_visited.append(col)
-            #returns the number of points
-            return final_total, row_visited, col_visited
-    
-    # Returns the number of points a tile earns for being a part of a Q sequence based on color
-    def _q_score_color(self, row, col, tile: Tile):
-            """
-            Calculates the Q score for a given tile based on the number of unique colors in its row and column.
-
-            Args:
-                row (int): The row index of the tile.
-                col (int): The column index of the tile.
-                tile (Tile): The tile for which to calculate the Q score.
-
-            Returns:
-                int: The Q score for the given tile.
-            """
-            orig_col = col
-            orig_row = row
-            color_buffer = []
-            points = 0
-            #left
-            color_buffer.append(tile.get_color())
-            while (self._map._get_tile(row,col-1) != None):
-                tile1 = self._map._get_tile(row, col-1)
-                if tile1.get_color() not in color_buffer:
-                    color_buffer.append(tile1.get_color())
-                    col = col - 1
-                else:
-                    break
-            col = orig_col
-            #right
-            while (self._map._get_tile(row,col+1) != None):
-                tile1 = self._map._get_tile(row, col+1)
-                if tile1.get_color() not in color_buffer:
-                    color_buffer.append(tile1.get_color())
-                    col = col + 1
-                else:
-                    break
-            col = orig_col
-            if len(color_buffer) == 6:
-                points = points + 6
-            #up
-            while (self._map._get_tile(row-1,col) != None):
-                tile1 = self._map._get_tile(row-1, col)
-                if tile1.get_color() not in color_buffer:
-                    color_buffer.append(tile1.get_color())
-                    row = row - 1
-                else:
-                    break
-            row = orig_row
-            #down
-            while (self._map._get_tile(row+1,col) != None):
-                tile1 = self._map._get_tile(row + 1, col)
-                if tile1.get_color() not in color_buffer:
-                    color_buffer.append(tile1.get_color())
-                    row = row + 1
-                else:
-                    break
-            row = orig_row
-            if len(color_buffer) == 6:
-                points = points + self.q_score_bonus
-            return points
-    
-    # Returns the number of points a tile earns for being a part of a Q sequence based on shape
-    def _q_score_shape(self, row, col, tile: Tile):
-            """
-            Calculates the Q score for a given tile based on the number of unique shapes in its row, column, and surrounding tiles.
-
-            Args:
-                row (int): The row index of the tile.
-                col (int): The column index of the tile.
-                tile (Tile): The tile for which to calculate the Q score.
-
-            Returns:
-                int: The Q score for the given tile.
-            """
-            shape_buffer = []
-            points = 0
-            orig_col = col
-            orig_row = row
-            #left
-            shape_buffer.append(tile.get_shape())
-            while (self._map._get_tile(row,col-1) != None):
-                tile1 = self._map._get_tile(row, col-1)
-                if tile1.get_shape() not in shape_buffer:
-                    shape_buffer.append(tile1.get_shape())
-                    col = col - 1
-                else:
-                    break
-            col = orig_col
-            #right
-            while (self._map._get_tile(row,col+1) != None):
-                tile1 = self._map._get_tile(row, col+1)
-                if tile1.get_shape() not in shape_buffer:
-                    shape_buffer.append(tile1.get_shape())
-                    col = col + 1
-                else:
-                    break
-            col = orig_col
-            if len(shape_buffer) == 6:
-                points = points + 6
-            #up
-            while (self._map._get_tile(row-1,col) != None):
-                tile1 = self._map._get_tile(row-1, col)
-                if tile1.get_shape() not in shape_buffer:
-                    shape_buffer.append(tile1.get_shape())
-                    row -= 1
-                else:
-                    break
-            row = orig_row
-            #down
-            while (self._map._get_tile(row+1,col) != None):
-                tile1 = self._map._get_tile(row + 1, col)
-                if tile1.get_shape() not in shape_buffer:
-                    shape_buffer.append(tile1.get_shape())
-                    row += 1
-                else:
-                    break
-            row = orig_row
-            if len(shape_buffer) == 6:
-                points = points + self.q_score_bonus
-            return points
-
-  
-    
-    def check_placement_validity(self, row : int, col : int, tile : Map.Tile) -> bool:
-        
-        try: 
-            valid_coord = self._map._valid_pos(tile)
-
-            if (row, col) in valid_coord:
-                return True
+            self.map = given_map
+            if tiles:
+                self.referee_deck = tiles
             else:
-                return False
-        except TypeError as e:
-            raise TypeError("All inputs must be of correct type.") from e
+                self.referee_deck = self.create_randomize_deck(NUM_OF_Q_TILES, random_seed)
 
+    def place_ref_tile(self):
+        """
+        Takes first tile off the top of the ref deck and places at 0,0
+        """
+        ref_tile = {Pos(0, 0): self.draw_tiles(1)[0]}
+        self.map = Map(config=ref_tile)
 
+    def create_randomize_deck(self, num_of_ref_tiles=NUM_OF_Q_TILES, seed=None) -> List[Tile]:
+        """
+        Initializes Q's set of num_of_ref_tiles, 6 different colors, 6 different shapes, 30 of each kind randomized.
+        """
+        if seed:
+            random.seed(seed)
 
-    # Called when the active player wants to place a tile
-    # the function checks the position of the tile that the player wants to place 
-    # is a valid position and follows the rules of the Q game. If so, it places
-    # the tile and if not, yet to implement(referee should end player turn and eliminate player) 
-    def place_tile(self,x: int,y: int,tile):
-        # while condition (allows the player to place multiple tiles until a stop signal): 
-        # --- place holder values --- 
+        deck = []
+        for color in TileColor:
+            for shape in TileShape:
+                for _ in range(NUM_OF_EACH_KIND):
+                    deck.append(Tile(shape, color))
 
+        random.shuffle(deck)
+        return deck[:num_of_ref_tiles]
 
-        # Checks the validity of the placement, assuming that the player gives a coordinate and a tile
-        valid = self.check_placement_validity(x,y,tile)
-        if valid:
-            self._map._place_tile_given(x, y, tile)
-            # Call a function that:
-            # gives a random tile from the ref's stack to the current player
-            # 0. Generate a random index within 0, len(self._ref_tile) 
-            # 1. Add the tile to the player 
-            #    e.g. self._active_player.add_tile(tile)
-            # 2. Remove the tile from the referee's stack 
-            #    e.g. [self._ref_tiles.remove(tile)]
-        pass
+    def setup_state(self):
+        """
+        setups the state of the game
+        """
+        if self.referee_deck is None:
+            self.referee_deck = self.create_randomize_deck(1080)
 
-    # Returns the tile at the given coordinate
-    def _get_tile(self, row: int, col:int):
-        return self._map._get_tile(row,col)
+        if self.map is None:
+            self.map = Map()
+            self.place_ref_tile()
 
+    def signup_player(self, player: PlayerGameState, name: str):
+        """
+        effect: adds the given Player to the front of the queue
+        effect: adds an entry to the scores for the given player
+        param: player: the given player to be added to the game
+        """
+        if len(self.players) < MAX_NUM_OF_PLAYERS:
+            self.players[name] = player
 
-    # Renders the current state of the game
-    def render_state(self):
-        # Initialize Pygame
-        pygame.init()
-        # Set up the window
-        window_size = (800, 600)
-        screen = pygame.display.set_mode(window_size)
-        screen.fill("white")
-        pygame.display.set_caption("The Q Game")
+    def played_all_tiles(self) -> bool:
+        """
+        Has any Player played all of their tiles?
+        The referee will not replenish the tiles if this is the case
+        :return: True if the player has played all of their tiles else return false
+        """
+        return any(len(player_game_state.hand) == 0 for player_game_state in self.players.values())
 
-        # Draw the player scores
-        self._draw_scores(screen)
+    def has_all_passed_or_exchanged_for_a_round(self):
+        """
+        Has every place passed or replaced for an entire round
+        :returns true if all players have passed or replaced else false
+        """
+        return self.consecutive_exc_or_rep == len(self.players)
 
-        # Draw the remaining tiles of the referee
-        self._draw_referee_tiles(screen)
+    def extract_public_player_data(self) -> PublicPlayerData:
+        """
+        Extracts a copy of the data to be sent to a Player when it is its turn
+        :return the player public data of the game state
+        """
+        num_ref_tiles = len(self.referee_deck)
+        current_map = deepcopy(self.map)
+        scores = deepcopy(self.get_scores())
+        return PublicPlayerData(num_ref_tiles=num_ref_tiles, current_map=current_map, scores=scores)
 
-        # Draw the game map
-        self._draw_map(screen)
+    def get_scores(self) -> Dict[str, int]:
+        """
+        gets the scores of the players
+        :return: the name to number of points a player has
+        """
+        scores = {}
+        for name, pgs in self.players.items():
+            scores[name] = pgs.points
+        return scores
 
-        # Update the window
-        pygame.display.flip()
+    def process_turn(self, turn: Turn, name: str):
+        """
+        Processes a turn which a Player submits
+        :param turn: turn to be processed
+        :param name: the name of the player that performed the turn
+        """
+        outcome = turn.turn_outcome
+        if outcome is TurnOutcome.PASSED:
+            pass
+        if outcome is TurnOutcome.REPLACED:
+            self.turn_replace(name)
+        if outcome is TurnOutcome.PLACED:
+            self.turn_placed(turn.placements, name)
 
-        # Wait for the user to close the window
-        while True:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    return
+        is_game_over = len(self.players[name].hand) == 0
+        additional_points = self.rulebook.score_turn(turn.placements, self.map, self.players[name].hand,
+                                                     end_game=is_game_over)
+        self.players[name].points += additional_points
 
-    # Draws the map of the game
-    def _draw_map(self, screen):
-        map_width = len(self._map.map[0])
-        map_height = len(self._map.map)
-        tile_size = 50
-        window_width = 800
-        window_height = 600
-        map_x = (window_width - map_width * tile_size) / 2
-        map_y = ((window_height - len(self._players) * 40) - map_height * tile_size) / 2 + len(self._players) * 40 # adjust the y position to leave space for scores and referee tiles
-        for row in range(map_height):
-            for col in range(map_width):
-                tile = self._get_tile(row,col)
-                if tile is not None:
-                    tile_color = tile.get_color()
-                    tile_shape = tile.get_shape()
-                    ShapeRenderer.ShapeRenderer.return_file(tile_shape,tile_color)
-                    tile_rect = pygame.image.load('file.png')
-                    tile_x = map_x + col * tile_size
-                    tile_y = map_y + row * tile_size
-                    screen.blit(tile_rect, (tile_x, tile_y))
+        self.update_consecutive_exc_or_rep(outcome)
 
-    # Draws the scores of the players
-    def _draw_scores(self, screen):
-        font = pygame.font.Font(None, 24)
-        score_text = "Scores:"
-        order_text = "Order:"
-        order = font.render(order_text, True, (0, 0, 0))
-        screen.blit(order, (10, 10))
-        score = font.render(score_text, True, (0, 0, 0))
-        screen.blit(score, (90, 10))
-        for i, player in enumerate(self._players):
-            score_text = f"Player {player.get_id()}:       {player.get_score()}"
-            score_surface = font.render(score_text, True, (0, 0, 0))
-            screen.blit(score_surface, (10, 10 + (i + 1) * 40))
+    def turn_placed(self, placements: Dict[Pos, Tile], name: str):
+        """
+        Places the given tiles on the map and gives the player their new hand
+        :param name: the name of which player is placing
+        :param placements: Placements to be put on the map
+        """
+        self.place_tiles(placements)
 
-    # Draws the remaining tiles of the referee
-    def _draw_referee_tiles(self, screen):
-        font = pygame.font.Font(None, 24)
-        ref_tiles_text = f"Referee tiles: {len(self._ref_tiles)} tiles left"
-        ref_tiles_surface = font.render(ref_tiles_text, True, (0, 0, 0))
-        screen.blit(ref_tiles_surface, (600, 10 + len(self._players))) # adjust the y position to leave space for scores
+        placed_tiles = list(placements.values())
+        self.players[name].hand = list(filter(lambda a: a not in placed_tiles, self.players[name].hand))
 
-"""
-    def main():
-        game_state1 = game_state()
-        game_state1.add_player(Player.Player(1, 10))
-        game_state1.add_player(Player.Player(2, 8))
-        game_state1.add_player(Player.Player(3, 20))
-        game_state1.add_player(Player.Player(4, 9))
-        game_state1._sort_by_age()
-        game_state1._active_player=game_state1.get_players()[0]
-        tile1 = Tile("square","red")
-        tile2 = Tile("square","blue")
-        tile3 = Tile("square","green")
-        tile4 = Tile("star","purple")
-        game_state1._place_tile(2,1,tile1)
-        game_state1._place_tile(3,1,tile2)
-        game_state1._place_tile(3,2,tile3)
-        game_state1._place_tile(1,0,tile4)
-        game_state1._print_map()
-        game_state1.render_state()
+    def draw_tiles_for_player(self, name) -> List[Tile]:
+        """
+        draws the max number of tiles possible for a player
+        :param name: the name of the player
+        :return: the tiles of the player
+        """
+        num_of_new_tiles = MAX_NUM_OF_TILES_IN_PLAYER_HAND - len(self.players[name].hand)
+        new_tiles = self.draw_tiles(num_of_new_tiles)
+        self.players[name].hand.extend(new_tiles)
+        return self.players[name].hand
 
+    def turn_replace(self, name: str):
+        """
+        :param name: the players name
+        Replaces tiles from hand with top of ref deck
+        """
+        player_hand = self.players[name].hand
+        self.players[name].hand = []
+        self.add_tiles_to_referee_deck(player_hand)
 
+    def place_tiles(self, tiles: Dict[Pos, Tile]):
+        """
+        We assume that a placement is already valid
+        attempts to place all the given tiles and corresponding positions on the map
+        :param tiles: a dictionary of keyed positions to their corresponding tiles
+        """
+        for pos, tile in tiles.items():
+            self.map.add_tile_to_board(tile, pos)
 
-game_state.main()"""
+    def update_consecutive_exc_or_rep(self, outcome):
+        """
+        updates the consecutive exchanged or replaced for determining
+        :param outcome: outcome of the most recent turn
+        """
+        if outcome == TurnOutcome.PLACED:
+            self.consecutive_exc_or_rep = 0
+        else:
+            self.consecutive_exc_or_rep += 1
+
+    def add_tiles_to_referee_deck(self, tiles: List[Tile]):
+        """
+        adds the given tiles to the bag
+        :param tiles:  the tile to be added to the referee deck
+        """
+        self.referee_deck.extend(tiles)
+
+    def draw_tiles(self, n: int) -> List[Tile]:
+        """
+        draws tiles from the referee deck. If the referee has less than n tiles return the rest of the referee deck
+        :param n: the number of tiles to be drawn
+        :return: the drawn tiles
+        """
+        if n > len(self.referee_deck):
+            return []
+        else:
+            tiles = deepcopy(self.referee_deck[:n])
+            del self.referee_deck[:n]
+
+        return tiles
+
+    def get_misbehaved(self) -> Set[str]:
+        """
+        gets the misbehaved players of the Q game
+        :return: the misbehaved players
+        """
+        misbehaved = set()
+        for name, pgs in self.players.items():
+            if pgs.misbehaved:
+                misbehaved.add(name)
+        return misbehaved
+
+    def return_pair_of_results(self) -> PairResults:
+        """
+        returns the pair of winners and players that have been kicked
+        """
+        scores = self.get_scores()
+        valid_scores = {k:v for k,v in scores.items() if not self.players[k].misbehaved}
+        max_points = max(valid_scores.values()) if len(valid_scores) else -1
+        winners = set()
+        for name, points in scores.items():
+            if points == max_points and not self.players[name].misbehaved:
+                winners.add(name)
+
+        return PairResults(winners, self.get_misbehaved())
+
+    def render(self):
+        """
+        renders the map board
+        a pop-up will appear of the rendered board
+        """
+        Render(self.map.tiles).show()

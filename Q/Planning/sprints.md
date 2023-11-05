@@ -1,20 +1,33 @@
-TO: Co-CEO's of company
+To: CEOs
+From: Dilan Piscatello and Oliver Toh
+CC: Matthias Felleisen
+Subject: Planning the Sprints of the Q Game
 
-FROM: Angela Shen and Shivam Patel
+Hello, here is the list of the sprint definitions.
 
-DATE: September 14, 2023
+# Sprint 1
 
-SUBJECT: The Plan   
+Thesis: Design the fundamental components of the game.
 
-## Sprint 1:
+We want to develop all the items that are the most concrete and independent. Some examples of this are the board, the pieces, and the referee (game logic).
 
-The first step to turn this vision of the game into reality will be to set up the tile and referee classes. The tile class will hold all of the different tiles that can be used in the game. The referee class will hold the rules of the game and the creation of the board as well as placement of tiles. The referee is important because it holds the logic of the game, so we know tht the game is running correctly when we test. We will also create a visual alongside the game in order to visualize the changes we make; this will make it easier to debug and add more features. Lastly, we will be able to generate a certain set of tiles to test if the logic of the game is correct.
+We want to design the basic interface for the player-referee abstracting away the TCP.
+Develop some basic view of the game - this is a convenience view to keep track of the board as the game gets complex.
 
-## Sprint 2:
+# Sprint 2
 
-The second sprint includes creating the player component that will be able to play the game. This component will have to communicate with the referee component to ensure the game is being played fairly. We will implement the referee checking the input of the player to make sure they are making valid moves. It makes sense to make sure that the logic of the game is correct before adding players to the game, which is why this is in the second sprint.
+Thesis: Design the player client while considering the use of TCP communication
+
+Complete the player-referee interface - perhaps using the command design pattern. Develop what a Player means in our game and how communication might work. Additionally, add the logically signup of the players. 
+
+# Sprint 3
+
+Thesis: Develop the TCP connection for the game, implement non-player observers and finish loose ends.
+
+We want to develop the communication TCP for the AI bots on the server as well as develop and implement the concept of the non-players observers. Listen to TCP registers of AI bots and make necessary signups
+
+Throughout the process, we will also test all of the components for each sprint and improve on the view as more features are added.
 
 
-## Sprint 3:
-
-After we create a solid communication between the referee and the player, we can set up a valid scoring system based on the players moves. We will also ensure that the board and visual is updating with the player input. Lastly, we will ensure all test edge cases are accounted for and that the game will end when a certain state is reached based on the rules of the game.
+Best,
+Dilan and Oliver

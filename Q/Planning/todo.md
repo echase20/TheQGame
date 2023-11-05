@@ -1,18 +1,41 @@
-# To - Do List
+To: CEOs
+From: Dilan Piscatello and Wilson Glass
+CC: Matthias Felleisen
+Subject: Fixing the TODO
 
-## Things to fix:
+Here are some of the items we want to fix:
+
+Completed: 
+- Fix the purpose statements of all classes
+  - ABC in abstract for example
+"Added/changed many purpose statements"
+https://github.khoury.northeastern.edu/CS4500-F23/salty-camels/commit/4a4aa4e70f5831250ae505fe856043713bdf8aef
+
+- Move the points methods to the rulebook
+"move scoring into the rulebook.py file instead of gamestate."
+https://github.khoury.northeastern.edu/CS4500-F23/salty-camels/commit/3b9880230bdf8b4def8bd90a1ba5c6928e16dd83
+
+- We need to account for when there are no players for the queue
+"Made it so we account for when there are no players in the queue"
+https://github.khoury.northeastern.edu/CS4500-F23/salty-camels/commit/55c318094844d86022e5cc50f37be454406834cf
+
+- All same row/col needs to be in rulebook
+"Moved all_same_row_or_col() into rulebook and refactored to account f…"
+https://github.khoury.northeastern.edu/CS4500-F23/salty-camels/commit/0bb9845046c8a1d6f323177deceaf377eb293014
+
+- Fix the integration test
+  "fix integration tests"
+- https://github.khoury.northeastern.edu/CS4500-F23/salty-camels/commit/ce4e675c19a2bfc191b55c0aeb7503956ff1af25
+
+- Try/Catch in the referee should be converted to a True/False checking if player made valid move
+- "add try catch for all player api function calls"
+- https://github.khoury.northeastern.edu/CS4500-F23/salty-camels/commit/6788523eec022b80d91c477b20398f3ce5588c00
+
+- Rulebook should be an input to the GameState not the map 
+- "add referee to the gamestate and the players" -- (I meant "add rulebook" in commit message oops)
+- https://github.khoury.northeastern.edu/CS4500-F23/salty-camels/commit/e456732184902275bffc6838ae19ce837a3f2f99
 
 
 
-
-## Completed:
-Required Revisions:
-- Add functionality to be able to change the bonus for the Q and end of game to be different values.
-- Fix abstract class in player strategy.
-- ~~Make a data representation for a JAction~~ Document and enforce return types including list of moves is not empty and strings are defined and not just written out in code ("pass", "replace").
-- Add tests for iterating function in strategy
-- Player_API does not have a signature or purpose statement
-- Add purpose statements for all methods involving scoring
-- initialize ref_tile_bag and tilebag should use a purpose statement
-- Enforce number of players joining at the start
-- Needs to check end of game functionalities
+Best,
+Dilan Piscatello and Wilson Glass

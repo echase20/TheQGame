@@ -1,84 +1,112 @@
-import sys
-import strategy as s
-sys.path.insert(1,'../Common')
-from map import Map, Tile
-import game_state as g
+from copy import deepcopy
+from typing import List, Dict
+from Q.Common.map import Map
+from Q.Common.Board.pos import Pos
+from Q.Common.Board.tile import Tile
+from Q.Common.rulebook import Rulebook
+from Q.Player.dag import Dag
+from Q.Player.turn import Turn
+from Q.Player.turn_outcome import TurnOutcome
 
-"""
-This module defines the Player_API class which represents a player in a game. 
-The player is initialized with a name and a strategy. The player can get setup with the initial map and tiles, 
-take a turn by passing, replacing tiles or extending the map with tile placements, receive a new set of tiles, 
-and be informed whether it won or not.
-"""
-class Player_API():
+from Q.Player.strategy import PlayerStrategy
+from Q.Player.public_player_data import PublicPlayerData
 
-    # Initializes the player with a name and optional exn
-    def __init__(self, name: str, strat: str, exn = None):
-        self.name = name
-        self.strat = strat
-        self.DAG = 'dag'
-        self.LDASG = 'ldasg'
-        self.exn = exn
 
+class Player:
     """
-    // the player is handed the inital map, which is visible to all,
-
-    // plus an initial set of tiles
-
-    """
-    # Setup the player with the initial map and tiles
-    def setup(self, m: Map, bag_of_tiles: list, score: int):
-        if self.exn == "setup":
-            raise Exception()
-        else:
-            self.map = m
-            self.bag_of_tiles = bag_of_tiles
-            self.score = score
-        
-    """
-    // after receiving the public part of state, a player
-
-    // - passes,
-
-    // - asks the referee to replace its set of tiles, or
-
-    // - requests the extension of the map in the given state with
-
-    //   some tile placements
-    """
-    #PASS or REPLACE or EXTENSION 
-    def takeTurn(self, game: g):
-        if self.exn != "take-turn":
-            new_map = game._map
-            ref_tiles_left = game.ref_tiles_left()
-            if self.strat == self.DAG:
-                xdag = s.dag(self.bag_of_tiles,new_map,ref_tiles_left)
-                next_move = xdag.iterate()
-            elif self.strat == self.LDASG:
-                xldasg = s.ldasg(self.bag_of_tiles,new_map,ref_tiles_left)
-                next_move = xldasg.iterate()
-            else:
-                return TypeError("Invalid Strategy")
-            return next_move
-        else:
-            raise Exception()
-
- 
-    """
-    // the player is handed a new set of tiles
+    # represents a Player of a game
     """
 
-    def newTiles(self, Tiles: list):
-        if self.exn != "new-tiles":
-            self.bag_of_tiles = Tiles
-        else:
-            raise Exception()
+    def __init__(self, name, strategy: PlayerStrategy = Dag(), hand: List[Tile] = [], rulebook: Rulebook = Rulebook()):
+        """
+        # initializes a player with a given name, strategy and hand for the Q Game
+        """
+        self.strategy = strategy
+        self._name = name
+        self.hand = hand
+        self.rulebook = rulebook
 
-    """
-    // the player is informed whether it won or not
-    """
-    def win(self, win: bool):
-        if self.exn != "win":
-            self.has_won = win
-        else:
-            raise Exception()
+    def name(self) -> str:
+        """
+        Returns the player's name
+        """
+        return self._name
+
+    def setup(self, given_map: Map, tiles: List[Tile]):
+        """
+        Sets up the game by giving the player their tiles. We do not need to use the given_map but are keeping the
+        parameter as this is a public API.
+        """
+        self.hand = tiles
+
+    def take_turn(self, s: PublicPlayerData) -> Turn:
+        """
+        takes a turn for a player
+        :param s: the public state
+        :return: the turn the player does
+        """
+        return self.get_tile_placement_choices(s)
+
+    def win(self, w: bool) -> None:
+        """
+        From specs: the player is informed whether it won or not
+        :param w: boolean value to be used to inform the player whether they won
+        """
+        pass
+
+    def newTiles(self, st: List[Tile]):
+        """
+        From specs: The player is handed a new set of tiles
+        :param st: set of tiles to be handed to the player
+        """
+        self.hand = st
+
+    def choose_move_type(self, pub_data: PublicPlayerData) -> TurnOutcome:
+        """
+        Returns the move type depending on the strategy and public data.
+        :param pub_data: the public data about the game that player knows to determine the move type
+        """
+        if len(self.rulebook.get_legal_hand(pub_data.current_map, self.hand, [])):
+            return TurnOutcome.PLACED
+        if pub_data.num_ref_tiles < len(self.hand):
+            return TurnOutcome.PASSED
+        return TurnOutcome.REPLACED
+
+    def get_tile_placement_choices(self, pub_data: PublicPlayerData) -> Turn:
+        """
+        Gets the placements of the given tiles in the players hand on the given map
+        :param pub_data: the public data about the game that player knows to determine the move
+        :return a dictionary of position to tile
+        """
+        tiles_to_place = {}
+        turn_outcome = self.choose_move_type(pub_data)
+        copy_hand = deepcopy(self.hand)
+        legal_hand = self.rulebook.get_legal_hand(pub_data.current_map, copy_hand, list(tiles_to_place.keys()))
+        if turn_outcome == TurnOutcome.PASSED or turn_outcome == TurnOutcome.REPLACED:
+            return Turn(turn_outcome, tiles_to_place)
+
+        while len(legal_hand):
+            tile_placement = self.get_placement(pub_data, self.strategy, legal_hand, list(tiles_to_place.keys()))
+            if not tile_placement:
+                break
+            copy_hand.remove(next(iter(tile_placement.values())))
+            pub_data.current_map.add_tile_to_board_dict(placement=tile_placement)
+            tiles_to_place.update(tile_placement)
+            legal_hand = self.rulebook.get_legal_hand(pub_data.current_map, copy_hand, list(tiles_to_place.keys()))
+        return Turn(turn_outcome, tiles_to_place)
+
+    def get_placement(self, pub_data: PublicPlayerData, strategy: PlayerStrategy, hand: List[Tile], tiles_placed: List[Pos]) -> Dict[Pos, Tile]:
+        """
+        Determines a single placement for the given public data state with some given strategy
+        :param tiles_placed: the tiles that have already been placed in this move
+        :param pub_data: the public data for the player to make the move
+        :param strategy: the given strategy to make the move
+        :param hand: the legal hand of tiles that can be placed.
+        """
+        tile = strategy.choose_tile_to_play(hand, pub_data.current_map, self.rulebook)
+        positions = self.rulebook.get_legal_positions(pub_data.current_map, tile, [])
+        position_to_place_tile = strategy.choose_placement(list(positions), pub_data.current_map)
+        if position_to_place_tile not in self.rulebook.get_legal_positions(pub_data.current_map, tile, tiles_placed):
+            return {}
+
+        return {position_to_place_tile: tile}

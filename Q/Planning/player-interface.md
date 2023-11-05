@@ -1,29 +1,40 @@
-# Data Definitions
+To: CEOs
+From: Dilan Piscatello and Oliver Toh
+CC: Matthias Felleisen
+Subject: Planning the Player Interface
 
-## Player: represents a player in the game
-##   - state: a dictionary representing the player's internal state
-##   - strategy: a function that takes in a game state and returns a move
-##   - game_state: a dictionary representing the current state of the game
-##   - legal_moves: a list of legal moves for the player based on the current game state
-##   - move: a move that the player wants to make
-##   - new_state: a dictionary representing the new state of the game after a move has been made
+Player Interface Details:
 
-class Player:
+Methods:
+A turnOutcome is a:
 
-    def __init__(self):
-        # Initialize player state and strategy
+- placed
+- exchanged
+- pass
 
-    def get_game_state(self):
-        # Retrieve the current state of the game from the referee
+A turn is: TurnOutcome, List of Tiles, List of Positions
 
-    def get_legal_moves(self):
-        # Retrieve a list of legal moves for the player based on the current game state
+PlayerGameState is defined in player_game_state.py
 
-    def make_move(self, move):
-        # Request the referee to execute the given move on behalf of the player
+Creates a turn using some given strategy
+def create_move(current_state: PlayerGameState) -> Turn
 
-    def update_state(self, new_state):
-        # Update the player's internal state based on the new state of the game
+converts a given Turn into a json ojbect that can be passed via TCP
+def normalize_move(Turn) -> JSON
 
-    def reset(self):
-        # Reset the player's internal state to its initial values
+sends json over TCP for the server to recieve and process move and game commands
+def send_json(JSON)
+
+Sign up for a given hostname and given port
+def sign_up(hostname, port)
+
+After signing up, the player listens for updates from the server. (e.g waiting for turn)
+def listen_on_port():
+
+convert recieved json to the player game state
+def json_to_player_game_state()
+
+Thank you and have a nice day,
+
+Sincerely,
+Dilan Piscatello and Oliver Toh

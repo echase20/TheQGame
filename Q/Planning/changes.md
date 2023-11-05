@@ -1,13 +1,25 @@
-# Design Task
+To: CEOs <br>
+From: Dilan Piscatello and Wilson Glass <br>
+CC: Matthias Felleisen <br>
+Subject: Planning the Sprints of the Q Game <br>
 
 ### Changing the bonus points again and allow more players to participate in a game
-- This change to our code base would be a difficulty of 2.
-- This change would not be too difficult because the bonus points score could be set in initialization with the use of if statements. We would also easily be able to change the number of players allowed in the game by changing the restriction of a max amount of players in the gameOver function and add a check in the begining of the referee function.
-
+- We'll add a config structure to the rulebook which will take in the constant point values to adjust for changing 
+scoring rules
+- Allowing more players to join is similar. We could add players in the rulebook and inside the config we would 
+ask the setup user for the max number of players allowed to join the game.
+Difficulty: 2
 ### Adding wildcard tiles
-- This change would be a difficulty of 3
-- This would impose a medium difficulty of 3. It is not difficult to account for a wildcard tile in terms of logic, the only difficulty is finding all places where tiles are compared or checked for validity and make sure wildcards are accounted for. Eg. (scoring points, checking placement validity, strategies, etc.)
+- We'll have to add a new value to TileShape and TileColor enum called wildcard
+- We'll have to add logic inside the rulebook to modify is_valid_placements to account for wildcards.
+- There many be some interesting complexities with scoring a Q.
+Difficulty: 3
 
-### Imposing restrictions that enforce the rules of Qwirkle instead of Q.
-- This change would be a difficulty of 4
-- The task itself would be a matter of creating an abstract class of the game_state and implementing the rules of qwirkle in game_state. The same idea would go for the referee function. This task would be more tedious than difficult.
+### imposing restrictions that enforce the rules of Qwirkle instead of Q.
+- We'll abstract out the rulebook class and create a new specific rulebook implementation called Qwirkle rules.
+- The most difficult part of this task will be creating the rules to enforce Qwrikle rather than redoing design.
+Difficulty: 4
+
+
+Best,
+Dilan Piscatello and Wilson Glass
