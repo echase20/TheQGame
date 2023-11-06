@@ -1,0 +1,10 @@
+.DS_Store
+.vscode
+*.png
+*.eps
+*.ps
+*.egg-info
+.idea/
+venv/
+build/
+__pycache__/

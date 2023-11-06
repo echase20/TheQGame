@@ -2,12 +2,12 @@ from PIL import Image, ImageDraw
 from typing import Dict
 import sys
 
-from Q.Common.Board.pos import Pos
-from Q.Common.Board.tile import Tile
+from Q.Common.map import Map
+from Q.Player.public_player_data import PublicPlayerData
 
-
+FOOTER_HEIGHT = 30
 class Render:
-    def __init__(self, tiles: Dict[Pos, Tile], length: float = 64):
+    def __init__(self, state: PublicPlayerData, length: float = 64):
         self.side_length: float = length
         # where the current tile x-position starts
         self.x_px: float = 0
@@ -25,16 +25,38 @@ class Render:
         self.min_y = sys.maxsize
         self.max_x = -sys.maxsize
         self.max_y = -sys.maxsize
+        self.state = state
 
-        self.set_min_max_values(tiles)
+        self.set_min_max_values(state.current_map)
         self.im: Image = Image.new('RGBA', self.get_dimensions_length(), (255, 255, 255, 0))
         self.draw: ImageDraw = ImageDraw.Draw(self.im)
 
-        self.run(tiles)
+        self.run(state.current_map)
+        self.write_scores_and_num_ref_tiles()
+
+    def write_scores_and_num_ref_tiles(self):
+        """
+        writes the scores and the number of ref tiles on the board
+        """
+        x, y = self.get_dimensions_length()
+        self.draw.text(xy=(0, y-20), text= "Ref Tiles Count:" + str(self.state.num_ref_tiles))
+        self.write_scores(x=0, y=y-10, scores=self.state.scores)
+
+    def write_scores(self, x, y, scores: Dict[str, int]):
+        """
+        writes all the scores of the players in format 'name':'score' at some given x and y positon
+        :param x: the given x position to be placed
+        :param y: the given y position to be placed
+        :param scores: the scores of the players
+        """
+        display_of_scores = ""
+        for name, score in scores.items():
+            display_of_scores += f"{name}:{str(score)} "
+        self.draw.text(xy=(x, y), text=display_of_scores)
 
     # gets the dimensions of the board.
-    def set_min_max_values(self, tiles: Dict[Pos, Tile]):
-        for pos in tiles.keys():
+    def set_min_max_values(self, map: Map):
+        for pos in map.tiles.keys():
             self.min_x = min(self.min_x, pos.x)
             self.min_y = min(self.min_y, pos.y)
             self.max_x = max(self.max_x, pos.x)
@@ -43,12 +65,12 @@ class Render:
     # returns a tuple of width and height
     def get_dimensions_length(self) -> tuple:
         x = (-self.min_x + self.max_x) * self.side_length + self.side_length
-        y = (-self.min_y + self.max_y) * self.side_length + self.side_length
+        y = (-self.min_y + self.max_y) * self.side_length + self.side_length + FOOTER_HEIGHT
         return x, y
 
     # draws each shape beside each other with their respective colors
-    def run(self, tiles: Dict[Pos, Tile]):
-        for pos, tile in tiles.items():
+    def run(self, map: Map):
+        for pos, tile in map.tiles.items():
             shape: str = tile.shape.get_name()
             color: str = tile.color.get_name()
             self.x_px = (-self.min_x * self.side_length) + (self.side_length * pos.x)

@@ -1,10 +1,13 @@
 from collections import defaultdict
 
+
 from Q.Common.Board.tile_color import TileColor
 from Q.Common.Board.tile_shape import TileShape
 from Q.Common.Board.tile import Tile
 from Q.Common.Board.pos import Pos
+from Q.Common.map import Map
 from Q.Common.render import Render
+from Q.Player.public_player_data import PublicPlayerData
 
 
 class TestRender:
@@ -37,7 +40,11 @@ class TestRender:
         self.one_tile[Pos(1, 1)] = self.tile1
         self.one_tile[Pos(1, 2)] = self.tile2
         self.one_tile[Pos(2, 1)] = self.tile3
-        Render(self.one_tile).show()
+        map = Map(config=self.config)
+        scores = {"dilan": 100, "bob": 102}
+
+        ppd = PublicPlayerData(1080, map, scores)
+        Render(ppd).show()
 
 
 if __name__ == "__main__":
