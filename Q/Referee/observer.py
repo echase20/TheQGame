@@ -38,30 +38,25 @@ class Observer(ObserverUICallback):
         """
         self.states.append(state)
         self.save_states(state)
-    def receive_a_game_over_func(self, game_over: bool):
+
+    def receive_a_game_over(self):
         """
         receives a notification that the game is over
-        :param game_over: true if the game is over false otherwise
         """
-        self.is_game_over = game_over
+        self.is_game_over = True
 
     def state_to_img(self, state: GameState):
         public_data = state.extract_public_player_data()
         img = Render(public_data)
         return img
 
-    def next(self, next_state: int):
-        """
-        goes to the next state
-        """
-        img = self.state_to_img(self.states[next_state])
-        self.observer_ui.receive_new_image(img)
-    def previous(self, prev_state: int):
+    def switch(self, state: int):
         """
         goes to the previous state
         """
-        img = self.state_to_img(self.states[prev_state])
+        img = self.state_to_img(self.states[state])
         self.observer_ui.receive_new_image(img)
+
     def save_jstate(self, current_state: int):
         Util.convert_state_to_jstate(self.states[current_state])
 
@@ -71,6 +66,7 @@ class Observer(ObserverUICallback):
         if current_state == len(self.states) - 1:
             return nextState.WAITING
         return nextState.AVAILABLE
+
     def isPrevious(self, current_state: int) -> nextState:
         return nextState.AVAILABLE if current_state != 0 else nextState.END
 

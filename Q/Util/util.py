@@ -10,6 +10,7 @@ from Q.Common.map import Map
 from Q.Common.Board.tile import Tile
 from Q.Common.Board.tile_color import TileColor
 from Q.Common.Board.tile_shape import TileShape
+from Q.Player.cheat_player import CheatPlayer
 from Q.Player.dag import Dag
 from Q.Player.ldasg import LDasg
 from Q.Player.strategy import PlayerStrategy
@@ -35,6 +36,9 @@ class Util:
         for jactorspec in jactors:
             jname = jactorspec[0]
             strategy = self.convert_jstrategy_to_strategy(jactorspec[1])
+            if len(jactorspec == 4):
+                jcheat = jactorspec[3]
+                players.append(CheatPlayer(name=jname, strategy=strategy, cheat=jcheat))
             if len(jactorspec) == 3:
                 jexn = jactorspec[2]
                 players.append(MockPlayer(name=jname, strategy=strategy, exn=jexn))

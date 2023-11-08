@@ -18,9 +18,10 @@ class Referee:
     We plan to add implementation for timeouts when there is more clarity
     Represents a referee for the Q game
     """
+    def __init__(self, observer = None):
+        self.observer = observer
 
-    @staticmethod
-    def main(player_list: List[Player]) -> PairResults:
+    def main(self, player_list: List[Player]) -> PairResults:
         """
         executes the Q game for a given list of players
         :param player_list: list of players that will play the game
@@ -28,13 +29,12 @@ class Referee:
         """
         game_state = GameState()
         game_state.setup_state()
-        Referee.setup_players(player_list, game_state)
         Referee.signup_players(player_list, game_state)
+        Referee.setup_players(player_list, game_state)
 
-        return Referee.run_game(game_state, player_list)
+        return self.run_game(game_state, player_list)
 
-    @staticmethod
-    def run_game(game_state: GameState, player_list: List[Player]) -> PairResults:
+    def run_game(self, game_state: GameState, player_list: List[Player]) -> PairResults:
         """
         Runs the given game state to completion
         :param player_list: the list of players of the game
@@ -61,6 +61,8 @@ class Referee:
                 new_tiles = game_state.draw_tiles_for_player(player_name)
                 Referee.send_player_tiles(new_tiles, current_player, game_state)
                 player_list.append(current_player)
+            if self.observer: self.observer.receive_a_state(deepcopy(game_state))
+        if self.observer: self.observer.receive_a_game_over()
         game_results = game_state.return_pair_of_results()
         Referee.send_results(game_results.winners, player_list, game_state)
         return game_state.return_pair_of_results()

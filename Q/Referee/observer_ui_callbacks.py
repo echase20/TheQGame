@@ -2,10 +2,7 @@
 
 class ObserverUICallback():
 
-    def next(self, next_state: int):
-        pass
-
-    def previous(self, prev_state: int):
+    def switch(self, state: int):
         pass
 
     def save_jstate(self, current_state: int):
