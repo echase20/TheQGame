@@ -41,6 +41,7 @@ class Util:
                 players.append(CheatPlayer(name=jname, strategy=strategy, cheat=jcheat))
             if len(jactorspec) == 3:
                 jexn = jactorspec[2]
+                print(jname)
                 players.append(MockPlayer(name=jname, strategy=strategy, exn=jexn))
             else:
                 players.append(Player(jname, strategy))

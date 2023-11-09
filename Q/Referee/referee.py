@@ -41,19 +41,17 @@ class Referee:
         :param game_state: the given game state to run the game on
         :return: winners and kicked players
         """
-        counter =0
         while not Referee.is_game_over(game_state, player_list):
             current_player = player_list.pop(0)
+            print(current_player)
             pub_data = game_state.extract_public_player_data()
             try:
                 turn = current_player.take_turn(pub_data)
                 player_name = current_player.name()
             except Exception as E:
-                print(E)
                 Referee.remove_current_player(game_state, current_player)
                 continue
             if not Referee.is_valid_move(turn, game_state.rulebook, deepcopy(game_state.map), game_state.players[player_name], pub_data.num_ref_tiles):
-                print('invalid ahead')
                 Referee.remove_current_player(game_state, current_player)
             else:
                 players_old_hand = len(game_state.players[player_name].hand)
@@ -65,16 +63,10 @@ class Referee:
                 Referee.send_player_tiles(new_tiles, current_player, game_state)
                 player_list.append(current_player)
                 game_state.update_turn_counter()
-                print(counter)
-                print(turn)
-                print(game_state.referee_deck)
-                print(game_state.players[player_name].hand)
-                counter+=1
             if self.observer: self.observer.receive_a_state(deepcopy(game_state))
         game_state.render()
         if self.observer: self.observer.receive_a_game_over()
         game_results = game_state.return_pair_of_results()
-        print(game_results)
         Referee.send_results(game_results.winners, player_list, game_state)
         return game_state.return_pair_of_results()
 
@@ -98,11 +90,13 @@ class Referee:
         """
         for player in players_left:
             try:
+                print(player)
                 if player.name() in winner_names:
                     player.win(True)
                 else:
                     player.win(False)
             except:
+                print("over here")
                 Referee.remove_current_player(game_state, player)
 
     @staticmethod
