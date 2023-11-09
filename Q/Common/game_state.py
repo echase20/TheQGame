@@ -39,7 +39,7 @@ class GameState:
         """
         self.players: Dict[str, PlayerGameState] = player_game_states
         self.rulebook = rulebook
-        self.consecutive_exc_or_rep = 0
+        self.completed_turns = 0
 
         if config:
             self.referee_deck = self.create_randomize_deck(config.num_ref_tiles, random_seed)
@@ -108,7 +108,19 @@ class GameState:
         Has every place passed or replaced for an entire round
         :returns true if all players have passed or replaced else false
         """
-        return self.consecutive_exc_or_rep == len(self.players)
+        active_player_count = len([not pgs.misbehaved for pgs in self.players.values()])
+        print("test")
+        print(active_player_count)
+        print(self.completed_turns+1)
+        return self.completed_turns % active_player_count == 0 and \
+               all(pgs.last_move == TurnOutcome.PASSED or pgs.last_move == TurnOutcome.REPLACED for pgs in self.players.values())
+
+    def update_turn_counter(self):
+        """
+        updates the turn counter to keep track of how many turns have been played
+        """
+        self.completed_turns += 1
+
 
     def extract_public_player_data(self) -> PublicPlayerData:
         """
@@ -148,8 +160,8 @@ class GameState:
         additional_points = self.rulebook.score_turn(turn.placements, self.map, self.players[name].hand,
                                                      end_game=is_game_over)
         self.players[name].points += additional_points
+        self.players[name].last_move = outcome
 
-        self.update_consecutive_exc_or_rep(outcome)
 
     def turn_placed(self, placements: Dict[Pos, Tile], name: str):
         """
