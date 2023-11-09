@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import List, Dict
+from typing import List, Dict, Tuple, Optional
 from Q.Common.map import Map
 from Q.Common.Board.pos import Pos
 from Q.Common.Board.tile import Tile
@@ -61,16 +61,16 @@ class Player:
         """
         self.hand = st
 
-    def choose_move_type(self, pub_data: PublicPlayerData) -> TurnOutcome:
+    def choose_move_type(self, pub_data: PublicPlayerData, tiles_to_place: Dict[Pos, Tile]) -> Turn:
         """
         Returns the move type depending on the strategy and public data.
         :param pub_data: the public data about the game that player knows to determine the move type
         """
-        if len(self.rulebook.get_legal_hand(pub_data.current_map, self.hand, [])):
-            return TurnOutcome.PLACED
+        if len(tiles_to_place):
+            return Turn(TurnOutcome.PLACED, tiles_to_place)
         if pub_data.num_ref_tiles < len(self.hand):
-            return TurnOutcome.PASSED
-        return TurnOutcome.REPLACED
+            return Turn(TurnOutcome.PASSED)
+        return Turn(TurnOutcome.REPLACED)
 
     def get_tile_placement_choices(self, pub_data: PublicPlayerData) -> Turn:
         """
@@ -79,34 +79,38 @@ class Player:
         :return a dictionary of position to tile
         """
         tiles_to_place = {}
-        turn_outcome = self.choose_move_type(pub_data)
         copy_hand = deepcopy(self.hand)
-        legal_hand = self.rulebook.get_legal_hand(pub_data.current_map, copy_hand, list(tiles_to_place.keys()))
-        if turn_outcome == TurnOutcome.PASSED or turn_outcome == TurnOutcome.REPLACED:
-            return Turn(turn_outcome, tiles_to_place)
 
-        while len(legal_hand):
-            tile_placement = self.get_placement(pub_data, self.strategy, legal_hand, list(tiles_to_place.keys()))
-            if not tile_placement:
+        while len(copy_hand):
+            placement = self.get_placement(pub_data, self.strategy, copy_hand)
+            if not placement:
                 break
-            copy_hand.remove(next(iter(tile_placement.values())))
-            pub_data.current_map.add_tile_to_board_dict(placement=tile_placement)
-            tiles_to_place.update(tile_placement)
-            legal_hand = self.rulebook.get_legal_hand(pub_data.current_map, copy_hand, list(tiles_to_place.keys()))
-        return Turn(turn_outcome, tiles_to_place)
+            pos, tile = placement
+            new_hand = tiles_to_place.copy()
+            new_hand.update({pos: tile})
+            test = self.rulebook.valid_placement(pub_data.current_map, pos, tile, new_hand)
+            if not test:
+                return self.choose_move_type(pub_data, tiles_to_place)
+            copy_hand.remove(tile)
+            pub_data.current_map.add_tile_to_board(tile, pos)
+            tiles_to_place = new_hand.copy()
 
-    def get_placement(self, pub_data: PublicPlayerData, strategy: PlayerStrategy, hand: List[Tile], tiles_placed: List[Pos]) -> Dict[Pos, Tile]:
+        return self.choose_move_type(pub_data, tiles_to_place)
+
+    def get_placement(self, pub_data: PublicPlayerData, strategy: PlayerStrategy, hand: List[Tile]) -> Optional[Tuple[Pos, Tile]]:
         """
         Determines a single placement for the given public data state with some given strategy
-        :param tiles_placed: the tiles that have already been placed in this move
         :param pub_data: the public data for the player to make the move
         :param strategy: the given strategy to make the move
         :param hand: the legal hand of tiles that can be placed.
+        ASSUMPTION: hand is not empty
         """
         tile = strategy.choose_tile_to_play(hand, pub_data.current_map, self.rulebook)
+        if not tile:
+            return None
         positions = self.rulebook.get_legal_positions(pub_data.current_map, tile, [])
+        if not len(positions):
+            return None
         position_to_place_tile = strategy.choose_placement(list(positions), pub_data.current_map)
-        if position_to_place_tile not in self.rulebook.get_legal_positions(pub_data.current_map, tile, tiles_placed):
-            return {}
 
-        return {position_to_place_tile: tile}
+        return position_to_place_tile, tile

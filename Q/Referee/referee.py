@@ -42,26 +42,29 @@ class Referee:
         :return: winners and kicked players
         """
         while not Referee.is_game_over(game_state, player_list):
-
             current_player = player_list.pop(0)
             pub_data = game_state.extract_public_player_data()
             try:
                 turn = current_player.take_turn(pub_data)
                 player_name = current_player.name()
             except Exception as E:
+                print(E)
                 Referee.remove_current_player(game_state, current_player)
                 continue
-
             if not Referee.is_valid_move(turn, game_state.rulebook, deepcopy(game_state.map), game_state.players[player_name], pub_data.num_ref_tiles):
+                print('invalid ahead')
                 Referee.remove_current_player(game_state, current_player)
             else:
+                players_old_hand = len(game_state.players[player_name].hand)
                 game_state.process_turn(turn, player_name)
-                if not len(game_state.players[player_name].hand):
+                if players_old_hand == len(turn.placements):
                     break
-                new_tiles = game_state.draw_tiles_for_player(player_name)
+                game_state.draw_tiles_for_player(player_name)
+                new_tiles = game_state.players[player_name].hand
                 Referee.send_player_tiles(new_tiles, current_player, game_state)
                 player_list.append(current_player)
             if self.observer: self.observer.receive_a_state(deepcopy(game_state))
+        game_state.render()
         if self.observer: self.observer.receive_a_game_over()
         game_results = game_state.return_pair_of_results()
         Referee.send_results(game_results.winners, player_list, game_state)
@@ -133,8 +136,7 @@ class Referee:
         return True
 
 
-    @staticmethod
-    def start_from_state(player_list: List[Player], game_state: GameState) -> PairResults:
+    def start_from_state(self, player_list: List[Player], game_state: GameState) -> PairResults:
         """
         Initializes players in at a particular given state
         :param player_list: the players in the game
@@ -142,7 +144,7 @@ class Referee:
         :return: winners and kicked players
         """
         Referee.setup_players(player_list, game_state)
-        return Referee.run_game(game_state, player_list)
+        return self.run_game(game_state, player_list)
 
     @staticmethod
     def signup_players(player_list: List[Player], game_state: GameState):

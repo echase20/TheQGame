@@ -33,5 +33,5 @@ class LDasg(PlayerStrategy, ABC):
 
         return self.get_smallest_placement(positions_with_most_neighbors)
 
-    def choose_tile_to_play(self, filtered_hand: List[Tile], given_map: Map, rulebook: Rulebook) -> Tile:
-        return super().choose_tile_to_play(filtered_hand, given_map, rulebook)
+    def choose_tile_to_play(self, hand: List[Tile], given_map: Map, rulebook: Rulebook) -> Tile:
+        return super().choose_tile_to_play(hand, given_map, rulebook)

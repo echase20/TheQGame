@@ -162,16 +162,14 @@ class GameState:
         placed_tiles = list(placements.values())
         self.players[name].hand = list(filter(lambda a: a not in placed_tiles, self.players[name].hand))
 
-    def draw_tiles_for_player(self, name) -> List[Tile]:
+    def draw_tiles_for_player(self, name):
         """
         draws the max number of tiles possible for a player
         :param name: the name of the player
-        :return: the tiles of the player
         """
         num_of_new_tiles = MAX_NUM_OF_TILES_IN_PLAYER_HAND - len(self.players[name].hand)
         new_tiles = self.draw_tiles(num_of_new_tiles)
         self.players[name].hand.extend(new_tiles)
-        return self.players[name].hand
 
     def turn_replace(self, name: str):
         """
@@ -215,7 +213,7 @@ class GameState:
         :return: the drawn tiles
         """
         if n > len(self.referee_deck):
-            return []
+            return self.referee_deck.copy()
         else:
             tiles = deepcopy(self.referee_deck[:n])
             del self.referee_deck[:n]
@@ -252,4 +250,5 @@ class GameState:
         renders the map board
         a pop-up will appear of the rendered board
         """
-        Render(self.map.tiles).show()
+        extract_data = self.extract_public_player_data()
+        Render(extract_data).show()

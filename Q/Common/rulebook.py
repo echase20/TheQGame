@@ -90,17 +90,22 @@ class Rulebook:
         """
         return len(player_hand) <= num_of_ref_tiles
 
-    def valid_placements(self, given_map: Map, tiles_placed: Dict[Pos, Tile]) -> bool:
+    def valid_placements(self, given_map: Map, placements: Dict[Pos, Tile]):
+        for pos, tile in placements.items():
+            if not self.valid_placement(given_map, pos, tile, placements):
+                return False
+        return True
+
+    def valid_placement(self, given_map: Map, pos: Pos, tile: Tile, tiles_placed: Dict[Pos, Tile]) -> bool:
         """
         if the given tiles can be placed according to the rules of the Q game
         :param given_map: the given map we are placing tiles at
         :param tiles_placed: the tiles attempting to be placed
         returns true if the tiles can be placed
         """
-        for (pos, tile) in tiles_placed.items():
-            if pos not in self.get_legal_positions(given_map, tile, list(tiles_placed.keys())):
-                return False
-            given_map.add_tile_to_board(tile, pos)
+        if pos not in self.get_legal_positions(given_map, tile, list(tiles_placed.keys())):
+            return False
+        given_map.add_tile_to_board(tile, pos)
         return True
 
     def compatible_shapes(self, tile1: Tile, tile2: Tile):
