@@ -27,28 +27,31 @@ class ObserverUI:
         self.callback.save_jstate(self.current_state, path)
 
     def receive_new_image(self, filename: str):
-        img = ImageTk.PhotoImage(file="../../8/tmp/" + filename)
+        img = ImageTk.PhotoImage(file=filename)
         img.photo = img
         self.board.configure(image=img)
 
     def switch_prev(self):
-        potential_new_state = self.current_state + 1
+        potential_new_state = self.current_state - 1
         prev_button_state = self.callback.hasState(potential_new_state)
         if prev_button_state:
             self.current_state -= 1
             self.callback.switch(self.current_state)
+            self.next_button.configure(state="normal")
         else:
             self.previous_button.configure(state="disabled")
 
     def switch_next(self):
-        next_button_state = self.callback.hasState(self.current_state)
-        if next_button_state == nextState.AVAILABLE:
+        potential_new_state = self.current_state + 1
+        next_button_state = self.callback.hasState(potential_new_state)
+        if next_button_state:
             self.current_state += 1
             self.callback.switch(self.current_state)
-        if next_button_state == nextState.END:
+            self.previous_button.configure(state="normal")
+        else:
             self.next_button.configure(state="disabled")
 
-    def runUI(self):
-        img = ImageTk.PhotoImage(file="../../8/tmp/0.png")
-        img.photo = img
-        self.root.mainloop()
+    def run(self):
+        if self.callback.hasState(self.current_state):
+            self.callback.switch(self.current_state)
+            self.root.mainloop()

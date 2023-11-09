@@ -21,15 +21,24 @@ class Observer(ObserverUICallback):
 
     def save_states(self, state):
         """
-        saves multiple states to the directory tmp/x.png where x is a sequential number starting at 0.
-        :param states: the states that we will save
+        saves a state to the directory {proj-dir-name}/8/tmp/x.png where x is a sequential number starting at 0.
+        :param state: the state that we will save
         :EFFECT updates the image name counter
         """
         public_data = state.extract_public_player_data()
         img = Render(public_data)
-        curr_dir = pathlib.Path(__file__).parent.resolve()
-        img.save(str(curr_dir) + "/../../8/tmp/" + str(self.image_name_counter) + ".png")
+        name = self.get_image_path(str(self.image_name_counter))
+        img.save(name)
         self.image_name_counter += 1
+
+    def get_image_path(self, name) -> str:
+        """
+        gets the absolute image path for the tmp files to be saved in proj-dir/8/tmp
+        :param name: the file name to be saved
+        :return: the absolute path of where to save
+        """
+        curr_dir = pathlib.Path(__file__).parent.resolve()
+        return str(curr_dir) + "/../../8/tmp/" + name + ".png"
 
     def receive_a_state(self, state: GameState):
         """
@@ -49,16 +58,17 @@ class Observer(ObserverUICallback):
         """
         goes to the previous state
         """
-        self.observer_ui.receive_new_image(f"{str(state)}.png")
+        fp = self.get_image_path(str(state))
+        self.observer_ui.receive_new_image(fp)
 
-    def save_jstate(self, current_state: int, filepath: str):
+    def save_j_state(self, current_state: int, filepath: str):
         out_file = open(filepath, "w")
-        jstate = Util().convert_gamestate_to_jstate(self.states[current_state])
-        json.dump(jstate, out_file)
+        j_state = Util().convert_gamestate_to_jstate(self.states[current_state])
+        json.dump(j_state, out_file)
         out_file.close()
 
     def hasState(self, current_state: int) -> bool:
         return 0 <= current_state < len(self.states)
 
     def start_ui(self):
-        self.observer_ui.runUI()
+        self.observer_ui.run()
