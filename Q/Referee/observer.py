@@ -1,3 +1,4 @@
+import json
 from typing import List, Deque
 
 from Q.Common.game_state import GameState
@@ -56,11 +57,13 @@ class Observer(ObserverUICallback):
         """
         self.observer_ui.receive_new_image(f"{str(state)}.png")
 
-    def save_jstate(self, current_state: int):
-        Util.convert_state_to_jstate(self.states[current_state])
+    def save_jstate(self, current_state: int, filepath: str):
+        out_file = open(filepath, "w")
+        jstate = Util().convert_gamestate_to_jstate(self.states[current_state])
+        json.dump(jstate, out_file)
 
     def isNext(self, current_state: int) -> nextState:
-        if (current_state == len(self.states) - 1):
+        if current_state == len(self.states) - 1:
             return nextState.END
         return nextState.AVAILABLE
 

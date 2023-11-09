@@ -1,4 +1,4 @@
-from tkinter import Tk, Label, Button
+from tkinter import Tk, Label, Button, simpledialog
 
 from PIL import ImageTk
 
@@ -15,7 +15,6 @@ class ObserverUI:
         self.root = Tk()
         self.root.geometry("800x600")
         img = ImageTk.PhotoImage(file="../../8/tmp/0.png")
-        #imgTk = PhotoImage(img)
         self.board = Label(self.root, image=img)
         self.board.photo = img
         self.board.grid(row=1)
@@ -23,14 +22,17 @@ class ObserverUI:
         self.next_button.grid(row=0, column=0)
         self.previous_button = Button(text="Previous", command=self.switch_prev)
         self.previous_button.grid(row=0, column=1)
-        self.save_button = Button(text="Save", command=callback.save_jstate).grid(row=0, column=2)
+        self.save_button = Button(text="Save", command=self.save).grid(row=0, column=2)
 
 
+    def save(self):
+        path = simpledialog.askstring(title="Test",
+                                          prompt="What's your Name?:")
+        self.callback.save_jstate(self.current_state)
 
     def receive_new_image(self, filename: str):
         img = ImageTk.PhotoImage(file="../../8/tmp/" + filename)
         img.photo = img
-        #imgTk = PhotoImage(img)
         self.board.configure(image=img)
 
     def switch_prev(self):

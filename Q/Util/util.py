@@ -47,6 +47,22 @@ class Util:
                 players.append(Player(jname, strategy))
         return players
 
+    def convert_tiles_to_jtiles(self, tiles):
+        return [self.convert_tile_to_json(tile) for tile in tiles]
+
+    def convert_player_game_states_to_jplayers(self, players: Dict[str, PlayerGameState]):
+        j_players = []
+        for name, pgs in players.items():
+            jhand = self.convert_tiles_to_jtiles(pgs.hand)
+            j_players.append({"score":pgs.points, "name": name, "tile*": jhand})
+        return j_players
+
+    def convert_gamestate_to_jstate(self, state: GameState):
+        jmap = self.convert_map_to_jmap(state.map)
+        tiles = self.convert_tiles_to_jtiles(state.referee_deck)
+        players = self.convert_player_game_states_to_jplayers(state.players)
+        return {"map": jmap, "tile*": tiles, "players": players}
+
     def convert_jstate_to_gamestate(self, jstate):
         """
          { "map"      : JMap,

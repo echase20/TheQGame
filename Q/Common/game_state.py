@@ -75,7 +75,7 @@ class GameState:
         random.shuffle(deck)
         return deck[:num_of_ref_tiles]
 
-        def setup_state(self):
+    def setup_state(self):
         """
         setups the state of the game
         """
