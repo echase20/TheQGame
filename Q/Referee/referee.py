@@ -44,28 +44,34 @@ class Referee:
         if self.observer: self.observer.receive_a_state(deepcopy(game_state))
         while not Referee.is_game_over(game_state, player_list):
             current_player = player_list.pop(0)
-            print(current_player)
+            player_list.append(current_player)
             pub_data = game_state.extract_public_player_data()
             try:
                 turn = current_player.take_turn(pub_data)
                 player_name = current_player.name()
             except Exception as E:
-                Referee.remove_current_player(game_state, current_player)
+                Referee.remove_current_player(game_state, current_player, player_list)
                 continue
+            print("1")
             if not Referee.is_valid_move(turn, game_state.rulebook, deepcopy(game_state.map), game_state.players[player_name], pub_data.num_ref_tiles):
-                Referee.remove_current_player(game_state, current_player)
+                Referee.remove_current_player(game_state, current_player, player_list)
+                print("2")
             else:
+                print("3")
                 players_old_hand = len(game_state.players[player_name].hand)
                 game_state.process_turn(turn, player_name)
+                print(game_state.players[player_name].hand)
                 if players_old_hand == len(turn.placements):
                     break
                 game_state.draw_tiles_for_player(player_name)
                 new_tiles = game_state.players[player_name].hand
-                Referee.send_player_tiles(new_tiles, current_player, game_state)
-                player_list.append(current_player)
+                Referee.send_player_tiles(new_tiles, current_player, game_state, player_list)
+                print(current_player.hand)
+                print(turn)
                 game_state.update_turn_counter()
             if self.observer: self.observer.receive_a_state(deepcopy(game_state))
         if self.observer: self.observer.receive_a_game_over()
+        print(player_list)
         Referee.send_results(player_list, game_state)
         return game_state.return_pair_of_results()
 
@@ -90,24 +96,28 @@ class Referee:
         results = game_state.return_pair_of_results()
         print(results)
         for name in results.winners:
-            print(name)
+            print(players_left)
             player = list(filter(lambda n: n.name() == name, players_left))[0]
+            print(player.name())
             try:
                 player.win(True)
             except:
-                Referee.remove_current_player(game_state, player)
+                Referee.remove_current_player(game_state, player, players_left)
                 Referee.send_results(players_left, game_state)
                 return
 
         for name in results.losers:
+            print(name)
+            for player in players_left:
+                print(player.name())
             player = list(filter(lambda n: n.name() == name, players_left))[0]
             try:
                 player.win(False)
             except:
-                Referee.remove_current_player(game_state, player)
+                Referee.remove_current_player(game_state, player, players_left)
 
     @staticmethod
-    def send_player_tiles(new_tiles: List[Tile], player: Player, game_state: GameState):
+    def send_player_tiles(new_tiles: List[Tile], player: Player, game_state: GameState, player_list: [Player]):
         """
         sends a player new tiles by calling the player new-tiles API function
         :param new_tiles: the new tiles the player will receive
@@ -119,7 +129,7 @@ class Referee:
         try:
             player.newTiles(new_tiles)
         except:
-            Referee.remove_current_player(game_state, player)
+            Referee.remove_current_player(game_state, player, player_list)
 
     @staticmethod
     def is_valid_move(turn: Turn, rulebook: Rulebook, given_map: Map, current_player: PlayerGameState, num_of_ref_tiles: int):
@@ -143,7 +153,6 @@ class Referee:
         if turn.turn_outcome == TurnOutcome.REPLACED:
             return rulebook.valid_replacement(num_of_ref_tiles, current_player.hand)
         return True
-
 
     def start_from_state(self, player_list: List[Player], game_state: GameState) -> Results:
         """
@@ -170,7 +179,7 @@ class Referee:
             try:
                 player.setup(copy_map, hand)
             except:
-                Referee.remove_current_player(game_state, player)
+                Referee.remove_current_player(game_state, player, player_list)
 
     @staticmethod
     def setup_players(player_list: List[Player], game_state: GameState):
@@ -183,18 +192,20 @@ class Referee:
             try:
                 player.setup(game_state.map, game_state.players[player.name()].hand.copy())
             except:
-                Referee.remove_current_player(game_state, player)
+                Referee.remove_current_player(game_state, player, player_list)
 
     @staticmethod
-    def remove_current_player(game_state: GameState, current_player: Player):
+    def remove_current_player(game_state: GameState, current_player: Player, player_list: [Player]):
         """
         removes the current play from the gamestate
         NOTE: may need to call continue ofter this function to not add the player back to the queue
-        :param game_state: the game state of the game
         :param current_player: the current player which is being removed
+        :param player_list: the list of current players
+        :param game_state: the game state of the game
         """
         current_player_game_state = game_state.players[current_player.name()]
         current_player_game_state.misbehaved = True
 
         hand = current_player_game_state.hand
         game_state.add_tiles_to_referee_deck(hand)
+        player_list.remove(current_player)

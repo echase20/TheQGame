@@ -67,6 +67,7 @@ class Player:
         :param pub_data: the public data about the game that player knows to determine the move type
         """
         if len(tiles_to_place):
+            print(len(tiles_to_place))
             return Turn(TurnOutcome.PLACED, tiles_to_place)
         if pub_data.num_ref_tiles < len(self.hand):
             return Turn(TurnOutcome.PASSED)

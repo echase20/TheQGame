@@ -5,6 +5,8 @@ from Q.Common.Board.tile import Tile
 from Q.Common.map import Map
 from Q.Common.Board.pos import Pos
 
+END_SCORE_BONUS = 4
+Q_SCORE_BONUS = 6
 
 class Rulebook:
     """
@@ -150,7 +152,7 @@ class Rulebook:
         :return the points to be scored
         """
         if not len(player_hand):
-            return 6
+            return END_SCORE_BONUS
         else:
             return 0
 
@@ -179,7 +181,7 @@ class Rulebook:
             seen_component_color.add(curr_map.tiles.get(position).color)
             if (len(seen_component_shape) == 6 and len(seen_component_color) == 1) or \
                     (len(seen_component_color) == 6 and len(seen_component_shape) == 1):
-                points += 6
+                points += Q_SCORE_BONUS
         return points
 
     def get_completing_q_points(self, curr_map: Map, positions: List[Pos]) -> int:

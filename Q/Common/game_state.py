@@ -109,9 +109,6 @@ class GameState:
         :returns true if all players have passed or replaced else false
         """
         active_player_count = len([not pgs.misbehaved for pgs in self.players.values()])
-        print("test")
-        print(active_player_count)
-        print(self.completed_turns+1)
         return self.completed_turns % active_player_count == 0 and \
                all(pgs.last_move == TurnOutcome.PASSED or pgs.last_move == TurnOutcome.REPLACED for pgs in self.players.values())
 
@@ -225,7 +222,10 @@ class GameState:
         :return: the drawn tiles
         """
         if n > len(self.referee_deck):
-            return self.referee_deck.copy()
+            ref_deck = self.referee_deck.copy()
+            self.referee_deck = []
+            return ref_deck
+
         else:
             tiles = deepcopy(self.referee_deck[:n])
             del self.referee_deck[:n]
@@ -254,8 +254,9 @@ class GameState:
         for name, points in scores.items():
             if points == max_points and not self.players[name].misbehaved:
                 winners.add(name)
-        losers = winners.difference(self.get_misbehaved())
-        return Results(winners, self.get_misbehaved(), losers)
+        losers = set(self.players.keys()).difference((self.get_misbehaved().union(winners)))
+
+        return Results(winners=winners, losers=losers, misbehaved=self.get_misbehaved())
 
     def render(self):
         """

@@ -7,26 +7,24 @@ from Q.Referee.observer import Observer
 from Q.Referee.referee import Referee
 from Q.Util.util import Util
 
+
 def main():
     stream = loads(sys.stdin.read())
-    util = Util()
 
-    jstate = next(stream)
-    jactors = next(stream)
+    j_state = next(stream)
+    j_actors = next(stream)
 
-    game_state = util.convert_jstate_to_gamestate(jstate)
-    players = util.jactors_to_players(jactors)
-    player_game_states = util.convert_jplayers_to_playergamestates(jstate["players"])
-    name_to_player_game = {player.name(): pgs for player, pgs in zip(players, player_game_states)}
-    game_state.players = name_to_player_game
-    if sys.argv and sys.argv[0] == "show":
-        referee = Referee(observer=Observer())
-    else:
-        referee = Referee()
+    game_state = Util().convert_jstate_to_gamestate(j_state, new=True)
+    players = Util().jactors_to_players(j_actors)
+    referee = Referee(observer=Observer()) if show_command() else Referee()
+
     pair_results = referee.start_from_state(players, game_state)
-    print(json.dumps(util.pair_results_to_jresults(pair_results)))
+    print(json.dumps(Util().pair_results_to_jresults(pair_results)))
+
+
+def show_command():
+    return sys.argv and sys.argv[1] == "-show"
 
 
 if __name__ == "__main__":
     main()
-

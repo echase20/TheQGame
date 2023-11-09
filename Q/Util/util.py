@@ -63,7 +63,7 @@ class Util:
         players = self.convert_player_game_states_to_jplayers(state.players)
         return {"map": jmap, "tile*": tiles, "players": players}
 
-    def convert_jstate_to_gamestate(self, jstate):
+    def convert_jstate_to_gamestate(self, jstate, new=False):
         """
          { "map"      : JMap,
 
@@ -72,19 +72,40 @@ class Util:
         "players"  : [JPlayer, ..., JPlayer] }
 
         :param jstate:
+        :param new: does the players now include a name field
         :return:
         """
         map = self.convert_json_to_map(jstate["map"])
         tiles = [self.json_to_tile(t) for t in jstate["tile*"]]
-        game_state = GameState(given_map=map, tiles=tiles)
-        return game_state
+        if new:
+            players = self.convert_jplayers_to_dict_name_player_game_state(jstate["players"])
+            return GameState(given_map=map, tiles=tiles, player_game_states=players)
+        else:
+            return GameState(given_map=map, tiles=tiles)
 
     def convert_jplayers_to_playergamestates(self, jplayers) -> List[PlayerGameState]:
+        """"
+        Used for backwards compatibility when player did not have a name field
+        """
         players = []
         for player in jplayers:
             score = player["score"]
             hand = [self.json_to_tile(t) for t in player["tile*"]]
             players.append(PlayerGameState(hand, score, False, None))
+        return players
+
+    def convert_jtiles_to_tiles(self, tiles):
+        return [self.json_to_tile(t) for t in tiles]
+
+
+    def convert_jplayers_to_dict_name_player_game_state(self, jplayers) -> Dict[str, PlayerGameState]:
+        players = {}
+        for player in jplayers:
+            score = player["score"]
+            hand = self.convert_jtiles_to_tiles(player["tile*"])
+            pgs = PlayerGameState(hand, score, False, None)
+            name = player["name"]
+            players.update({name: pgs})
         return players
 
 

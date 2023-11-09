@@ -1,14 +1,12 @@
 import json
-from typing import List, Deque
+from typing import List
 
 from Q.Common.game_state import GameState
 from Q.Common.render import Render
-from collections import deque
-from Q.Player.public_player_data import PublicPlayerData
-from Q.Referee.next_states import nextState
 from Q.Referee.observer_ui import ObserverUI
 from Q.Referee.observer_ui_callbacks import ObserverUICallback
 from Q.Util.util import Util
+import pathlib
 
 
 class Observer(ObserverUICallback):
@@ -17,7 +15,7 @@ class Observer(ObserverUICallback):
     """
 
     def __init__(self):
-        self.states: List["GameState"] = []
+        self.states: List[GameState] = []
         self.image_name_counter = 0
         self.observer_ui = ObserverUI(self)
 
@@ -29,7 +27,8 @@ class Observer(ObserverUICallback):
         """
         public_data = state.extract_public_player_data()
         img = Render(public_data)
-        img.save("../../8/tmp/" + str(self.image_name_counter) + ".png")
+        curr_dir = pathlib.Path(__file__).parent.resolve()
+        img.save(str(curr_dir) + "/../../8/tmp/" + str(self.image_name_counter) + ".png")
         self.image_name_counter += 1
 
     def receive_a_state(self, state: GameState):
@@ -44,12 +43,7 @@ class Observer(ObserverUICallback):
         """
         receives a notification that the game is over
         """
-        self.startUI()
-
-    def state_to_img(self, state: GameState):
-        public_data = state.extract_public_player_data()
-        img = Render(public_data)
-        return img
+        self.start_ui()
 
     def switch(self, state: int):
         """
@@ -63,13 +57,8 @@ class Observer(ObserverUICallback):
         json.dump(jstate, out_file)
         out_file.close()
 
-    def isNext(self, current_state: int) -> nextState:
-        if current_state == len(self.states) - 1:
-            return nextState.END
-        return nextState.AVAILABLE
+    def hasState(self, current_state: int) -> bool:
+        return 0 <= current_state < len(self.states)
 
-    def isPrevious(self, current_state: int) -> nextState:
-        return nextState.AVAILABLE if current_state != 0 else nextState.END
-
-    def startUI(self):
+    def start_ui(self):
         self.observer_ui.runUI()
