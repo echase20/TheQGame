@@ -14,7 +14,7 @@ from Q.Player.ldasg import LDasg
 from Q.Player.player import PublicPlayerData
 from Q.Player.turn import Turn
 from Q.Player.turn_outcome import TurnOutcome
-from Q.Referee.pair_results import PairResults
+from Q.Referee.pair_results import Results
 from Q.Referee.referee import Referee
 from Q.Common.render import Render
 
@@ -87,7 +87,7 @@ class TestReferee(unittest.TestCase):
         gs = GameState(given_map=self.m1, tiles=self.tiles, random_seed=1234, player_game_states=pgs)
         players = [player1, player2]
         pair_results = referee.start_from_state(players, gs)
-        self.assertEqual(pair_results, PairResults(winners={'bob'}, misbehaved=set()))
+        self.assertEqual(pair_results, Results(winners={'bob'}, misbehaved=set()))
 
     def test_signup(self):
         """
@@ -125,7 +125,7 @@ class TestReferee(unittest.TestCase):
         }
         gs = GameState(given_map=self.m1, tiles=self.tiles, random_seed=1234, player_game_states=pgs)
         pair_results = referee.start_from_state([player1], gs)
-        self.assertEqual(pair_results, PairResults(winners={'bob'}, misbehaved=set()))
+        self.assertEqual(pair_results, Results(winners={'bob'}, misbehaved=set()))
 
     def test_round(self):
         #TODO

@@ -7,7 +7,7 @@ from Q.Common.player_game_state import PlayerGameState
 from Q.Common.rulebook import Rulebook
 from Q.Player.turn import Turn
 from Q.Player.turn_outcome import TurnOutcome
-from Q.Referee.pair_results import PairResults
+from Q.Referee.pair_results import Results
 from Q.Player.player import Player
 from Q.Common.game_state import GameState
 
@@ -21,7 +21,7 @@ class Referee:
     def __init__(self, observer = None):
         self.observer = observer
 
-    def main(self, player_list: List[Player]) -> PairResults:
+    def main(self, player_list: List[Player]) -> Results:
         """
         executes the Q game for a given list of players
         :param player_list: list of players that will play the game
@@ -34,7 +34,7 @@ class Referee:
 
         return self.run_game(game_state, player_list)
 
-    def run_game(self, game_state: GameState, player_list: List[Player]) -> PairResults:
+    def run_game(self, game_state: GameState, player_list: List[Player]) -> Results:
         """
         Runs the given game state to completion
         :param player_list: the list of players of the game
@@ -66,8 +66,7 @@ class Referee:
                 game_state.update_turn_counter()
             if self.observer: self.observer.receive_a_state(deepcopy(game_state))
         if self.observer: self.observer.receive_a_game_over()
-        game_results = game_state.return_pair_of_results()
-        Referee.send_results(game_results.winners, player_list, game_state)
+        Referee.send_results(player_list,game_state)
         return game_state.return_pair_of_results()
 
     @staticmethod
@@ -81,22 +80,28 @@ class Referee:
         return not players or game_state.played_all_tiles() or game_state.has_all_passed_or_exchanged_for_a_round()
 
     @staticmethod
-    def send_results(winner_names: Set[str], players_left: List[Player], game_state):
+    def send_results(players_left: List[Player], game_state):
         """
         sends the results of the game to the respective player who are winners and losers
         :param players_left: the players left in the game
         :param winner_names: the names of the winners of the game
         :param game_state: the current game state
         """
-        for player in players_left:
+        results = game_state.return_pair_of_results()
+        for name in results.winners:
+            player = list(filter(lambda p: p.name == name, players_left))[0]
             try:
-                print(player)
-                if player.name() in winner_names:
-                    player.win(True)
-                else:
-                    player.win(False)
+                player.win(True)
             except:
-                print("over here")
+                Referee.remove_current_player(game_state, player)
+                Referee.send_results(players_left, game_state)
+                return
+
+        for name in results.losers:
+            player = list(filter(lambda p: p.name == name, players_left))[0]
+            try:
+                player.win(False)
+            except:
                 Referee.remove_current_player(game_state, player)
 
     @staticmethod
@@ -138,7 +143,7 @@ class Referee:
         return True
 
 
-    def start_from_state(self, player_list: List[Player], game_state: GameState) -> PairResults:
+    def start_from_state(self, player_list: List[Player], game_state: GameState) -> Results:
         """
         Initializes players in at a particular given state
         :param player_list: the players in the game
