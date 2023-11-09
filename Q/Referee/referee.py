@@ -41,6 +41,7 @@ class Referee:
         :param game_state: the given game state to run the game on
         :return: winners and kicked players
         """
+        if self.observer: self.observer.receive_a_state(deepcopy(game_state))
         while not Referee.is_game_over(game_state, player_list):
             current_player = player_list.pop(0)
             print(current_player)
@@ -64,7 +65,6 @@ class Referee:
                 player_list.append(current_player)
                 game_state.update_turn_counter()
             if self.observer: self.observer.receive_a_state(deepcopy(game_state))
-        game_state.render()
         if self.observer: self.observer.receive_a_game_over()
         game_results = game_state.return_pair_of_results()
         Referee.send_results(game_results.winners, player_list, game_state)
