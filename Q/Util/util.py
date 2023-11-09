@@ -18,14 +18,14 @@ from Q.Player.player import Player
 from Q.Player.public_player_data import PublicPlayerData
 from Q.Player.turn_outcome import TurnOutcome
 from Q.Player.mock_player import MockPlayer
-from Q.Referee.pair_results import PairResults
+from Q.Referee.pair_results import Results
 
 
 class Util:
     """
     # Represents a utility class used mainly for json parsing
     """
-    def pair_results_to_jresults(self, pair_results: PairResults):
+    def pair_results_to_jresults(self, pair_results: Results):
         jwinners = sorted(list(pair_results.winners))
         jmisbehaved = sorted(list(pair_results.misbehaved))
         jresults = [jwinners, jmisbehaved]

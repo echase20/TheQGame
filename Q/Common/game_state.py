@@ -13,7 +13,7 @@ from Q.Player.turn_outcome import TurnOutcome
 from Q.Common.Board.tile_color import TileColor
 from Q.Common.Board.tile_shape import TileShape
 from Q.Player.public_player_data import PublicPlayerData
-from Q.Referee.pair_results import PairResults
+from Q.Referee.pair_results import Results
 
 NUM_OF_Q_TILES = 1080
 MAX_NUM_OF_PLAYERS = 4
@@ -243,7 +243,7 @@ class GameState:
                 misbehaved.add(name)
         return misbehaved
 
-    def return_pair_of_results(self) -> PairResults:
+    def return_pair_of_results(self) -> Results:
         """
         returns the pair of winners and players that have been kicked
         """
@@ -254,8 +254,8 @@ class GameState:
         for name, points in scores.items():
             if points == max_points and not self.players[name].misbehaved:
                 winners.add(name)
-
-        return PairResults(winners, self.get_misbehaved())
+        losers = winners.difference(self.get_misbehaved())
+        return Results(winners, self.get_misbehaved(), losers)
 
     def render(self):
         """
