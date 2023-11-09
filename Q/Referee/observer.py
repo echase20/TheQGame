@@ -17,9 +17,9 @@ class Observer(ObserverUICallback):
 
     def __init__(self):
         self.states: List["GameState"] = []
-        self.is_game_over = False
         self.image_name_counter = 0
         self.observer_ui = ObserverUI(self)
+
     def save_states(self, state):
         """
         saves multiple states to the directory tmp/x.png where x is a sequential number starting at 0.
@@ -28,7 +28,7 @@ class Observer(ObserverUICallback):
         """
         public_data = state.extract_public_player_data()
         img = Render(public_data)
-        img.save("tmp/" + str(self.image_name_counter))
+        img.save("../../8/tmp/" + str(self.image_name_counter) + ".png")
         self.image_name_counter += 1
 
     def receive_a_state(self, state: GameState):
@@ -43,7 +43,7 @@ class Observer(ObserverUICallback):
         """
         receives a notification that the game is over
         """
-        self.is_game_over = True
+        self.startUI()
 
     def state_to_img(self, state: GameState):
         public_data = state.extract_public_player_data()
@@ -54,20 +54,18 @@ class Observer(ObserverUICallback):
         """
         goes to the previous state
         """
-        img = self.state_to_img(self.states[state])
-        self.observer_ui.receive_new_image(img)
+        self.observer_ui.receive_new_image(f"{str(state)}.png")
 
     def save_jstate(self, current_state: int):
         Util.convert_state_to_jstate(self.states[current_state])
 
     def isNext(self, current_state: int) -> nextState:
-        if (current_state == len(self.states) - 1) and self.is_game_over:
+        if (current_state == len(self.states) - 1):
             return nextState.END
-        if current_state == len(self.states) - 1:
-            return nextState.WAITING
         return nextState.AVAILABLE
 
     def isPrevious(self, current_state: int) -> nextState:
         return nextState.AVAILABLE if current_state != 0 else nextState.END
 
-
+    def startUI(self):
+        self.observer_ui.runUI()
