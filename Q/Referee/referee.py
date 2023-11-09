@@ -186,4 +186,8 @@ class Referee:
         :param game_state: the game state of the game
         :param current_player: the current player which is being removed
         """
-        game_state.players[current_player.name()].misbehaved = True
+        current_player_game_state = game_state.players[current_player.name()]
+        current_player_game_state.misbehaved = True
+
+        hand = current_player_game_state.hand
+        game_state.add_tiles_to_referee_deck(hand)
