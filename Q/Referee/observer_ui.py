@@ -14,9 +14,7 @@ class ObserverUI:
 
         self.root = Tk()
         self.root.geometry("800x600")
-        img = ImageTk.PhotoImage(file="../../8/tmp/0.png")
-        self.board = Label(self.root, image=img)
-        self.board.photo = img
+        self.board = Label(self.root)
         self.board.grid(row=1)
         self.next_button = Button(text="Next", command=self.switch_next)
         self.next_button.grid(row=0, column=0)
@@ -28,7 +26,7 @@ class ObserverUI:
     def save(self):
         path = simpledialog.askstring(title="Test",
                                           prompt="What's your Name?:")
-        self.callback.save_jstate(self.current_state)
+        self.callback.save_jstate(self.current_state, path)
 
     def receive_new_image(self, filename: str):
         img = ImageTk.PhotoImage(file="../../8/tmp/" + filename)
@@ -52,4 +50,6 @@ class ObserverUI:
             self.next_button.configure(state="disabled")
 
     def runUI(self):
+        img = ImageTk.PhotoImage(file="../../8/tmp/0.png")
+        img.photo = img
         self.root.mainloop()

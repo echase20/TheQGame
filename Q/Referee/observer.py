@@ -61,6 +61,7 @@ class Observer(ObserverUICallback):
         out_file = open(filepath, "w")
         jstate = Util().convert_gamestate_to_jstate(self.states[current_state])
         json.dump(jstate, out_file)
+        out_file.close()
 
     def isNext(self, current_state: int) -> nextState:
         if current_state == len(self.states) - 1:

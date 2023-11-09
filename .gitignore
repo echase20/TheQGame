@@ -19,4 +19,4 @@ __pycache__/
 5/
 4/
 3/
-tmp/
+tmp/*.png

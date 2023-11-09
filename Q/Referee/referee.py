@@ -66,7 +66,7 @@ class Referee:
                 game_state.update_turn_counter()
             if self.observer: self.observer.receive_a_state(deepcopy(game_state))
         if self.observer: self.observer.receive_a_game_over()
-        Referee.send_results(player_list,game_state)
+        Referee.send_results(player_list, game_state)
         return game_state.return_pair_of_results()
 
     @staticmethod
@@ -89,7 +89,7 @@ class Referee:
         """
         results = game_state.return_pair_of_results()
         for name in results.winners:
-            player = list(filter(lambda p: p.name == name, players_left))[0]
+            player = list(filter(lambda n: n.name() == name, players_left))[0]
             try:
                 player.win(True)
             except:
@@ -98,7 +98,7 @@ class Referee:
                 return
 
         for name in results.losers:
-            player = list(filter(lambda p: p.name == name, players_left))[0]
+            player = list(filter(lambda n: n.name() == name, players_left))[0]
             try:
                 player.win(False)
             except:
