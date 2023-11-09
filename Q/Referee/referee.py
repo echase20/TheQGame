@@ -88,7 +88,9 @@ class Referee:
         :param game_state: the current game state
         """
         results = game_state.return_pair_of_results()
+        print(results)
         for name in results.winners:
+            print(name)
             player = list(filter(lambda n: n.name() == name, players_left))[0]
             try:
                 player.win(True)
