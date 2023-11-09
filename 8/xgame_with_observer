@@ -3,4 +3,4 @@
 # run the file run from command line
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 ARG1=${1:-none}
-python3 "$SCRIPTPATH/../Q/Tests/run_xgames_with_observer.py" $ARG1
+python3.9 "$SCRIPTPATH/../Q/Tests/run_xgames_with_observer.py" $ARG1
