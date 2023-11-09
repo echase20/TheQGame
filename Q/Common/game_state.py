@@ -75,14 +75,14 @@ class GameState:
         random.shuffle(deck)
         return deck[:num_of_ref_tiles]
 
-    def setup_state(self):
+        def setup_state(self):
         """
         setups the state of the game
         """
         if self.referee_deck is None:
             self.referee_deck = self.create_randomize_deck(1080)
 
-        if self.map is None:
+        if not len(self.map.tiles):
             self.map = Map()
             self.place_ref_tile()
 
