@@ -36,7 +36,6 @@ Indicate below each bullet which file/unit takes care of each task:
     observer's view? Or is it explained elsewhere? 
     
   The observer does not have its purpose statement. <br>
-  <br>
 The ideal feedback for each of these three points is a GitHub
 perma-link to the range of lines in a specific file or a collection of
 files.
