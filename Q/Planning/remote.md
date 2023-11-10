@@ -16,7 +16,7 @@ Here is a basic look at what the player proxy will look like according to our cu
 
 <p> The ProxyPlayer the place where data is converted from the Referee into JSON to be sent over TCP so the player can 
 read this info over the wire. The Proxy Player will implement the Player interface. The ProxyPlayer will also accept Turn
-info of the player. </p>
+info of the player when the player has submitted their turn. </p>
 
 <p> The player class will be the class on the other side of the wire from the referee that does the logic to create a turn action on some 
 given map and determine their move with some strategy of their choosing.</p>
@@ -25,10 +25,9 @@ given map and determine their move with some strategy of their choosing.</p>
 The referee keeps track of all the players and can kick the players at any point.</p>
 
 <p> The RefereeProxy will act on the client side where it will take in JSON and convert it to the player's implementation of the game. 
-This will be the place where the data is received from the PlayerProxy.</p>
+This will be the place where the data is received from the PlayerProxy. The proxy player is also the place where the player sends
+the request over to the RefereeProxy saying they want to join the game.</p>
 
 
-
-
-Best,
+Thanks,
 Dilan Piscatelo and Evan Chase
