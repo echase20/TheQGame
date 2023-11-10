@@ -1,5 +1,4 @@
-from tkinter import Tk, Label, Button, simpledialog, X, BOTH, Scrollbar, VERTICAL, NS, RIGHT, Y, Canvas, SUNKEN, \
-    HORIZONTAL, BOTTOM, LEFT, YES, Frame, TOP, NW
+from tkinter import Tk, Label, Button, simpledialog, LEFT, Frame, TOP, NW
 
 from PIL import ImageTk
 

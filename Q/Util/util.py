@@ -13,6 +13,8 @@ from Q.Common.Board.tile_shape import TileShape
 from Q.Player.cheat_player import CheatPlayer
 from Q.Player.dag import Dag
 from Q.Player.ldasg import LDasg
+from Q.Player.loop_player import LoopPlayer
+from Q.Player.player import Player
 from Q.Player.strategy import PlayerStrategy
 from Q.Player.in_housep_player import InHousePlayer
 from Q.Player.public_player_data import PublicPlayerData
@@ -31,14 +33,18 @@ class Util:
         jresults = [jwinners, jmisbehaved]
         return jresults
 
-    def jactors_to_players(self, jactors) -> List[InHousePlayer]:
+    def jactors_to_players(self, jactors) -> List[Player]:
         players = []
         for jactorspec in jactors:
             jname = jactorspec[0]
             strategy = self.convert_jstrategy_to_strategy(jactorspec[1])
-            if len(jactorspec) == 4:
+            if len(jactorspec) == 4 and jactorspec[2] == "a cheat":
                 jcheat = jactorspec[3]
                 players.append(CheatPlayer(name=jname, strategy=strategy, cheat=jcheat))
+            if len(jactorspec) == 4:
+                jexn = jactorspec[2]
+                jcount = jactorspec[3]
+                players.append(LoopPlayer(name=jname,exn=jexn,count=jcount,strategy=strategy))
             if len(jactorspec) == 3:
                 jexn = jactorspec[2]
                 players.append(ExnPlayer(name=jname, strategy=strategy, exn=jexn))

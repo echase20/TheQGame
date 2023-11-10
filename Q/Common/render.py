@@ -6,6 +6,8 @@ from Q.Common.map import Map
 from Q.Player.public_player_data import PublicPlayerData
 
 FOOTER_HEIGHT = 30
+
+
 class Render:
     def __init__(self, state: PublicPlayerData, length: float = 64):
         self.side_length: float = length
@@ -39,8 +41,8 @@ class Render:
         writes the scores and the number of ref tiles on the board
         """
         x, y = self.get_dimensions_length()
-        self.draw.text(xy=(0, y-20), text= "Ref Tiles Count:" + str(self.state.num_ref_tiles))
-        self.write_scores(x=0, y=y-10, scores=self.state.scores)
+        self.draw.text(xy=(0, y - 20), text="Ref Tiles Count:" + str(self.state.num_ref_tiles))
+        self.write_scores(x=0, y=y - 10, scores=self.state.scores)
 
     def write_scores(self, x, y, scores: Dict[str, int]):
         """
@@ -74,7 +76,8 @@ class Render:
             shape: str = tile.shape.get_name()
             color: str = tile.color.get_name()
             self.x_px = (-self.min_x * self.side_length) + (self.side_length * pos.x)
-            self.y_px = (-1 * (self.min_y * self.side_length)) - ((-self.min_y * self.side_length) + (self.side_length * pos.y))
+            self.y_px = (-1 * (self.min_y * self.side_length)) - (
+                        (-self.min_y * self.side_length) + (self.side_length * pos.y))
             self.render_map[shape](color)
 
     # return the horizontal midpoint of the current tile
