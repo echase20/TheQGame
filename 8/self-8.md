@@ -12,8 +12,7 @@ Indicate below each bullet which file/unit takes care of each task:
 
   - is the referee programmed to the observer's interface
     or is it hardwired?
-    [https://github.khoury.northeastern.edu/CS4500-F23/quirky-armadillos/blob/main/Q/Referee/referee.py#L21-L68](https://github.khoury.northeastern.edu/CS4500-F23/quirky-armadillos/blob/3308161ecdb914f062867903675c971842ef0ab0/Q/Referee/referee.py#L21-L68)
-
+    https://github.khoury.northeastern.edu/CS4500-F23/quirky-armadillos/blob/3308161ecdb914f062867903675c971842ef0ab0/Q/Referee/referee.py#L21-L68
   - if an observer is desired, is every state per player turn sent to
     the observer? Where? 
 
