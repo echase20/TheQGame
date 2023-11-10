@@ -126,7 +126,6 @@ class TestObserver(unittest.TestCase):
     def test_no_fit_cheat1(self):
         player = CheatPlayer(name="dilan", strategy=Dag(), hand=self.hand2.copy(), cheat="no-fit")
         turn = player.take_turn(self.pub3)
-        print(turn)
         any_no_fit = []
         for pos, tile in turn.placements.items():
             neighbors = self.pub1.current_map.get_neighbors(pos)
@@ -139,7 +138,6 @@ class TestObserver(unittest.TestCase):
     def test_no_fit_cheat2(self):
         player = CheatPlayer(name="dilan", strategy=Dag(), hand=self.hand2.copy(), cheat="no-fit")
         turn = player.take_turn(self.pub3)
-        print(turn)
         any_no_fit = []
         for pos, tile in turn.placements.items():
             neighbors = self.pub1.current_map.get_neighbors(pos)

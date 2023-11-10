@@ -41,7 +41,6 @@ class Referee:
         :param game_state: the given game state to run the game on
         :return: winners and kicked players
         """
-        print(player_list)
         if self.observer: self.observer.receive_a_state(deepcopy(game_state))
         while not Referee.is_game_over(game_state, player_list):
             current_player = player_list.pop(0)
@@ -87,7 +86,6 @@ class Referee:
         :param game_state: the current game state
         """
         results = game_state.return_pair_of_results()
-        print(results)
         for name in results.winners:
             player = list(filter(lambda n: n.name() == name, players_left))[0]
             try:
