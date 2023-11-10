@@ -5,17 +5,11 @@ from Q.Common.Board.pos import Pos
 from Q.Common.Board.tile import Tile
 from Q.Common.Board.tile_color import TileColor
 from Q.Common.Board.tile_shape import TileShape
-from Q.Common.game_state import GameState
 from Q.Common.map import Map
-from Q.Common.player_game_state import PlayerGameState
 from Q.Player.cheat_player import CheatPlayer
 from Q.Player.dag import Dag
-from Q.Player.ldasg import LDasg
-from Q.Player.in_housep_player import InHousePlayer
 from Q.Player.public_player_data import PublicPlayerData
 from Q.Player.turn_outcome import TurnOutcome
-from Q.Referee.observer import Observer
-from Q.Referee.referee import Referee
 
 
 class TestObserver(unittest.TestCase):

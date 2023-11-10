@@ -36,6 +36,8 @@ class Util:
         for jactorspec in jactors:
             jname = jactorspec[0]
             strategy = self.convert_jstrategy_to_strategy(jactorspec[1])
+            print("TEST")
+            print(len(jactorspec))
             if len(jactorspec) == 4:
                 jcheat = jactorspec[3]
                 players.append(CheatPlayer(name=jname, strategy=strategy, cheat=jcheat))
