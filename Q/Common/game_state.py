@@ -158,6 +158,7 @@ class GameState:
                                                      end_game=is_game_over)
         self.players[name].points += additional_points
         self.players[name].last_move = outcome
+        self.update_turn_counter()
 
 
     def turn_placed(self, placements: Dict[Pos, Tile], name: str):

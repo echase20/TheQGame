@@ -14,10 +14,10 @@ from Q.Player.cheat_player import CheatPlayer
 from Q.Player.dag import Dag
 from Q.Player.ldasg import LDasg
 from Q.Player.strategy import PlayerStrategy
-from Q.Player.player import Player
+from Q.Player.in_housep_player import InHousePlayer
 from Q.Player.public_player_data import PublicPlayerData
 from Q.Player.turn_outcome import TurnOutcome
-from Q.Player.mock_player import MockPlayer
+from Q.Player.exn_player import ExnPlayer
 from Q.Referee.pair_results import Results
 
 
@@ -31,7 +31,7 @@ class Util:
         jresults = [jwinners, jmisbehaved]
         return jresults
 
-    def jactors_to_players(self, jactors) -> List[Player]:
+    def jactors_to_players(self, jactors) -> List[InHousePlayer]:
         players = []
         for jactorspec in jactors:
             jname = jactorspec[0]
@@ -42,9 +42,9 @@ class Util:
             if len(jactorspec) == 3:
                 jexn = jactorspec[2]
                 print(jname)
-                players.append(MockPlayer(name=jname, strategy=strategy, exn=jexn))
+                players.append(ExnPlayer(name=jname, strategy=strategy, exn=jexn))
             else:
-                players.append(Player(jname, strategy))
+                players.append(InHousePlayer(jname, strategy))
         return players
 
     def convert_tiles_to_jtiles(self, tiles):
@@ -252,7 +252,7 @@ class Util:
         return [i for i in range(num_of_players)]
 
     @staticmethod
-    def convert_jplayer_to_player(python_json, strategy: PlayerStrategy, name: str) -> Player:
+    def convert_jplayer_to_player(python_json, strategy: PlayerStrategy, name: str) -> InHousePlayer:
         """
         Converts JSON representation of a player into an actual Q player
         :param python_json: JSON representation of a player
@@ -260,7 +260,7 @@ class Util:
         :param name: Name of player to be created
         """
         player_tiles = [Util.json_to_tile(tile) for tile in python_json["tile*"]]
-        return Player(name=name, strategy=strategy, hand=player_tiles)
+        return InHousePlayer(name=name, strategy=strategy, hand=player_tiles)
 
     @staticmethod
     def write_legal_json_coordinates(given_map: Map, tile: Tile) -> str:

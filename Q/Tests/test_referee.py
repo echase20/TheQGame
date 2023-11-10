@@ -8,10 +8,10 @@ from Q.Common.Board.pos import Pos
 from Q.Common.game_state import GameState
 from Q.Common.player_game_state import PlayerGameState
 from Q.Common.rulebook import Rulebook
-from Q.Player.player import Player
+from Q.Player.in_housep_player import InHousePlayer
 from Q.Player.dag import Dag
 from Q.Player.ldasg import LDasg
-from Q.Player.player import PublicPlayerData
+from Q.Player.in_housep_player import PublicPlayerData
 from Q.Player.turn import Turn
 from Q.Player.turn_outcome import TurnOutcome
 from Q.Referee.pair_results import Results
@@ -36,8 +36,8 @@ class TestReferee(unittest.TestCase):
                         Pos(0, 4): self.tile5,
                         Pos(0, 5): self.tile6}
 
-        self.player1 = Player(strategy=Dag(), name="bob", hand=self.tiles)
-        self.player2 = Player(strategy=LDasg(), name="bob2", hand=[self.tile3, self.tile7])
+        self.player1 = InHousePlayer(strategy=Dag(), name="bob", hand=self.tiles)
+        self.player2 = InHousePlayer(strategy=LDasg(), name="bob2", hand=[self.tile3, self.tile7])
         self.ref_tile = {Pos(0, 0): self.tile1}
         self.m1 = Map(config=self.ref_tile)
         self.ppd = PublicPlayerData(20, self.m1, {})
@@ -53,7 +53,7 @@ class TestReferee(unittest.TestCase):
                         Pos(2, 1): self.tile6}
         self.m3 = Map(config=self.config3)
         self.ppd3 = PublicPlayerData(1080, self.m3, {})
-        self.player3 = Player(strategy=LDasg(), name="bob3", hand=[self.tile2, self.tile3])
+        self.player3 = InHousePlayer(strategy=LDasg(), name="bob3", hand=[self.tile2, self.tile3])
 
         self.config4 = {
             Pos(0, 0): self.tile1,
@@ -67,18 +67,18 @@ class TestReferee(unittest.TestCase):
         }
         self.m4 = Map(config=self.config4)
         self.ppd4 = PublicPlayerData(1080, self.m4, {})
-        self.player4 = Player(strategy=LDasg(), name="bob4", hand=[self.tile8])
-        self.player5 = Player(strategy=LDasg(), name="bob5", hand=[self.tile8, self.tile1])
-        self.player6 = Player(strategy=LDasg(), name="bob6", hand=[self.tile1, self.tile2])
-        self.player7 = Player(strategy=LDasg(), name="bob7", hand=[self.tile1, self.tile2])
+        self.player4 = InHousePlayer(strategy=LDasg(), name="bob4", hand=[self.tile8])
+        self.player5 = InHousePlayer(strategy=LDasg(), name="bob5", hand=[self.tile8, self.tile1])
+        self.player6 = InHousePlayer(strategy=LDasg(), name="bob6", hand=[self.tile1, self.tile2])
+        self.player7 = InHousePlayer(strategy=LDasg(), name="bob7", hand=[self.tile1, self.tile2])
 
     def test_run(self):
         """
         Runs the game with two dags
         """
         referee = Referee()
-        player1 = Player(strategy=Dag(), name="bob", hand=self.tiles)
-        player2 = Player(strategy=Dag(), name="dan", hand=self.tiles)
+        player1 = InHousePlayer(strategy=Dag(), name="bob", hand=self.tiles)
+        player2 = InHousePlayer(strategy=Dag(), name="dan", hand=self.tiles)
 
         pgs = {
             "bob": PlayerGameState(self.player1.hand, 0, False, None),
@@ -94,7 +94,7 @@ class TestReferee(unittest.TestCase):
         Tests to see if you can sign up 2 players
         """
         referee = Referee()
-        player_list = [Player(strategy=Dag(), name="dag"), Player(strategy=LDasg(), name="ldasg")]
+        player_list = [InHousePlayer(strategy=Dag(), name="dag"), InHousePlayer(strategy=LDasg(), name="ldasg")]
         referee.signup_players(player_list=player_list, game_state=self.gs)
         self.assertEqual(len(self.gs.players), 2)
 
@@ -104,11 +104,11 @@ class TestReferee(unittest.TestCase):
         """
         referee = Referee()
         player_list = [
-            Player(strategy=Dag(), name="dag1"),
-            Player(strategy=LDasg(), name="ldasg1"),
-            Player(strategy=Dag(), name="dag2"),
-            Player(strategy=LDasg(), name="ldasg2"),
-            Player(strategy=LDasg(), name="extra_player"),
+            InHousePlayer(strategy=Dag(), name="dag1"),
+            InHousePlayer(strategy=LDasg(), name="ldasg1"),
+            InHousePlayer(strategy=Dag(), name="dag2"),
+            InHousePlayer(strategy=LDasg(), name="ldasg2"),
+            InHousePlayer(strategy=LDasg(), name="extra_player"),
         ]
         referee.signup_players(player_list=player_list, game_state=self.gs)
         self.assertEqual(player_list.gs.players, 4)
@@ -118,7 +118,7 @@ class TestReferee(unittest.TestCase):
         Tests the game with one player added
         """
         referee = Referee()
-        player1 = Player(strategy=Dag(), name="bob", hand=self.tiles)
+        player1 = InHousePlayer(strategy=Dag(), name="bob", hand=self.tiles)
 
         pgs = {
             "bob": PlayerGameState(self.player1.hand, 0, False, None)

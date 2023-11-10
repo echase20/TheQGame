@@ -4,7 +4,7 @@ from Q.Common.Board.tile import Tile
 from Q.Common.Board.tile_color import TileColor
 from Q.Common.Board.tile_shape import TileShape
 from Q.Player.ldasg import LDasg
-from Q.Player.player import Player
+from Q.Player.in_housep_player import InHousePlayer
 from Q.Referee.observer import Observer
 from Q.Referee.referee import Referee
 
@@ -14,9 +14,9 @@ class TestObserver(unittest.TestCase):
         self.tile1 = Tile(TileShape.CIRCLE, TileColor.BLUE)
         self.tile2 = Tile(TileShape.STAR, TileColor.BLUE)
         self.tile3 = Tile(TileShape.CLOVER, TileColor.BLUE)
-        self.player1 = Player(strategy=LDasg(), name="bob1", hand=[self.tile2, self.tile3])
-        self.player2 = Player(strategy=LDasg(), name="bob2", hand=[self.tile2, self.tile3])
-        self.player3 = Player(strategy=LDasg(), name="bob3", hand=[self.tile2, self.tile3])
+        self.player1 = InHousePlayer(strategy=LDasg(), name="bob1", hand=[self.tile2, self.tile3])
+        self.player2 = InHousePlayer(strategy=LDasg(), name="bob2", hand=[self.tile2, self.tile3])
+        self.player3 = InHousePlayer(strategy=LDasg(), name="bob3", hand=[self.tile2, self.tile3])
         pass
 
     def test_run_gui(self):

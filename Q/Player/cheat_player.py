@@ -1,9 +1,12 @@
+from abc import ABC
 from typing import List
+
 
 from Q.Common.Board.pos import Pos
 from Q.Common.Board.tile import Tile
 from Q.Common.Board.tile_color import TileColor
 from Q.Common.Board.tile_shape import TileShape
+from Q.Common.map import Map
 from Q.Common.rulebook import Rulebook
 from Q.Player.dag import Dag
 from Q.Player.player import Player
@@ -13,8 +16,7 @@ from Q.Player.turn import Turn
 from Q.Player.turn_outcome import TurnOutcome
 
 
-class CheatPlayer(Player):
-
+class CheatPlayer(Player, ABC):
     def __init__(self, name, strategy: PlayerStrategy = Dag(), hand: List[Tile] = [], rulebook: Rulebook = Rulebook(),
                  cheat: str = ""):
         super().__init__(name, strategy, hand, rulebook)
@@ -22,7 +24,7 @@ class CheatPlayer(Player):
 
     def place_non_adjacent_coordinate(self, s: PublicPlayerData) -> Turn:
         if s.current_map.tiles:
-            max_pos_x = max(list(s.current_map.tiles.keys()), key=lambda pos: pos.x)
+            max_pos_x = max(list(s.current_map.tiles.keys()), key=lambda pos: pos.x).x
         else:
             max_pos_x = 0
         placement = {Pos(max_pos_x + 2, 10): self.hand.pop()}
@@ -63,18 +65,13 @@ class CheatPlayer(Player):
     def place_no_fit(self, s: PublicPlayerData) -> Turn:
         for tile_in_hand in self.hand:
             for pos_in_map, tile_in_map in s.current_map.tiles.items():
-                if tile_in_hand.color != tile_in_map.color and tile_in_hand.shape != tile_in_map.shape:
+                if tile_in_hand.color == tile_in_map.color and tile_in_hand.shape == tile_in_map.shape:
                     continue
                 neighbors = s.current_map.get_neighbors(pos_in_map)
                 for neighbor in neighbors:
-                    if not neighbor:
+                    if s.current_map.tiles.get(neighbor) is None:
                         return Turn(TurnOutcome.PLACED, {neighbor: tile_in_hand})
         return Turn(TurnOutcome.PASSED)
-
-
-
-
-
 
     def take_turn(self, s: PublicPlayerData) -> Turn:
         """
@@ -90,9 +87,19 @@ class CheatPlayer(Player):
             return self.place_not_a_line(s)
         if self.jcheat == "bad-ask-for-tiles":
             return self.exchange_bad_ask_for_tiles(s)
-        if self.jcheat == "place_no_fit":
+        if self.jcheat == "no-fit":
             return self.place_no_fit(s)
+        raise Exception("Not a valid cheat")
 
+
+    def newTiles(self, st: List[Tile]):
+        super().newTiles(st)
+
+    def setup(self, given_map: Map, tiles: List[Tile]):
+        super().setup(given_map, tiles)
+
+    def win(self, w: bool):
+        super().win(w)
 
 
 
