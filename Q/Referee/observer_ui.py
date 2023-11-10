@@ -1,8 +1,10 @@
-from tkinter import Tk, Label, Button, simpledialog
+from tkinter import Tk, Label, Button, simpledialog, X, BOTH, Scrollbar, VERTICAL, NS, RIGHT, Y, Canvas, SUNKEN, \
+    HORIZONTAL, BOTTOM, LEFT, YES, Frame, TOP, NW
 
 from PIL import ImageTk
 
 from Q.Referee.observer_ui_callbacks import ObserverUICallback
+from Q.Referee.scrollable_frame import ScrollFrame
 
 
 class ObserverUI:
@@ -12,14 +14,17 @@ class ObserverUI:
         self.callback = callback
 
         self.root = Tk()
-        self.root.geometry("800x600")
-        self.board = Label(self.root)
-        self.board.grid(row=1)
-        self.next_button = Button(text="Next", command=self.switch_next)
-        self.next_button.grid(row=0, column=0)
-        self.previous_button = Button(text="Previous", command=self.switch_prev)
-        self.previous_button.grid(row=0, column=1)
-        self.save_button = Button(text="Save", command=self.save).grid(row=0, column=2)
+        self.o = ScrollFrame(self.root)
+        self.button_frame = Frame(self.o.frame)
+        self.next_button = Button(self.button_frame, text="Next", command=self.switch_next)
+        self.next_button.pack(side=LEFT, anchor=NW)
+        self.previous_button = Button(self.button_frame, text="Previous", command=self.switch_prev)
+        self.previous_button.pack(side=LEFT, anchor=NW)
+        self.save_button = Button(self.button_frame, text="Save", command=self.save)
+        self.save_button.pack(side=LEFT, anchor=NW)
+        self.button_frame.pack(anchor=NW)
+        self.board_image = Label(self.o.frame)
+        self.board_image.pack(side=TOP)
 
     def save(self):
         path = simpledialog.askstring(title="File Path Prompt",
@@ -29,7 +34,9 @@ class ObserverUI:
     def receive_new_image(self, filename: str):
         img = ImageTk.PhotoImage(file=filename)
         img.photo = img
-        self.board.configure(image=img)
+        w, h = img.width(), img.height()
+        self.board_image.configure(image=img)
+        self.o.update()
 
     def switch_prev(self):
         potential_new_state = self.current_state - 1
@@ -54,4 +61,5 @@ class ObserverUI:
     def run(self):
         if self.callback.hasState(self.current_state):
             self.callback.switch(self.current_state)
+            self.o.update()
             self.root.mainloop()
