@@ -74,7 +74,7 @@ class Render:
             shape: str = tile.shape.get_name()
             color: str = tile.color.get_name()
             self.x_px = (-self.min_x * self.side_length) + (self.side_length * pos.x)
-            self.y_px = (-self.min_y * self.side_length) + (self.side_length * pos.y)
+            self.y_px = (-1 * (self.min_y * self.side_length)) - ((-self.min_y * self.side_length) + (self.side_length * pos.y))
             self.render_map[shape](color)
 
     # return the horizontal midpoint of the current tile
