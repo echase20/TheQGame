@@ -31,7 +31,7 @@ Indicate below each bullet which file/unit takes care of each task:
   - does the purpose statement explain how to program to the
     observer's interface? 
     
-  The observer does not have its purpose statement yet.
+  The observer does not have its purpose statement yet.<br>
   - does the purpose statement explain how a user would use the
     observer's view? Or is it explained elsewhere? 
     
