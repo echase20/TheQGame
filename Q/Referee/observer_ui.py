@@ -28,7 +28,7 @@ class ObserverUI:
     def save(self):
         path = simpledialog.askstring(title="File Path Prompt",
                                       prompt="Enter the file path of this saved state")
-        self.callback.save_jstate(self.current_state, path)
+        self.callback.save_j_state(self.current_state, path)
 
     def receive_new_image(self, filename: str):
         img = ImageTk.PhotoImage(file=filename)

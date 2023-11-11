@@ -71,6 +71,8 @@ class Rulebook:
         :return: true if the tile can be placed
         """
         nbrs: Dict[Pos, Tile] = given_map.get_neighbors(pos)
+        if all(x is None for x in nbrs.values()):
+            return False
 
         def compare_features(call1: Callable[[Pos], Pos], call2: Callable[[Pos], Pos], p: Pos,
                              comparator: Callable[[Tile, Tile], bool]) -> bool:

@@ -113,6 +113,7 @@ class Player(ABC):
         if not tile:
             return None
         positions = self.rulebook.get_legal_positions(pub_data.current_map, tile, [])
+
         if not len(positions):
             return None
         position_to_place_tile = strategy.choose_placement(list(positions), pub_data.current_map)

@@ -13,7 +13,7 @@ class ObserverUICallback:
         """
         pass
 
-    def save_jstate(self, current_state: int, filepath: str):
+    def save_j_state(self, current_state: int, filepath: str):
         """
         the state you want to save at the given file path
         :param current_state: the saved states index that is being saved
