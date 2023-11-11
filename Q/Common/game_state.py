@@ -48,7 +48,6 @@ class GameState:
         else:
             self.map = given_map
             if tiles:
-                print("if tiles?")
                 self.referee_deck = tiles
             else:
                 self.referee_deck = self.create_randomize_deck(NUM_OF_Q_TILES, random_seed)
