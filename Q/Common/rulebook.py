@@ -14,7 +14,7 @@ class Rulebook:
     Source of truth of all dynamically changeable items of the game
     """
 
-    def get_legal_positions(self, given_map: Map, given_tile: Tile, placed_positions: List[Pos]) -> Set[Pos]:
+    def get_legal_positions(self, given_map: Map, given_tile: Tile, placed_positions: List[Pos], break_early: bool = False) -> Set[Pos]:
         """
         Computes all of the legal positions to place the given tile onto the given map
         :param placed_positions: the positions that have already been placed
@@ -33,6 +33,8 @@ class Rulebook:
                 potential_positions.append(neighbor)
                 if self.all_same_row_or_col(potential_positions):
                     valid_positions.add(neighbor)
+                    if break_early:
+                        return valid_positions
 
         return valid_positions
 
@@ -94,8 +96,11 @@ class Rulebook:
 
     def valid_placements(self, given_map: Map, placements: Dict[Pos, Tile]):
         for pos, tile in placements.items():
-            if not self.valid_placement(given_map, pos, tile, placements):
+            if not self.is_valid_space(given_map, pos, tile):
                 return False
+            given_map.add_tile_to_board(tile, pos)
+        if not self.all_same_row_or_col(list(placements.keys())):
+            return False
         return True
 
     def valid_placement(self, given_map: Map, pos: Pos, tile: Tile, tiles_placed: Dict[Pos, Tile]) -> bool:
@@ -105,7 +110,10 @@ class Rulebook:
         :param tiles_placed: the tiles attempting to be placed
         returns true if the tiles can be placed
         """
-        if pos not in self.get_legal_positions(given_map, tile, list(tiles_placed.keys())):
+        if not self.is_valid_space(given_map, pos, tile):
+            return False
+        tiles_down = list(tiles_placed.keys()) + [pos]
+        if not self.all_same_row_or_col(tiles_down):
             return False
         given_map.add_tile_to_board(tile, pos)
         return True

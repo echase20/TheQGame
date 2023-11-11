@@ -92,8 +92,8 @@ class Player(ABC):
             pos, tile = placement
             new_hand = tiles_to_place.copy()
             new_hand.update({pos: tile})
-            test = self.rulebook.valid_placement(pub_data.current_map, pos, tile, new_hand)
-            if not test:
+            valid = self.rulebook.valid_placement(pub_data.current_map, pos, tile, new_hand)
+            if not valid:
                 return self.choose_move_type(pub_data, tiles_to_place)
             copy_hand.remove(tile)
             pub_data.current_map.add_tile_to_board(tile, pos)

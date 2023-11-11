@@ -33,7 +33,6 @@ class ObserverUI:
     def receive_new_image(self, filename: str):
         img = ImageTk.PhotoImage(file=filename)
         img.photo = img
-        w, h = img.width(), img.height()
         self.board_image.configure(image=img)
         self.o.update()
 

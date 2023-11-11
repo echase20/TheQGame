@@ -29,7 +29,7 @@ class PlayerStrategy(ABC):
         """
         hand.sort(key=lambda tile: (tile.shape.value, tile.color.value))
         for tile in hand:
-            if len(rulebook.get_legal_positions(given_map, tile, [])):
+            if len(rulebook.get_legal_positions(given_map, tile, [], break_early=True)):
                 return tile
         return None
 
