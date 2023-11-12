@@ -1,13 +1,12 @@
-from typing import List, Deque
+import json
+from typing import List
 
 from Q.Common.game_state import GameState
 from Q.Common.render import Render
-from collections import deque
-from Q.Player.public_player_data import PublicPlayerData
-from Q.Referee.next_states import nextState
 from Q.Referee.observer_ui import ObserverUI
 from Q.Referee.observer_ui_callbacks import ObserverUICallback
 from Q.Util.util import Util
+import pathlib
 
 
 class Observer(ObserverUICallback):
@@ -16,20 +15,30 @@ class Observer(ObserverUICallback):
     """
 
     def __init__(self):
-        self.states: List["GameState"] = []
-        self.is_game_over = False
+        self.states: List[GameState] = []
         self.image_name_counter = 0
         self.observer_ui = ObserverUI(self)
+
     def save_states(self, state):
         """
-        saves multiple states to the directory tmp/x.png where x is a sequential number starting at 0.
-        :param states: the states that we will save
+        saves a state to the directory {proj-dir-name}/8/tmp/x.png where x is a sequential number starting at 0.
+        :param state: the state that we will save
         :EFFECT updates the image name counter
         """
         public_data = state.extract_public_player_data()
         img = Render(public_data)
-        img.save("tmp/" + str(self.image_name_counter))
+        name = self.get_image_path(str(self.image_name_counter))
+        img.save(name)
         self.image_name_counter += 1
+
+    def get_image_path(self, name) -> str:
+        """
+        gets the absolute image path for the tmp files to be saved in proj-dir/8/tmp
+        :param name: the file name to be saved
+        :return: the absolute path of where to save
+        """
+        curr_dir = pathlib.Path(__file__).parent.resolve()
+        return str(curr_dir) + "/../../8/tmp/" + name + ".png"
 
     def receive_a_state(self, state: GameState):
         """
@@ -38,38 +47,28 @@ class Observer(ObserverUICallback):
         """
         self.states.append(state)
         self.save_states(state)
-    def receive_a_game_over_func(self, game_over: bool):
+
+    def receive_a_game_over(self):
         """
         receives a notification that the game is over
-        :param game_over: true if the game is over false otherwise
         """
-        self.is_game_over = game_over
+        self.start_ui()
 
-    def state_to_img(self, state: GameState):
-        public_data = state.extract_public_player_data()
-        img = Render(public_data)
-        return img
-
-    def next(self, next_state: int):
-        """
-        goes to the next state
-        """
-        img = self.state_to_img(self.states[next_state])
-        self.observer_ui.receive_new_image(img)
-    def previous(self, prev_state: int):
+    def switch(self, state: int):
         """
         goes to the previous state
         """
-        img = self.state_to_img(self.states[prev_state])
-        self.observer_ui.receive_new_image(img)
-    def save_jstate(self, current_state: int):
-        Util.convert_state_to_jstate(self.states[current_state])
+        fp = self.get_image_path(str(state))
+        self.observer_ui.receive_new_image(fp)
 
-    def isNext(self, current_state: int) -> nextState:
-        if (current_state == len(self.states) - 1) and self.is_game_over:
-            return nextState.END
-        if current_state == len(self.states) - 1:
-            return nextState.WAITING
-        return nextState.AVAILABLE
-    def isPrevious(self, current_state: int) -> nextState:
-        return nextState.AVAILABLE if current_state != 0 else nextState.END
+    def save_j_state(self, current_state: int, filepath: str):
+        j_state = Util().convert_gamestate_to_jstate(self.states[current_state])
+        j_state_json = json.dumps(j_state)
+        with open(filepath, 'w') as f:
+            json.dump(j_state_json, f)
+
+    def hasState(self, current_state: int) -> bool:
+        return 0 <= current_state < len(self.states)
+
+    def start_ui(self):
+        self.observer_ui.run()

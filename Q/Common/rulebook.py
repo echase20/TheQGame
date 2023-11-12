@@ -5,6 +5,8 @@ from Q.Common.Board.tile import Tile
 from Q.Common.map import Map
 from Q.Common.Board.pos import Pos
 
+END_SCORE_BONUS = 4
+Q_SCORE_BONUS = 6
 
 class Rulebook:
     """
@@ -12,7 +14,7 @@ class Rulebook:
     Source of truth of all dynamically changeable items of the game
     """
 
-    def get_legal_positions(self, given_map: Map, given_tile: Tile, placed_positions: List[Pos]) -> Set[Pos]:
+    def get_legal_positions(self, given_map: Map, given_tile: Tile, placed_positions: List[Pos], break_early: bool = False) -> Set[Pos]:
         """
         Computes all of the legal positions to place the given tile onto the given map
         :param placed_positions: the positions that have already been placed
@@ -31,6 +33,8 @@ class Rulebook:
                 potential_positions.append(neighbor)
                 if self.all_same_row_or_col(potential_positions):
                     valid_positions.add(neighbor)
+                    if break_early:
+                        return valid_positions
 
         return valid_positions
 
@@ -67,6 +71,8 @@ class Rulebook:
         :return: true if the tile can be placed
         """
         nbrs: Dict[Pos, Tile] = given_map.get_neighbors(pos)
+        if all(x is None for x in nbrs.values()):
+            return False
 
         def compare_features(call1: Callable[[Pos], Pos], call2: Callable[[Pos], Pos], p: Pos,
                              comparator: Callable[[Tile, Tile], bool]) -> bool:
@@ -90,17 +96,28 @@ class Rulebook:
         """
         return len(player_hand) <= num_of_ref_tiles
 
-    def valid_placements(self, given_map: Map, tiles_placed: Dict[Pos, Tile]) -> bool:
+    def valid_placements(self, given_map: Map, placements: Dict[Pos, Tile]):
+        for pos, tile in placements.items():
+            if not self.is_valid_space(given_map, pos, tile):
+                return False
+            given_map.add_tile_to_board(tile, pos)
+        if not self.all_same_row_or_col(list(placements.keys())):
+            return False
+        return True
+
+    def valid_placement(self, given_map: Map, pos: Pos, tile: Tile, tiles_placed: Dict[Pos, Tile]) -> bool:
         """
         if the given tiles can be placed according to the rules of the Q game
         :param given_map: the given map we are placing tiles at
         :param tiles_placed: the tiles attempting to be placed
         returns true if the tiles can be placed
         """
-        for (pos, tile) in tiles_placed.items():
-            if pos not in self.get_legal_positions(given_map, tile, list(tiles_placed.keys())):
-                return False
-            given_map.add_tile_to_board(tile, pos)
+        if not self.is_valid_space(given_map, pos, tile):
+            return False
+        tiles_down = list(tiles_placed.keys()) + [pos]
+        if not self.all_same_row_or_col(tiles_down):
+            return False
+        given_map.add_tile_to_board(tile, pos)
         return True
 
     def compatible_shapes(self, tile1: Tile, tile2: Tile):
@@ -145,7 +162,7 @@ class Rulebook:
         :return the points to be scored
         """
         if not len(player_hand):
-            return 6
+            return END_SCORE_BONUS
         else:
             return 0
 
@@ -174,7 +191,7 @@ class Rulebook:
             seen_component_color.add(curr_map.tiles.get(position).color)
             if (len(seen_component_shape) == 6 and len(seen_component_color) == 1) or \
                     (len(seen_component_color) == 6 and len(seen_component_shape) == 1):
-                points += 6
+                points += Q_SCORE_BONUS
         return points
 
     def get_completing_q_points(self, curr_map: Map, positions: List[Pos]) -> int:

@@ -1,16 +1,19 @@
 from typing import List, Dict
+
+
 from Q.Common.map import Map
 from Q.Common.Board.tile import Tile
 from Q.Common.rulebook import Rulebook
 from Q.Player.dag import Dag
 from Q.Player.player import Player
+from Q.Player.in_housep_player import InHousePlayer
 from Q.Player.turn import Turn
 
 from Q.Player.strategy import PlayerStrategy
 from Q.Player.public_player_data import PublicPlayerData
 
 
-class MockPlayer(Player):
+class ExnPlayer(Player):
     """
     Represents a player that is mocked to have some certain kind of errors
     """

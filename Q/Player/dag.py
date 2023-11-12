@@ -17,5 +17,5 @@ class Dag(PlayerStrategy, ABC):
     def choose_placement(self, possible_positions: List[Pos], given_map: Map) -> Pos:
         return super().choose_placement(possible_positions, given_map)
 
-    def choose_tile_to_play(self, filtered_hand: List[Tile], given_map: Map, rulebook: Rulebook) -> Tile:
-        return super().choose_tile_to_play(filtered_hand, given_map, rulebook)
+    def choose_tile_to_play(self, hand: List[Tile], given_map: Map, rulebook: Rulebook) -> Tile:
+        return super().choose_tile_to_play(hand, given_map, rulebook)

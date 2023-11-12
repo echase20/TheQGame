@@ -13,7 +13,7 @@ from Q.Player.turn_outcome import TurnOutcome
 from Q.Common.Board.tile_color import TileColor
 from Q.Common.Board.tile_shape import TileShape
 from Q.Player.public_player_data import PublicPlayerData
-from Q.Referee.pair_results import PairResults
+from Q.Referee.pair_results import Results
 
 NUM_OF_Q_TILES = 1080
 MAX_NUM_OF_PLAYERS = 4
@@ -39,7 +39,7 @@ class GameState:
         """
         self.players: Dict[str, PlayerGameState] = player_game_states
         self.rulebook = rulebook
-        self.consecutive_exc_or_rep = 0
+        self.completed_turns = 0
 
         if config:
             self.referee_deck = self.create_randomize_deck(config.num_ref_tiles, random_seed)
@@ -82,7 +82,7 @@ class GameState:
         if self.referee_deck is None:
             self.referee_deck = self.create_randomize_deck(1080)
 
-        if self.map is None:
+        if not len(self.map.tiles):
             self.map = Map()
             self.place_ref_tile()
 
@@ -108,7 +108,16 @@ class GameState:
         Has every place passed or replaced for an entire round
         :returns true if all players have passed or replaced else false
         """
-        return self.consecutive_exc_or_rep == len(self.players)
+        active_player_count = len([not pgs.misbehaved for pgs in self.players.values()])
+        return self.completed_turns % active_player_count == 0 and \
+               all(pgs.last_move == TurnOutcome.PASSED or pgs.last_move == TurnOutcome.REPLACED for pgs in self.players.values())
+
+    def update_turn_counter(self):
+        """
+        updates the turn counter to keep track of how many turns have been played
+        """
+        self.completed_turns += 1
+
 
     def extract_public_player_data(self) -> PublicPlayerData:
         """
@@ -148,8 +157,9 @@ class GameState:
         additional_points = self.rulebook.score_turn(turn.placements, self.map, self.players[name].hand,
                                                      end_game=is_game_over)
         self.players[name].points += additional_points
+        self.players[name].last_move = outcome
+        self.update_turn_counter()
 
-        self.update_consecutive_exc_or_rep(outcome)
 
     def turn_placed(self, placements: Dict[Pos, Tile], name: str):
         """
@@ -162,16 +172,14 @@ class GameState:
         placed_tiles = list(placements.values())
         self.players[name].hand = list(filter(lambda a: a not in placed_tiles, self.players[name].hand))
 
-    def draw_tiles_for_player(self, name) -> List[Tile]:
+    def draw_tiles_for_player(self, name):
         """
         draws the max number of tiles possible for a player
         :param name: the name of the player
-        :return: the tiles of the player
         """
         num_of_new_tiles = MAX_NUM_OF_TILES_IN_PLAYER_HAND - len(self.players[name].hand)
         new_tiles = self.draw_tiles(num_of_new_tiles)
         self.players[name].hand.extend(new_tiles)
-        return self.players[name].hand
 
     def turn_replace(self, name: str):
         """
@@ -215,7 +223,10 @@ class GameState:
         :return: the drawn tiles
         """
         if n > len(self.referee_deck):
-            return []
+            ref_deck = self.referee_deck.copy()
+            self.referee_deck = []
+            return ref_deck
+
         else:
             tiles = deepcopy(self.referee_deck[:n])
             del self.referee_deck[:n]
@@ -233,7 +244,7 @@ class GameState:
                 misbehaved.add(name)
         return misbehaved
 
-    def return_pair_of_results(self) -> PairResults:
+    def return_pair_of_results(self) -> Results:
         """
         returns the pair of winners and players that have been kicked
         """
@@ -244,12 +255,14 @@ class GameState:
         for name, points in scores.items():
             if points == max_points and not self.players[name].misbehaved:
                 winners.add(name)
+        losers = set(self.players.keys()).difference((self.get_misbehaved().union(winners)))
 
-        return PairResults(winners, self.get_misbehaved())
+        return Results(winners=winners, losers=losers, misbehaved=self.get_misbehaved())
 
     def render(self):
         """
         renders the map board
         a pop-up will appear of the rendered board
         """
-        Render(self.map.tiles).show()
+        extract_data = self.extract_public_player_data()
+        Render(extract_data).show()

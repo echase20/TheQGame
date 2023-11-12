@@ -10,21 +10,24 @@ from Q.Common.map import Map
 from Q.Common.Board.tile import Tile
 from Q.Common.Board.tile_color import TileColor
 from Q.Common.Board.tile_shape import TileShape
+from Q.Player.cheat_player import CheatPlayer
 from Q.Player.dag import Dag
 from Q.Player.ldasg import LDasg
-from Q.Player.strategy import PlayerStrategy
+from Q.Player.loop_player import LoopPlayer
 from Q.Player.player import Player
+from Q.Player.strategy import PlayerStrategy
+from Q.Player.in_housep_player import InHousePlayer
 from Q.Player.public_player_data import PublicPlayerData
 from Q.Player.turn_outcome import TurnOutcome
-from Q.Player.mock_player import MockPlayer
-from Q.Referee.pair_results import PairResults
+from Q.Player.exn_player import ExnPlayer
+from Q.Referee.pair_results import Results
 
 
 class Util:
     """
     # Represents a utility class used mainly for json parsing
     """
-    def pair_results_to_jresults(self, pair_results: PairResults):
+    def pair_results_to_jresults(self, pair_results: Results):
         jwinners = sorted(list(pair_results.winners))
         jmisbehaved = sorted(list(pair_results.misbehaved))
         jresults = [jwinners, jmisbehaved]
@@ -35,14 +38,37 @@ class Util:
         for jactorspec in jactors:
             jname = jactorspec[0]
             strategy = self.convert_jstrategy_to_strategy(jactorspec[1])
+            if len(jactorspec) == 4 and jactorspec[2] == "a cheat":
+                jcheat = jactorspec[3]
+                players.append(CheatPlayer(name=jname, strategy=strategy, cheat=jcheat))
+            if len(jactorspec) == 4:
+                jexn = jactorspec[2]
+                jcount = jactorspec[3]
+                players.append(LoopPlayer(name=jname,exn=jexn,count=jcount,strategy=strategy))
             if len(jactorspec) == 3:
                 jexn = jactorspec[2]
-                players.append(MockPlayer(name=jname, strategy=strategy, exn=jexn))
+                players.append(ExnPlayer(name=jname, strategy=strategy, exn=jexn))
             else:
-                players.append(Player(jname, strategy))
+                players.append(InHousePlayer(jname, strategy))
         return players
 
-    def convert_jstate_to_gamestate(self, jstate):
+    def convert_tiles_to_jtiles(self, tiles):
+        return [self.convert_tile_to_json(tile) for tile in tiles]
+
+    def convert_player_game_states_to_jplayers(self, players: Dict[str, PlayerGameState]):
+        j_players = []
+        for name, pgs in players.items():
+            jhand = self.convert_tiles_to_jtiles(pgs.hand)
+            j_players.append({"score":pgs.points, "name": name, "tile*": jhand})
+        return j_players
+
+    def convert_gamestate_to_jstate(self, state: GameState):
+        jmap = self.convert_map_to_jmap(state.map)
+        tiles = self.convert_tiles_to_jtiles(state.referee_deck)
+        players = self.convert_player_game_states_to_jplayers(state.players)
+        return {"map": jmap, "tile*": tiles, "players": players}
+
+    def convert_jstate_to_gamestate(self, jstate, new=False):
         """
          { "map"      : JMap,
 
@@ -51,19 +77,40 @@ class Util:
         "players"  : [JPlayer, ..., JPlayer] }
 
         :param jstate:
+        :param new: does the players now include a name field
         :return:
         """
         map = self.convert_json_to_map(jstate["map"])
         tiles = [self.json_to_tile(t) for t in jstate["tile*"]]
-        game_state = GameState(given_map=map, tiles=tiles)
-        return game_state
+        if new:
+            players = self.convert_jplayers_to_dict_name_player_game_state(jstate["players"])
+            return GameState(given_map=map, tiles=tiles, player_game_states=players)
+        else:
+            return GameState(given_map=map, tiles=tiles)
 
     def convert_jplayers_to_playergamestates(self, jplayers) -> List[PlayerGameState]:
+        """"
+        Used for backwards compatibility when player did not have a name field
+        """
         players = []
         for player in jplayers:
             score = player["score"]
             hand = [self.json_to_tile(t) for t in player["tile*"]]
             players.append(PlayerGameState(hand, score, False, None))
+        return players
+
+    def convert_jtiles_to_tiles(self, tiles):
+        return [self.json_to_tile(t) for t in tiles]
+
+
+    def convert_jplayers_to_dict_name_player_game_state(self, jplayers) -> Dict[str, PlayerGameState]:
+        players = {}
+        for player in jplayers:
+            score = player["score"]
+            hand = self.convert_jtiles_to_tiles(player["tile*"])
+            pgs = PlayerGameState(hand, score, False, None)
+            name = player["name"]
+            players.update({name: pgs})
         return players
 
 
@@ -210,7 +257,7 @@ class Util:
         return [i for i in range(num_of_players)]
 
     @staticmethod
-    def convert_jplayer_to_player(python_json, strategy: PlayerStrategy, name: str) -> Player:
+    def convert_jplayer_to_player(python_json, strategy: PlayerStrategy, name: str) -> InHousePlayer:
         """
         Converts JSON representation of a player into an actual Q player
         :param python_json: JSON representation of a player
@@ -218,7 +265,7 @@ class Util:
         :param name: Name of player to be created
         """
         player_tiles = [Util.json_to_tile(tile) for tile in python_json["tile*"]]
-        return Player(name=name, strategy=strategy, hand=player_tiles)
+        return InHousePlayer(name=name, strategy=strategy, hand=player_tiles)
 
     @staticmethod
     def write_legal_json_coordinates(given_map: Map, tile: Tile) -> str:
