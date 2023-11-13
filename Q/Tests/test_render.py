@@ -7,7 +7,7 @@ from Q.Common.Board.tile import Tile
 from Q.Common.Board.pos import Pos
 from Q.Common.map import Map
 from Q.Common.render import Render
-from Q.Player.public_player_data import PublicPlayerData
+from Q.Player.player_state import PlayerState
 
 
 class TestRender:
@@ -43,7 +43,7 @@ class TestRender:
         map = Map(config=self.config)
         scores = {"dilan": 100, "bob": 102}
 
-        ppd = PublicPlayerData(1080, map, scores)
+        ppd = PlayerState(1080, map, scores)
         Render(ppd).show()
 
 

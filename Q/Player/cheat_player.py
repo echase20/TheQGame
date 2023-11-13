@@ -10,7 +10,7 @@ from Q.Common.map import Map
 from Q.Common.rulebook import Rulebook
 from Q.Player.dag import Dag
 from Q.Player.player import Player
-from Q.Player.public_player_data import PublicPlayerData
+from Q.Player.player_state import PlayerState
 from Q.Player.strategy import PlayerStrategy
 from Q.Player.turn import Turn
 from Q.Player.turn_outcome import TurnOutcome
@@ -25,7 +25,7 @@ class CheatPlayer(Player, ABC):
         super().__init__(name, strategy, hand, rulebook)
         self.jcheat = cheat
 
-    def place_non_adjacent_coordinate(self, s: PublicPlayerData) -> Turn:
+    def place_non_adjacent_coordinate(self, s: PlayerState) -> Turn:
         """
         creates a turn where a particular tile does not neighbor any other tile
         :param s: the public knowledge of the game
@@ -38,7 +38,7 @@ class CheatPlayer(Player, ABC):
         placement = {Pos(max_pos_x + 2, 10): self.hand.pop()}
         return Turn(TurnOutcome.PLACED, placement)
 
-    def place_tile_not_owned(self,s:PublicPlayerData) -> Turn:
+    def place_tile_not_owned(self, s:PlayerState) -> Turn:
         for color in TileColor:
             for shape in TileShape:
                 fake_tile = Tile(color, shape)
@@ -49,7 +49,7 @@ class CheatPlayer(Player, ABC):
                     else:
                         return Turn(TurnOutcome.PLACED, {Pos(0, 0): fake_tile})
 
-    def place_not_a_line(self, s: PublicPlayerData) -> Turn:
+    def place_not_a_line(self, s: PlayerState) -> Turn:
         """
         creates a turn that does not place tiles in same row row col
         :param s: the public knowledge of the player
@@ -73,7 +73,7 @@ class CheatPlayer(Player, ABC):
         placements = {pos1: tile1, pos2:tile2}
         return Turn(TurnOutcome.PLACED, placements)
 
-    def exchange_bad_ask_for_tiles(self, s: PublicPlayerData):
+    def exchange_bad_ask_for_tiles(self, s: PlayerState):
         """
         creates a turn that may ask for an exchange of tiles when the rules don't allow
         :param s: the public knowledge of the game
@@ -81,7 +81,7 @@ class CheatPlayer(Player, ABC):
         """
         return Turn(TurnOutcome.REPLACED)
 
-    def place_no_fit(self, s: PublicPlayerData) -> Turn:
+    def place_no_fit(self, s: PlayerState) -> Turn:
         """
         creates a turn that will potentially not fit on the board by attempting to place a tile that may
         not fit according to Q rules.
@@ -98,7 +98,7 @@ class CheatPlayer(Player, ABC):
                         return Turn(TurnOutcome.PLACED, {neighbor: tile_in_hand})
         return Turn(TurnOutcome.PASSED)
 
-    def take_turn(self, s: PublicPlayerData) -> Turn:
+    def take_turn(self, s: PlayerState) -> Turn:
         """
         takes a turn for a player
         :param s: the public state

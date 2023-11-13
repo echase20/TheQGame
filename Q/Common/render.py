@@ -1,15 +1,15 @@
 from PIL import Image, ImageDraw
-from typing import Dict
+from typing import Dict, List
 import sys
 
 from Q.Common.map import Map
-from Q.Player.public_player_data import PublicPlayerData
+from Q.Player.player_state import PlayerState
 
 FOOTER_HEIGHT = 30
 
 
 class Render:
-    def __init__(self, state: PublicPlayerData, length: float = 64):
+    def __init__(self, state: PlayerState, length: float = 64):
         self.side_length: float = length
         # where the current tile x-position starts
         self.x_px: float = 0
@@ -44,7 +44,7 @@ class Render:
         self.draw.text(xy=(0, y - 20), text="Ref Tiles Count:" + str(self.state.num_ref_tiles))
         self.write_scores(x=0, y=y - 10, scores=self.state.scores)
 
-    def write_scores(self, x, y, scores: Dict[str, int]):
+    def write_scores(self, x, y, scores: List[int]):
         """
         writes all the scores of the players in format 'name':'score' at some given x and y positon
         :param x: the given x position to be placed
@@ -52,8 +52,8 @@ class Render:
         :param scores: the scores of the players
         """
         display_of_scores = ""
-        for name, score in scores.items():
-            display_of_scores += f"{name}:{str(score)} "
+        for score in scores:
+            display_of_scores += f"{str(score)} "
         self.draw.text(xy=(x, y), text=display_of_scores)
 
     # gets the dimensions of the board.

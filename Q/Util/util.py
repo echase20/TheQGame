@@ -17,7 +17,7 @@ from Q.Player.loop_player import LoopPlayer
 from Q.Player.player import Player
 from Q.Player.strategy import PlayerStrategy
 from Q.Player.in_housep_player import InHousePlayer
-from Q.Player.public_player_data import PublicPlayerData
+from Q.Player.player_state import PlayerState
 from Q.Player.turn_outcome import TurnOutcome
 from Q.Player.exn_player import ExnPlayer
 from Q.Referee.pair_results import Results
@@ -184,6 +184,12 @@ class Util:
                 pos = Pos(x=ci, y=row[0])
                 map_rep[pos] = map_tile
         return Map(config=map_rep)
+    def convert_player_to_jplayer(self, player: Player):
+
+    def convert_ppd_to_jpub(self, s: PlayerState):
+        jmap = self.convert_map_to_jmap(s.current_map)
+        tiles_left = s.num_ref_tiles
+
 
     def convert_jpub_json_to_game_state(self, python_json) -> GameState:
         """
@@ -232,7 +238,7 @@ class Util:
 
         return j_map
 
-    def convert_player_json_to_player_public_data(self, python_json, names) -> PublicPlayerData:
+    def convert_player_json_to_player_public_data(self, python_json, names) -> PlayerState:
         """
         converts player json to the public player data representation
         :param python_json: JSON representation of Q players
@@ -246,7 +252,7 @@ class Util:
         other_points.insert(0, score)
         points = dict(zip(names, other_points))
 
-        ppd = PublicPlayerData(referee_deck_length, map_board, points)
+        ppd = PlayerState(referee_deck_length, map_board, points)
         return ppd
 
     def create_names(self, num_of_players: int):

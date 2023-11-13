@@ -10,7 +10,7 @@ from Q.Player.in_housep_player import InHousePlayer
 from Q.Player.turn import Turn
 
 from Q.Player.strategy import PlayerStrategy
-from Q.Player.public_player_data import PublicPlayerData
+from Q.Player.player_state import PlayerState
 
 
 class ExnPlayer(Player):
@@ -40,7 +40,7 @@ class ExnPlayer(Player):
             raise Exception("Setup method in player errored out")
         super().setup(given_map, tiles)
 
-    def take_turn(self, s: PublicPlayerData) -> Turn:
+    def take_turn(self, s: PlayerState) -> Turn:
         """
         Raises an exception if called for. Otherwise runs the desired parents take turn method.
         """

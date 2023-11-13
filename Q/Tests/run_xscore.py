@@ -4,7 +4,7 @@ from jsonstream import loads, dumps
 from Q.Common.rulebook import Rulebook
 from Q.Util.util import Util
 from Q.Common.game_state import GameState
-from Q.Player.public_player_data import PublicPlayerData
+from Q.Player.player_state import PlayerState
 
 
 # main method for reading json from the standard in and outputting to standard out

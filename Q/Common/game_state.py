@@ -8,11 +8,12 @@ from Q.Common.Board.tile import Tile
 from Q.Common.map import Map
 from Q.Common.Board.pos import Pos
 from Q.Common.render import Render
+from Q.Player.public_player_data import PublicPlayerData
 from Q.Player.turn import Turn
 from Q.Player.turn_outcome import TurnOutcome
 from Q.Common.Board.tile_color import TileColor
 from Q.Common.Board.tile_shape import TileShape
-from Q.Player.public_player_data import PublicPlayerData
+from Q.Player.player_state import PlayerState
 from Q.Referee.pair_results import Results
 
 NUM_OF_Q_TILES = 1080
@@ -26,7 +27,7 @@ class GameState:
     Represents the state of the game available to the referee
     """
 
-    def __init__(self, config: PublicPlayerData = None, tiles: List[Tile] = [],
+    def __init__(self, config: PlayerState = None, tiles: List[Tile] = [],
                  player_game_states: Dict[str, PlayerGameState] = {}, given_map: Map = Map(), random_seed=None,
                  rulebook=Rulebook()):
         """
@@ -119,7 +120,7 @@ class GameState:
         self.completed_turns += 1
 
 
-    def extract_public_player_data(self) -> PublicPlayerData:
+    def extract_public_player_data(self, player_name: str) -> PlayerState:
         """
         Extracts a copy of the data to be sent to a Player when it is its turn
         :return the player public data of the game state
@@ -127,7 +128,12 @@ class GameState:
         num_ref_tiles = len(self.referee_deck)
         current_map = deepcopy(self.map)
         scores = deepcopy(self.get_scores())
-        return PublicPlayerData(num_ref_tiles=num_ref_tiles, current_map=current_map, scores=scores)
+        scores_without_player = [score for name, score in scores.items() if name != player_name]
+        hand = self.players.get(player_name).hand
+        points = self.players.get(player_name).points
+        player_public_data = PublicPlayerData(score = points, name = player_name, tiles= hand)
+        return PlayerState(num_ref_tiles=num_ref_tiles, current_map=current_map, scores=scores_without_player,
+                           player_data=player_public_data)
 
     def get_scores(self) -> Dict[str, int]:
         """

@@ -45,10 +45,10 @@ class Referee:
         while not Referee.is_game_over(game_state, player_list):
             current_player = player_list.pop(0)
             player_list.append(current_player)
-            pub_data = game_state.extract_public_player_data()
+            player_name = current_player.name()
+            pub_data = game_state.extract_public_player_data(player_name)
             try:
                 turn = current_player.take_turn(pub_data)
-                player_name = current_player.name()
             except Exception as E:
                 Referee.remove_current_player(game_state, current_player, player_list)
                 continue

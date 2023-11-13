@@ -8,7 +8,7 @@ from Q.Common.Board.pos import Pos
 from Q.Common.game_state import GameState
 from Q.Common.rulebook import Rulebook
 from Q.Player.in_housep_player import InHousePlayer
-from Q.Player.public_player_data import PublicPlayerData
+from Q.Player.player_state import PlayerState
 
 
 class TestPoints(unittest.TestCase):
@@ -32,14 +32,14 @@ class TestPoints(unittest.TestCase):
         self.pgs = InHousePlayer(name="bob", hand=self.tiles)
         self.ref_tile = {Pos(0, 0): self.tile1}
         self.m1 = Map(rulebook=Rulebook(),config=self.ref_tile)
-        self.ppd1 = PublicPlayerData(num_ref_tiles=1080, current_map=self.m1, scores={})
+        self.ppd1 = PlayerState(num_ref_tiles=1080, current_map=self.m1, scores={})
         self.gs = GameState(self.ppd1)
         self.gs.signup_player(self.pgs)
         self.gs.place_tiles(tiles=self.config1)
 
         self.config2 = {Pos(0, 1): self.tile5, Pos(1, 0): self.tile4, Pos(1, 1): self.tile3}
         self.m2 = Map(rulebook=Rulebook(),config=self.config2)
-        self.ppd2 = PublicPlayerData(num_ref_tiles=1080,current_map=self.m2, scores={})
+        self.ppd2 = PlayerState(num_ref_tiles=1080, current_map=self.m2, scores={})
         self.gs2 = GameState(self.ppd2)
         self.p2 = InHousePlayer(name="bob", hand=[self.tile3, self.tile7])
         self.gs2.signup_player(self.p2)

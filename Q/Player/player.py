@@ -7,7 +7,7 @@ from Q.Common.Board.tile import Tile
 from Q.Common.map import Map
 from Q.Common.rulebook import Rulebook
 from Q.Player.dag import Dag
-from Q.Player.public_player_data import PublicPlayerData
+from Q.Player.player_state import PlayerState
 from Q.Player.strategy import PlayerStrategy
 from Q.Player.turn import Turn
 from Q.Player.turn_outcome import TurnOutcome
@@ -41,7 +41,7 @@ class Player(ABC):
         self.hand = tiles
 
     @abstractmethod
-    def take_turn(self, s: PublicPlayerData) -> Turn:
+    def take_turn(self, s: PlayerState) -> Turn:
         """
         takes a turn for a player
         :param s: the public state
@@ -65,7 +65,7 @@ class Player(ABC):
         """
         self.hand = st
 
-    def choose_move_type(self, pub_data: PublicPlayerData, tiles_to_place: Dict[Pos, Tile]) -> Turn:
+    def choose_move_type(self, pub_data: PlayerState, tiles_to_place: Dict[Pos, Tile]) -> Turn:
         """
         Returns the move type depending on the strategy and public data.
         :param pub_data: the public data about the game that player knows to determine the move type
@@ -76,7 +76,7 @@ class Player(ABC):
             return Turn(TurnOutcome.PASSED)
         return Turn(TurnOutcome.REPLACED)
 
-    def get_tile_placement_choices(self, pub_data: PublicPlayerData) -> Turn:
+    def get_tile_placement_choices(self, pub_data: PlayerState) -> Turn:
         """
         Gets the placements of the given tiles in the players hand on the given map
         :param pub_data: the public data about the game that player knows to determine the move
@@ -101,7 +101,7 @@ class Player(ABC):
 
         return self.choose_move_type(pub_data, tiles_to_place)
 
-    def get_placement(self, pub_data: PublicPlayerData, strategy: PlayerStrategy, hand: List[Tile]) -> Optional[Tuple[Pos, Tile]]:
+    def get_placement(self, pub_data: PlayerState, strategy: PlayerStrategy, hand: List[Tile]) -> Optional[Tuple[Pos, Tile]]:
         """
         Determines a single placement for the given public data state with some given strategy
         :param pub_data: the public data for the player to make the move

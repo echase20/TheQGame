@@ -12,7 +12,7 @@ from Q.Player.turn import Turn
 from Q.Player.turn_outcome import TurnOutcome
 
 from Q.Player.strategy import PlayerStrategy
-from Q.Player.public_player_data import PublicPlayerData
+from Q.Player.player_state import PlayerState
 
 
 class InHousePlayer(Player, ABC):
@@ -35,7 +35,7 @@ class InHousePlayer(Player, ABC):
     def win(self, w: bool):
         super().win(w)
 
-    def take_turn(self, s: PublicPlayerData) -> Turn:
+    def take_turn(self, s: PlayerState) -> Turn:
         """
         takes a turn for a player
         :param s: the public state

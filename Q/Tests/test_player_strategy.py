@@ -10,7 +10,7 @@ from Q.Common.rulebook import Rulebook
 from Q.Player.in_housep_player import InHousePlayer
 from Q.Player.dag import Dag
 from Q.Player.ldasg import LDasg
-from Q.Player.in_housep_player import PublicPlayerData
+from Q.Player.in_housep_player import PlayerState
 from Q.Player.turn import Turn
 from Q.Player.turn_outcome import TurnOutcome
 
@@ -37,7 +37,7 @@ class TestPlayer(unittest.TestCase):
         self.player2 = InHousePlayer(strategy=LDasg(), name="bob2", hand=[self.tile3, self.tile7])
         self.ref_tile = {Pos(0, 0): self.tile1}
         self.m1 = Map(rulebook=Rulebook(), config=self.ref_tile)
-        self.ppd = PublicPlayerData(1080, self.m1, {})
+        self.ppd = PlayerState(1080, self.m1, {})
         self.gs = GameState(self.ppd)
         self.gs.signup_player(self.player)
         self.gs.place_tiles(tiles=self.config1)
@@ -50,7 +50,7 @@ class TestPlayer(unittest.TestCase):
                         Pos(1, 1): self.tile6,
                         Pos(2, 1): self.tile6}
         self.m3 = Map(rulebook=Rulebook(), config=self.config3)
-        self.ppd3 = PublicPlayerData(1080, self.m3, {})
+        self.ppd3 = PlayerState(1080, self.m3, {})
         self.player3 = InHousePlayer(strategy=LDasg(), name="bob3", hand=[self.tile2, self.tile3])
 
         self.config4 = {
@@ -64,7 +64,7 @@ class TestPlayer(unittest.TestCase):
             Pos(1, 0): self.tile1,
         }
         self.m4 = Map(rulebook=Rulebook(), config=self.config4)
-        self.ppd4 = PublicPlayerData(1080, self.m4, {})
+        self.ppd4 = PlayerState(1080, self.m4, {})
         self.player4 = InHousePlayer(strategy=LDasg(), name="bob4", hand=[self.tile8])
         self.player5 = InHousePlayer(strategy=LDasg(), name="bob5", hand=[self.tile8, self.tile1])
         self.player6 = InHousePlayer(strategy=LDasg(), name="bob6", hand=[self.tile1, self.tile2])

@@ -8,7 +8,7 @@ from Q.Player.player import Player
 from Q.Player.turn import Turn
 
 from Q.Player.strategy import PlayerStrategy
-from Q.Player.public_player_data import PublicPlayerData
+from Q.Player.player_state import PlayerState
 
 
 class LoopPlayer(Player, ABC):
@@ -49,7 +49,7 @@ class LoopPlayer(Player, ABC):
         if self.count == 0:
             self.loop()
 
-    def take_turn(self, s: PublicPlayerData) -> Turn:
+    def take_turn(self, s: PlayerState) -> Turn:
         if self.exn != "take-turn":
             return super().take_turn(s)
         self.count -= 1

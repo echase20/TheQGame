@@ -8,7 +8,7 @@ from Q.Common.Board.tile_shape import TileShape
 from Q.Common.map import Map
 from Q.Player.cheat_player import CheatPlayer
 from Q.Player.dag import Dag
-from Q.Player.public_player_data import PublicPlayerData
+from Q.Player.player_state import PlayerState
 from Q.Player.turn_outcome import TurnOutcome
 
 
@@ -48,10 +48,10 @@ class TestObserver(unittest.TestCase):
         self.m1 = Map(config=self.config1)
         self.m2 = Map()
         self.m3 = Map(config=self.config2)
-        self.pub1 = PublicPlayerData(20, self.m1, {"dilan": 10, "evan": 5})
-        self.pub2 = PublicPlayerData(100, self.m2, {"dilan": 20})
-        self.pub3 = PublicPlayerData(10, self.m3, {"dilan": 20})
-        self.pub4 = PublicPlayerData(1, self.m3, {"dilan": 20})
+        self.pub1 = PlayerState(20, self.m1, {"dilan": 10, "evan": 5})
+        self.pub2 = PlayerState(100, self.m2, {"dilan": 20})
+        self.pub3 = PlayerState(10, self.m3, {"dilan": 20})
+        self.pub4 = PlayerState(1, self.m3, {"dilan": 20})
         pass
 
     def test_non_adjacent_coordinate_cheat1(self):
