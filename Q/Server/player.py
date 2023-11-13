@@ -20,12 +20,12 @@ class ProxyPlayer(Player):
         """
         return self._name
 
-    def setup(self, state: GameState, tiles: List[Tile]):
+    def setup(self, state: PlayerState, tiles: List[Tile]):
         """
         Sets up the game by giving the player their tiles. We do not need to use the given_map but are keeping the
         parameter as this is a public API.
         """
-        jstate = Util().convert_gamestate_to_jstate(state)
+        jstate = Util().convert_ppd_to_jpub(state)
         jtiles = Util().convert_tiles_to_jtiles(tiles)
         self.s.send(jstate, jtiles)
 
