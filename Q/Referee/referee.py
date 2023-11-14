@@ -5,6 +5,7 @@ from Q.Common.Board.tile import Tile
 from Q.Common.map import Map
 from Q.Common.player_game_state import PlayerGameState
 from Q.Common.rulebook import Rulebook
+from Q.Player.player import Player
 from Q.Player.turn import Turn
 from Q.Player.turn_outcome import TurnOutcome
 from Q.Referee.pair_results import Results
@@ -21,7 +22,7 @@ class Referee:
     def __init__(self, observer = None):
         self.observer = observer
 
-    def main(self, player_list: List[InHousePlayer]) -> Results:
+    def main(self, player_list: List[Player]) -> Results:
         """
         executes the Q game for a given list of players
         :param player_list: list of players that will play the game
@@ -34,7 +35,7 @@ class Referee:
 
         return self.run_game(game_state, player_list)
 
-    def run_game(self, game_state: GameState, player_list: List[InHousePlayer]) -> Results:
+    def run_game(self, game_state: GameState, player_list: List[Player]) -> Results:
         """
         Runs the given game state to completion
         :param player_list: the list of players of the game
@@ -46,7 +47,7 @@ class Referee:
             current_player = player_list.pop(0)
             player_list.append(current_player)
             player_name = current_player.name()
-            pub_data = game_state.extract_public_player_data(player_name)
+            pub_data = game_state.extract_player_state(player_name)
             try:
                 turn = current_player.take_turn(pub_data)
             except Exception as E:
@@ -68,7 +69,7 @@ class Referee:
         return game_state.return_pair_of_results()
 
     @staticmethod
-    def is_game_over(game_state: GameState, players: List[InHousePlayer]):
+    def is_game_over(game_state: GameState, players: List[Player]):
         """
         is the game over according to the referee
         :param game_state: the game state of which may be over
@@ -78,7 +79,7 @@ class Referee:
         return not players or game_state.played_all_tiles() or game_state.has_all_passed_or_exchanged_for_a_round()
 
     @staticmethod
-    def send_results(players_left: List[InHousePlayer], game_state):
+    def send_results(players_left: List[Player], game_state):
         """
         sends the results of the game to the respective player who are winners and losers
         :param players_left: the players left in the game
@@ -103,7 +104,7 @@ class Referee:
                 Referee.remove_current_player(game_state, player, players_left)
 
     @staticmethod
-    def send_player_tiles(new_tiles: List[Tile], player: InHousePlayer, game_state: GameState, player_list: [InHousePlayer]):
+    def send_player_tiles(new_tiles: List[Tile], player: Player, game_state: GameState, player_list: [InHousePlayer]):
         """
         sends a player new tiles by calling the player new-tiles API function
         :param new_tiles: the new tiles the player will receive
@@ -140,7 +141,7 @@ class Referee:
             return rulebook.valid_replacement(num_of_ref_tiles, current_player.hand)
         return True
 
-    def start_from_state(self, player_list: List[InHousePlayer], game_state: GameState) -> Results:
+    def start_from_state(self, player_list: List[Player], game_state: GameState) -> Results:
         """
         Initializes players in at a particular given state
         :param player_list: the players in the game
@@ -151,7 +152,7 @@ class Referee:
         return self.run_game(game_state, player_list)
 
     @staticmethod
-    def signup_players(player_list: List[InHousePlayer], game_state: GameState):
+    def signup_players(player_list: List[Player], game_state: GameState):
         """
         Starts the game with the given players and some given game
         :param player_list: the players to be added to the game
@@ -168,7 +169,7 @@ class Referee:
                 Referee.remove_current_player(game_state, player, player_list)
 
     @staticmethod
-    def setup_players(player_list: List[InHousePlayer], game_state: GameState):
+    def setup_players(player_list: List[Player], game_state: GameState):
         """
         setups the player by calling the setup API for each player
         :param player_list: the players to be setup
@@ -181,7 +182,7 @@ class Referee:
                 Referee.remove_current_player(game_state, player, player_list)
 
     @staticmethod
-    def remove_current_player(game_state: GameState, current_player: InHousePlayer, player_list: [InHousePlayer]):
+    def remove_current_player(game_state: GameState, current_player: Player, player_list: [Player]):
         """
         removes the current play from the gamestate
         NOTE: may need to call continue ofter this function to not add the player back to the queue

@@ -2,8 +2,6 @@ from abc import ABC, abstractmethod
 from typing import List
 from Q.Common.Board.pos import Pos
 from Q.Common.Board.tile import Tile
-from Q.Common.Board.tile_color import TileColor
-from Q.Common.Board.tile_shape import TileShape
 from Q.Common.map import Map
 from Q.Common.rulebook import Rulebook
 
@@ -32,7 +30,6 @@ class PlayerStrategy(ABC):
             if len(rulebook.get_legal_positions(given_map, tile, [], break_early=True)):
                 return tile
         return None
-
 
     def get_smallest_placement(self, possible_positions: List[Pos]) -> Pos:
         """

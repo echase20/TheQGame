@@ -6,6 +6,9 @@ from Q.Common.Board.tile import Tile
 
 @dataclass
 class PublicPlayerData:
-    score = int
-    name = str
-    tiles = List[Tile]
+    """
+    Represents the public data that the player knows about themselves
+    """
+    score: int
+    name: str
+    tiles: List[Tile]

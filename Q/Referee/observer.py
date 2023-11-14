@@ -25,7 +25,7 @@ class Observer(ObserverUICallback):
         :param state: the state that we will save
         :EFFECT updates the image name counter
         """
-        public_data = state.extract_public_player_data()
+        public_data = state.extract_player_state()
         img = Render(public_data)
         name = self.get_image_path(str(self.image_name_counter))
         img.save(name)

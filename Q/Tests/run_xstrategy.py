@@ -20,7 +20,7 @@ def main():
     jplayer = jpub["players"][0]
     player = util.convert_jplayer_to_player(jplayer, strategy=strategy, name="dilan")
 
-    player_public_data = game_state.extract_public_player_data()
+    player_public_data = game_state.extract_player_state()
     move = player.choose_move_type(player_public_data)
     placement = player.get_placement(player_public_data, strategy, player.hand, tiles_placed=[])\
         if move == TurnOutcome.PLACED else []

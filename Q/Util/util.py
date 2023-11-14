@@ -15,6 +15,7 @@ from Q.Player.dag import Dag
 from Q.Player.ldasg import LDasg
 from Q.Player.loop_player import LoopPlayer
 from Q.Player.player import Player
+from Q.Player.public_player_data import PublicPlayerData
 from Q.Player.strategy import PlayerStrategy
 from Q.Player.in_housep_player import InHousePlayer
 from Q.Player.player_state import PlayerState
@@ -184,12 +185,19 @@ class Util:
                 pos = Pos(x=ci, y=row[0])
                 map_rep[pos] = map_tile
         return Map(config=map_rep)
-    def convert_player_to_jplayer(self, player: Player):
 
-    def convert_ppd_to_jpub(self, s: PlayerState):
+    def convert_pubic_player_data_to_jplayer(self, player: PublicPlayerData):
+        score = player.score
+        name = player.name
+        hand = player.tiles
+        return {"score": score, "name": name, "hand": hand}
+
+    def convert_player_state_to_jpub(self, s: PlayerState):
         jmap = self.convert_map_to_jmap(s.current_map)
         tiles_left = s.num_ref_tiles
-
+        player = self.convert_pubic_player_data_to_jplayer(player=s.player_data)
+        player_points = s.scores
+        return {"map": jmap, "tile*": tiles_left, "players": [player] + player_points}
 
     def convert_jpub_json_to_game_state(self, python_json) -> GameState:
         """

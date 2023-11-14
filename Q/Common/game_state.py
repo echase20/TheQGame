@@ -119,8 +119,7 @@ class GameState:
         """
         self.completed_turns += 1
 
-
-    def extract_public_player_data(self, player_name: str) -> PlayerState:
+    def extract_player_state(self, player_name: str) -> PlayerState:
         """
         Extracts a copy of the data to be sent to a Player when it is its turn
         :return the player public data of the game state
@@ -131,7 +130,7 @@ class GameState:
         scores_without_player = [score for name, score in scores.items() if name != player_name]
         hand = self.players.get(player_name).hand
         points = self.players.get(player_name).points
-        player_public_data = PublicPlayerData(score = points, name = player_name, tiles= hand)
+        player_public_data = PublicPlayerData(points, player_name, hand)
         return PlayerState(num_ref_tiles=num_ref_tiles, current_map=current_map, scores=scores_without_player,
                            player_data=player_public_data)
 
@@ -165,7 +164,6 @@ class GameState:
         self.players[name].points += additional_points
         self.players[name].last_move = outcome
         self.update_turn_counter()
-
 
     def turn_placed(self, placements: Dict[Pos, Tile], name: str):
         """
@@ -204,16 +202,6 @@ class GameState:
         """
         for pos, tile in tiles.items():
             self.map.add_tile_to_board(tile, pos)
-
-    def update_consecutive_exc_or_rep(self, outcome):
-        """
-        updates the consecutive exchanged or replaced for determining
-        :param outcome: outcome of the most recent turn
-        """
-        if outcome == TurnOutcome.PLACED:
-            self.consecutive_exc_or_rep = 0
-        else:
-            self.consecutive_exc_or_rep += 1
 
     def add_tiles_to_referee_deck(self, tiles: List[Tile]):
         """
@@ -265,10 +253,10 @@ class GameState:
 
         return Results(winners=winners, losers=losers, misbehaved=self.get_misbehaved())
 
-    def render(self):
+    def render(self, player_name):
         """
         renders the map board
         a pop-up will appear of the rendered board
         """
-        extract_data = self.extract_public_player_data()
+        extract_data = self.extract_player_state(player_name)
         Render(extract_data).show()

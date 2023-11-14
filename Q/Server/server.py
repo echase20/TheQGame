@@ -1,20 +1,34 @@
-from socket import socket
+from json import dumps
+from typing import List
+
+from twisted.internet.protocol import Protocol, Factory
+from twisted.internet import reactor
+
+from Q.Player.player_funcs import PlayerFuncs
 
 class Server():
-    pass
-def main():
-    print("Server Waiting For Connection")
-    client_socket, addr = server_socket.accept()
-    print("client connected from", addr)
+    def __init__(self, port: int):
+        self.setup(port)
 
-    data = client_socket.recv(1024)
-    data_new = data.decode("utf-8")
-    client_socket.send(bytes(output, "utf-8"))
-    client_socket.close()
 
-if __name__ == '__main__':
+    def setup(self, port: int):
+        factory = protocol.ServerFactory()
+        factory.protocol = Echo
+        reactor.listenTCP(port, factory)
+        reactor.run()
 
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.bind(("localhost", int(port)))
-    server_socket.listen(1)
-    main()
+    def send(self, player_func: PlayerFuncs, args):
+        tcp_message = dumps([player_func, args])
+
+
+
+        pass
+
+
+
+class Echo(protocol.Protocol):
+    """This is just about the simplest possible protocol"""
+
+    def dataReceived(self, data):
+        "As soon as any data is received, write it back."
+        self.transport.write(data)
