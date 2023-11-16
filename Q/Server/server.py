@@ -1,3 +1,4 @@
+import asyncio
 import threading
 import time
 from json import dumps
@@ -11,47 +12,58 @@ from multiprocessing.pool import ThreadPool
 
 
 # Pycharm has trouble reading Twisted methods
+from Q.Referee.referee import Referee
 from Q.Server.states import States
 
 
-class Server(Protocol):
+class Connection(Protocol):
 
-    def __init__(self, users):
+    def __init__(self, users, ref):
         self.name = ""
         self.users = users
+        self.ref = ref
         self.state = States.SIGNUP
         self.last_received_turn = None
 
     def connectionMade(self):
         text = "What's your name".encode("utf-8")
         self.transport.write(text)
+        t = threading.Timer(3.0, self.wait)
+        t.start()
 
+    def wait(self):
+        if not self.name:
+            self.transport.abortConnection()
+            print("client took too long")
     def dataReceived(self, data: bytes):
         if self.state == States.SIGNUP:
             name = data.decode("utf-8")
             self.users.append(name)
             self.name = name
             print(self.name + " signed up!")
+            text = (self.name + " signed up!").encode("utf-8")
+            self.transport.write(text)
         if self.state == States.RUNGAME:
-            pass
+            if data.decode("utf-8") == "void":
+                pass
+            self.last_received_turn = data.decode("utf-8")
 
     def connectionLost(self, reason: failure.Failure = connectionDone) -> None:
+        if self.name in self.users:
             self.users.remove(self.name)
-
-    def get_last_received_turn(self):
-        return self.last_received_turn
-
 
     def send(self, player_func: PlayerFuncs, args):
         tcp_message = dumps([player_func, args])
         self.transport.write(tcp_message.encode())
 
-        t_end = time.time() + 20
-        while time.time() < t_end:
-            time.sleep(1)
-            if len(self.queue):
-                return self.queue.pop()
-        return None
+    def turn_updated(self):
+        return self.last_received_turn != None
+
+    def update_last_recv_turn(self):
+        self.last_received_turn = None
+
+    def recv(self):
+        return self.last_received_turn
     """
     def recv_data(self):
         p = threading.Thread(target=self.recv_data2)
@@ -64,13 +76,35 @@ class Server(Protocol):
     """
 
 
-class ChatFactory(Factory):
+class ServerFactory(Factory):
 
     def __init__(self):
         self.users = []
+        self.ref = Referee()
+        self.game_start = False
+        self.run_again = True
+        self.wait_for_connections()
+       # while not self.game_start and len(self.users) != 4:
+        #    pass
+
 
     def buildProtocol(self, addr):
-        return Server(self.users)
+        return Connection(self.users, self.ref)
+
+    def wait_for_connections(self):
+        t = threading.Timer(20.0, self.check_for_connections)
+        t.start()
+
+
+    def check_for_connections(self):
+        if len(self.users) < 2:
+            self.game_start = False
+        else:
+            self.game_start = True
+            return
+        if self.run_again and self.game_start == False:
+            self.run_again = False
+            self.wait_for_connections()
 
 def main():
     """
@@ -79,7 +113,7 @@ def main():
     p.start()
     """
     port = 8000
-    reactor.listenTCP(port, ChatFactory())
+    reactor.listenTCP(port, ServerFactory())
     reactor.run()
 
 if __name__ == '__main__':

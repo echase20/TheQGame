@@ -1,4 +1,6 @@
+import threading
 from json import dumps
+from time import sleep
 from typing import List
 
 from Q.Common.Board.tile import Tile
@@ -6,12 +8,12 @@ from Q.Player.player import Player
 from Q.Player.player_funcs import PlayerFuncs
 from Q.Player.player_state import PlayerState
 from Q.Player.turn import Turn
-from Q.Server.server import Server
+from Q.Server.server import Connection
 from Q.Util.util import Util
 
 
 class ProxyPlayer(Player):
-    def __init__(self, name: str, s: Server):
+    def __init__(self, name: str, s: Connection):
         super().__init__(name)
         self.name = name
         self.s = s
@@ -39,8 +41,12 @@ class ProxyPlayer(Player):
         """
         jpub = Util().convert_player_state_to_jpub(s)
         self.s.send(PlayerFuncs.TAKE_TURN, [jpub])
-        recv_data = self.s.recvdata()
-        return recv_data.convert()
+        get_turn = False
+        while get_turn == False:
+            sleep(1)
+            get_turn = self.s.turn_updated()
+        self.s.recv()
+        self.s.update_last_recv_turn()
 
     def win(self, w: bool) -> None:
         """
