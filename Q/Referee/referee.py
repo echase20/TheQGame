@@ -48,7 +48,6 @@ class Referee:
             player_name = current_player.name()
             pub_data = game_state.extract_player_state(player_name)
             if self.observer: self.observer.receive_a_state(deepcopy(game_state), player_name)
-            #print(player_list)
             try:
                 turn = current_player.take_turn(pub_data)
             except Exception as E:

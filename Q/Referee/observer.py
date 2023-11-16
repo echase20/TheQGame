@@ -66,7 +66,7 @@ class Observer(ObserverUICallback):
             return
         j_state = Util().convert_gamestate_to_jstate(self.states[current_state])
         j_state_json = json.dumps(j_state)
-        with open(filepath+'txt', 'w') as f:
+        with open(filepath, 'w') as f:
             json.dump(j_state_json, f)
 
     def hasState(self, current_state: int) -> bool:
