@@ -42,11 +42,11 @@ class Util:
             if len(jactorspec) == 4 and jactorspec[2] == "a cheat":
                 jcheat = jactorspec[3]
                 players.append(CheatPlayer(name=jname, strategy=strategy, cheat=jcheat))
-            if len(jactorspec) == 4:
+            elif len(jactorspec) == 4:
                 jexn = jactorspec[2]
                 jcount = jactorspec[3]
                 players.append(LoopPlayer(name=jname,exn=jexn,count=jcount,strategy=strategy))
-            if len(jactorspec) == 3:
+            elif len(jactorspec) == 3:
                 jexn = jactorspec[2]
                 players.append(ExnPlayer(name=jname, strategy=strategy, exn=jexn))
             else:
