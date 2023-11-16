@@ -8,13 +8,15 @@ class Client(protocol.Protocol):
         #reactor.callInThread(self.send_data)
 
     def connectionMade(self):
-        self.transport.write("Hello, world!".encode("utf-8"))
+        print("Connected to Server")
+        #self.transport.write("Hello, world!".encode("utf-8"))
 
     def dataReceived(self, data):
         data = data.decode("utf-8")
         print("Server said:", data)
         self.transport.write(input().encode(("utf-8")))
         #self.transport.loseConnection()
+
     def send_data(self):
         self.factory.write(input().encode(("utf-8")))
 
@@ -26,5 +28,6 @@ class ClientFactory(protocol.ClientFactory):
 
 
 if __name__ == '__main__':
-     endpoint = TCP4ClientEndpoint(reactor, 'localhost', 8000)
-     endpoint.connect(ClientFactory())
+    endpoint = TCP4ClientEndpoint(reactor, 'localhost', 8000)
+    endpoint.connect(ClientFactory())
+    reactor.run()
