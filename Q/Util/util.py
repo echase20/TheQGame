@@ -69,7 +69,7 @@ class Util:
         players = self.convert_player_game_states_to_jplayers(state.players)
         return {"map": jmap, "tile*": tiles, "players": players}
 
-    def convert_jstate_to_gamestate(self, jstate, new=False):
+    def convert_jstate_to_gamestate(self, jstate) -> GameState:
         """
          { "map"      : JMap,
 
@@ -83,11 +83,8 @@ class Util:
         """
         map = self.convert_json_to_map(jstate["map"])
         tiles = [self.json_to_tile(t) for t in jstate["tile*"]]
-        if new:
-            players = self.convert_jplayers_to_dict_name_player_game_state(jstate["players"])
-            return GameState(given_map=map, tiles=tiles, player_game_states=players)
-        else:
-            return GameState(given_map=map, tiles=tiles)
+        players = self.convert_jplayers_to_dict_name_player_game_state(jstate["players"])
+        return GameState(given_map=map, tiles=tiles, player_game_states=players)
 
     def convert_jplayers_to_playergamestates(self, jplayers) -> List[PlayerGameState]:
         """"

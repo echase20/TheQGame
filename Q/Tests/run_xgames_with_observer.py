@@ -10,14 +10,11 @@ from Q.Util.util import Util
 
 def main():
     stream = loads(sys.stdin.read())
-
     j_state = next(stream)
     j_actors = next(stream)
-
-    game_state = Util().convert_jstate_to_gamestate(j_state, new=True)
+    game_state = Util().convert_jstate_to_gamestate(jstate=j_state)
     players = Util().jactors_to_players(j_actors)
     referee = Referee(observer=Observer()) if show_command() else Referee()
-
     pair_results = referee.start_from_state(players, game_state)
     print(json.dumps(Util().pair_results_to_jresults(pair_results)))
 
