@@ -4,8 +4,9 @@ import sys
 
 from Q.Common.map import Map
 from Q.Player.player_state import PlayerState
+from Q.Player.public_player_data import PublicPlayerData
 
-FOOTER_HEIGHT = 30
+FOOTER_HEIGHT = 160
 
 
 class Render:
@@ -41,8 +42,28 @@ class Render:
         writes the scores and the number of ref tiles on the board
         """
         x, y = self.get_dimensions_length()
+        self.write_player_info(x=0, y=y-30, player_info=self.state.player_data)
+        self.draw_player_hand_tiles(x=0, y=y-100, player_info=self.state.player_data)
         self.draw.text(xy=(0, y - 20), text="Ref Tiles Count:" + str(self.state.num_ref_tiles), fill="black")
         self.write_scores(x=0, y=y - 10, scores=self.state.scores)
+
+    def draw_player_hand_tiles(self, x: int, y:int, player_info: PublicPlayerData):
+        self.x_px = x
+        self.y_px = y
+        for tile in player_info.tiles:
+            self.render_map[tile.shape.get_name()](tile.color.get_name())
+            self.x_px += self.side_length
+
+
+    def write_player_info(self, x: int, y: int, player_info: PublicPlayerData):
+        """
+        writes player info on the board
+        :param player_info: the public data about the player
+        """
+        self.draw.text(xy=(x, y), text=f"Current Player Score:{player_info.score}", fill="black")
+
+
+
 
     def write_scores(self, x, y, scores: List[int]):
         """
@@ -51,7 +72,7 @@ class Render:
         :param y: the given y position to be placed
         :param scores: the scores of the players
         """
-        display_of_scores = ""
+        display_of_scores = "Other Scores:"
         for score in scores:
             display_of_scores += f"{str(score)} "
         self.draw.text(xy=(x, y), text=display_of_scores, fill="black")
@@ -68,7 +89,7 @@ class Render:
     def get_dimensions_length(self) -> tuple:
         x = (-self.min_x + self.max_x) * self.side_length + self.side_length
         y = (-self.min_y + self.max_y) * self.side_length + self.side_length + FOOTER_HEIGHT
-        return max(200, int(x)), max(200, int(y))
+        return max(500, int(x)), max(200, int(y))
 
     # draws each shape beside each other with their respective colors
     def run(self, map: Map):
