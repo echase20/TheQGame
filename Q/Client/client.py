@@ -1,23 +1,33 @@
-import json
-from socket import socket
+from twisted.internet import reactor, protocol
+from twisted.internet.endpoints import TCP4ClientEndpoint
+
+
+class Client(protocol.Protocol):
+    def __init__(self, factory):
+        self.factory = factory
+        #reactor.callInThread(self.send_data)
+
+    def connectionMade(self):
+        print("Connected to Server")
+        #self.transport.write("Hello, world!".encode("utf-8"))
+
+    def dataReceived(self, data):
+        data = data.decode("utf-8")
+        print("Server said:", data)
+        self.transport.write(input().encode(("utf-8")))
+        #self.transport.loseConnection()
+
+    def send_data(self):
+        self.factory.write(input().encode(("utf-8")))
+
+
+class ClientFactory(protocol.ClientFactory):
+    def buildProtocol(self, addr):
+        return Client(self)
 
 
 
-
-
-def send_json_message(
-    sock: socket.socket,
-    json_message: Dict[str, Any],
-) -> None:
-    """Send json packet to server"""
-    message = (json.dumps(json_message) + '\n').encode()
-    sock.sendall(message)
-    print(f'{len(message)} bytes sent')
-def main() -> None:
-    with socket.socket() as sock:
-        sock.connect((IP, PORT))
-        json_message = {"a":2,"b":"count"}#[2,[[["a"]]],2,"b"] #generate_json_message
-        send_json_message(sock, json_message)
-        data = sock.recv(1024)
-        print(str(data))
-        sleep(1)
+if __name__ == '__main__':
+    endpoint = TCP4ClientEndpoint(reactor, 'localhost', 8000)
+    endpoint.connect(ClientFactory())
+    reactor.run()
