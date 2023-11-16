@@ -42,7 +42,6 @@ class Referee:
         :param game_state: the given game state to run the game on
         :return: winners and kicked players
         """
-        print(len(player_list))
         while not Referee.is_game_over(game_state, player_list):
             current_player = player_list.pop(0)
             player_list.append(current_player)

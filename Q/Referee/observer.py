@@ -62,9 +62,11 @@ class Observer(ObserverUICallback):
         self.observer_ui.receive_new_image(fp)
 
     def save_j_state(self, current_state: int, filepath: str):
+        if not filepath:
+            return
         j_state = Util().convert_gamestate_to_jstate(self.states[current_state])
         j_state_json = json.dumps(j_state)
-        with open(filepath, 'w') as f:
+        with open(filepath+'txt', 'w') as f:
             json.dump(j_state_json, f)
 
     def hasState(self, current_state: int) -> bool:
