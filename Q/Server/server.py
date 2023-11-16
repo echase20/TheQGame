@@ -2,7 +2,8 @@ import threading
 import time
 from json import dumps
 
-from twisted.internet.protocol import Protocol, Factory
+import failure as failure
+from twisted.internet.protocol import connectionDone, Protocol, Factory
 from twisted.internet import reactor, protocol
 
 from Q.Player.player_funcs import PlayerFuncs
@@ -15,8 +16,9 @@ from Q.Server.states import States
 
 class Server(Protocol):
 
-    def __init__(self):
-        self.users: [str] = []
+    def __init__(self, users):
+        self.name = ""
+        self.users = users
         self.state = States.SIGNUP
         self.last_received_turn = None
 
@@ -24,18 +26,20 @@ class Server(Protocol):
         if self.state == States.SIGNUP:
             name = data.decode()
             self.users.append(name)
+            self.name = name
         if self.state == States.RUNGAME:
-
+            pass
+    def connectionLost(self, reason: failure.Failure = connectionDone) -> None:
+            self.users.remove(self.name)
     def get_last_received_turn(self):
         return self.last_received_turn
 
     def connectionMade(self):
-        num_users = self.factory.numPorts
         text = "What's your name".encode()
         self.transport.write(text)
 
     def recv_data(self):
-        p = threading.Thread(targeet=self.recv_data2)
+        p = threading.Thread(target=self.recv_data2)
         p.daemon = True
         p.start()
 
@@ -62,10 +66,10 @@ def send():
 class ChatFactory(Factory):
 
     def __init__(self):
-        self.users = {} # maps user names to Chat instances
+        self.users [str] = []
 
     def buildProtocol(self, addr):
-        return Server()
+        return Server(self.users)
 
 def main():
     p = threading.Thread(target=self.write, args=(player_func, args))
@@ -73,5 +77,5 @@ def main():
     p.start()
     port = 4563
     factory = ChatFactory()
-    reactor.listenTCP(port, factory)
+    reactor.listenTCP(port, ChatFactory())
     reactor.run()
