@@ -20,7 +20,7 @@ def main():
 
 
 def show_command():
-    return len(sys.argv) > 1 and sys.argv[1] == "-show"
+    return len(sys.argv) > 1 and sys.argv[1] == "--show"
 
 
 if __name__ == "__main__":

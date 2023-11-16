@@ -19,13 +19,13 @@ class Observer(ObserverUICallback):
         self.image_name_counter = 0
         self.observer_ui = ObserverUI(self)
 
-    def save_states(self, state):
+    def save_states(self, state, curr_player):
         """
         saves a state to the directory {proj-dir-name}/8/tmp/x.png where x is a sequential number starting at 0.
         :param state: the state that we will save
         :EFFECT updates the image name counter
         """
-        public_data = state.extract_player_state()
+        public_data = state.extract_player_state(curr_player)
         img = Render(public_data)
         name = self.get_image_path(str(self.image_name_counter))
         img.save(name)
@@ -40,13 +40,13 @@ class Observer(ObserverUICallback):
         curr_dir = pathlib.Path(__file__).parent.resolve()
         return str(curr_dir) + "/../../8/tmp/" + name + ".png"
 
-    def receive_a_state(self, state: GameState):
+    def receive_a_state(self, state: GameState, player_name: str):
         """
         receives a particular state
         :param state: the given state to be saved
         """
         self.states.append(state)
-        self.save_states(state)
+        self.save_states(state, player_name)
 
     def receive_a_game_over(self):
         """

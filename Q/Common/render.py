@@ -41,7 +41,7 @@ class Render:
         writes the scores and the number of ref tiles on the board
         """
         x, y = self.get_dimensions_length()
-        self.draw.text(xy=(0, y - 20), text="Ref Tiles Count:" + str(self.state.num_ref_tiles))
+        self.draw.text(xy=(0, y - 20), text="Ref Tiles Count:" + str(self.state.num_ref_tiles), fill="black")
         self.write_scores(x=0, y=y - 10, scores=self.state.scores)
 
     def write_scores(self, x, y, scores: List[int]):
@@ -54,7 +54,7 @@ class Render:
         display_of_scores = ""
         for score in scores:
             display_of_scores += f"{str(score)} "
-        self.draw.text(xy=(x, y), text=display_of_scores)
+        self.draw.text(xy=(x, y), text=display_of_scores, fill="black")
 
     # gets the dimensions of the board.
     def set_min_max_values(self, map: Map):
@@ -68,7 +68,7 @@ class Render:
     def get_dimensions_length(self) -> tuple:
         x = (-self.min_x + self.max_x) * self.side_length + self.side_length
         y = (-self.min_y + self.max_y) * self.side_length + self.side_length + FOOTER_HEIGHT
-        return x, y
+        return max(200, int(x)), max(200, int(y))
 
     # draws each shape beside each other with their respective colors
     def run(self, map: Map):

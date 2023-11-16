@@ -42,12 +42,14 @@ class Referee:
         :param game_state: the given game state to run the game on
         :return: winners and kicked players
         """
-        if self.observer: self.observer.receive_a_state(deepcopy(game_state))
+        print(len(player_list))
         while not Referee.is_game_over(game_state, player_list):
             current_player = player_list.pop(0)
             player_list.append(current_player)
             player_name = current_player.name()
             pub_data = game_state.extract_player_state(player_name)
+            if self.observer: self.observer.receive_a_state(deepcopy(game_state), player_name)
+            #print(player_list)
             try:
                 turn = current_player.take_turn(pub_data)
             except Exception as E:
@@ -63,7 +65,7 @@ class Referee:
                 game_state.draw_tiles_for_player(player_name)
                 new_tiles = game_state.players[player_name].hand
                 Referee.send_player_tiles(new_tiles, current_player, game_state, player_list)
-            if self.observer: self.observer.receive_a_state(deepcopy(game_state))
+            if self.observer: self.observer.receive_a_state(deepcopy(game_state), player_name)
         if self.observer: self.observer.receive_a_game_over()
         Referee.send_results(player_list, game_state)
         return game_state.return_pair_of_results()
@@ -195,4 +197,6 @@ class Referee:
 
         hand = current_player_game_state.hand
         game_state.add_tiles_to_referee_deck(hand)
+        #print(len(player_list))
         player_list.remove(current_player)
+       # print(len(player_list))
