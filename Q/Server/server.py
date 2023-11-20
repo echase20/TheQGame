@@ -35,10 +35,11 @@ class Connection(Protocol):
         if not self.name:
             self.transport.abortConnection()
             print("client took too long")
+
     def dataReceived(self, data: bytes):
         if self.state == States.SIGNUP:
             name = data.decode("utf-8")
-            self.users.append(name)
+            self.users[name] = self
             self.name = name
             print(self.name + " signed up!")
             text = (self.name + " signed up!").encode("utf-8")
@@ -79,8 +80,7 @@ class Connection(Protocol):
 class ServerFactory(Factory):
 
     def __init__(self):
-        self.users = []
-        self.ref = Referee()
+        self.users = {}
         self.game_start = False
         self.run_again = True
         self.wait_for_connections()

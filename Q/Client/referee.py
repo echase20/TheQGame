@@ -1,5 +1,6 @@
 import json
 
+from Q.Client.client import Client
 from Q.Player.player import Player
 from Q.Player.player_funcs import PlayerFuncs
 from Q.Referee.referee import Referee
@@ -10,24 +11,28 @@ class ProxyRef():
     """
     Represents the proxy ref
     """
-    def __init__(self, client, player: Player):
+    def __init__(self, client: Client, player: Player):
         self.c = client
         self.player = player
+        self.listen()
 
     def listen(self):
-        data = self.c.recive()
-        if "msg looks like json we want":
-            func = data[0]
-            args = data[1]
-            if func == PlayerFuncs.WIN.value:
-                self.call_win(args)
-            if func == PlayerFuncs.SETUP.value:
-                self.call_setup(args)
-            if func == PlayerFuncs.TAKE_TURN.value:
-                val = self.call_take_turn(args)
-                self.c.send(val)
-            if func == PlayerFuncs.NEW_TILES.value:
-                self.call_new_tiles(args)
+        while True:
+            data = self.c.recv()
+            if data == None:
+                pass
+            else:
+                func = data[0]
+                args = data[1]
+                if func == PlayerFuncs.WIN.value:
+                    self.call_win(args)
+                if func == PlayerFuncs.SETUP.value:
+                    self.call_setup(args)
+                if func == PlayerFuncs.TAKE_TURN.value:
+                    val = self.call_take_turn(args)
+                    self.c.send(val)
+                if func == PlayerFuncs.NEW_TILES.value:
+                    self.call_new_tiles(args)
 
     def call_take_turn(self, args):
         ps = json.loads(args[0])
