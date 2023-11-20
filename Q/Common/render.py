@@ -60,7 +60,7 @@ class Render:
         writes player info on the board
         :param player_info: the public data about the player
         """
-        self.draw.text(xy=(x, y), text=f"Current Player Score:{player_info.score}", fill="black")
+        self.draw.text(xy=(x, y), text=f"Current Player:{player_info.name}:{player_info.score}", fill="black")
 
 
 

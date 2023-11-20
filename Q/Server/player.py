@@ -1,6 +1,6 @@
 import threading
+import time
 from json import dumps
-from time import sleep
 from typing import List
 
 from Q.Common.Board.tile import Tile
@@ -42,18 +42,19 @@ class ProxyPlayer(Player):
         jpub = Util().convert_player_state_to_jpub(s)
         self.s.send(PlayerFuncs.TAKE_TURN, [jpub])
         get_turn = False
-        while get_turn == False:
-            sleep(1)
+        started_loop = time.time()
+        while started_loop + 6 > time.time() and not get_turn:
             get_turn = self.s.turn_updated()
-        self.s.recv()
+        turn = self.s.recv()
         self.s.update_last_recv_turn()
+        return turn
 
     def win(self, w: bool) -> None:
         """
         From specs: the player is informed whether it won or not
         :param w: boolean value to be used to inform the player whether they won
         """
-        self.send(PlayerFuncs.WIN, [w])
+        self.s.send(PlayerFuncs.WIN, [w])
 
     def newTiles(self, st: List[Tile]):
         """
@@ -61,4 +62,4 @@ class ProxyPlayer(Player):
         :param st: set of tiles to be handed to the player
         """
         tiles = Util().convert_tiles_to_jtiles(st)
-        self.send(PlayerFuncs.SETUP, [tiles])
+        self.s.send(PlayerFuncs.SETUP, [tiles])

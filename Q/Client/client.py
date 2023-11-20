@@ -1,41 +1,34 @@
 from twisted.internet import reactor, protocol
-from twisted.internet.endpoints import TCP4ClientEndpoint
-
-from Q.Client.referee import ProxyRef
 from Q.Server.states import States
 
 
 class Client(protocol.Protocol):
-    def __init__(self, factory):
-        self.factory = factory
+    def __init__(self):
+        self.data = []
+        self.newest_not_seen = 0
         self.state = States.SIGNUP
-        #reactor.callInThread(self.send_data)
 
     def connectionMade(self):
         print("Connected to Server")
-        #self.transport.write("Hello, world!".encode("utf-8"))
 
     def dataReceived(self, data):
+        data = data.decode("utf-8")
         if self.state == States.SIGNUP:
-            data = data.decode("utf-8")
             print("Server said:", data)
-            self.transport.write(input().encode(("utf-8")))
-            #self.transport.loseConnection()
+            self.send_data(input())
         if self.state == States.RUNGAME:
-            data = data.decode("utf-8")
+            self.data.append(data)
 
-    def recv(self):
-        return None
+    def get_data(self):
+        if self.newest_not_seen >= len(self.data):
+            return
+        val =  self.data[self.newest_not_seen]
+        self.newest_not_seen += 1
+        return val
 
-    def send_data(self):
-        self.factory.write(input().encode(("utf-8")))
+    def send_data(self, data):
+        self.factory.write(data.encode())
 
 
 class ClientFactory(protocol.ClientFactory):
-    def buildProtocol(self, addr):
-        return Client(self)
-
-if __name__ == '__main__':
-    endpoint = TCP4ClientEndpoint(reactor, 'localhost', 8000)
-    endpoint.connect(ClientFactory())
-    reactor.run()
+    protocol = Client
