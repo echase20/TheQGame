@@ -31,6 +31,7 @@ class Referee:
         game_state = GameState()
         game_state.setup_state()
         Referee.signup_players(player_list, game_state)
+        print(player_list, 'after signup')
         Referee.setup_players(player_list, game_state)
 
         return self.run_game(game_state, player_list)
@@ -158,15 +159,10 @@ class Referee:
         :param player_list: the players to be added to the game
         :param game_state: the game state where the players sign up to
         """
-        copy_map = deepcopy(game_state.map)
         for player in player_list:
             hand = game_state.draw_tiles(6)
             player_game_state = PlayerGameState(hand, 0, False, TurnOutcome.PLACED)
             game_state.signup_player(player_game_state, player.name())
-            try:
-                player.setup(copy_map, hand)
-            except:
-                Referee.remove_current_player(game_state, player, player_list)
 
     @staticmethod
     def setup_players(player_list: List[Player], game_state: GameState):
@@ -177,9 +173,9 @@ class Referee:
         """
         for player in player_list:
             try:
-                player.setup(game_state.map, game_state.players[player.name()].hand.copy())
+                player.setup(game_state.extract_player_state(player.name()), game_state.players[player.name()].hand.copy())
             except:
-                Referee.remove_current_player(game_state, player, player_list)
+                Referee().remove_current_player(game_state, player, player_list)
 
     @staticmethod
     def remove_current_player(game_state: GameState, current_player: Player, player_list: [Player]):
@@ -195,6 +191,4 @@ class Referee:
 
         hand = current_player_game_state.hand
         game_state.add_tiles_to_referee_deck(hand)
-        #print(len(player_list))
         player_list.remove(current_player)
-       # print(len(player_list))

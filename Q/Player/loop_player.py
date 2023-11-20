@@ -35,9 +35,9 @@ class LoopPlayer(Player, ABC):
         if self.count == 0:
             self.loop()
 
-    def setup(self, given_map: Map, tiles: List[Tile]):
+    def setup(self, state: PlayerState, tiles: List[Tile]):
         if self.exn != "setup":
-            return super().setup(given_map, tiles)
+            return super().setup(state, tiles)
         self.count -= 1
         if self.count == 0:
             self.loop()

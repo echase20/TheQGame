@@ -186,8 +186,8 @@ class Util:
     def convert_pubic_player_data_to_jplayer(self, player: PublicPlayerData):
         score = player.score
         name = player.name
-        hand = player.tiles
-        return {"score": score, "name": name, "hand": hand}
+        jtiles = self.convert_tiles_to_jtiles(player.tiles)
+        return {"score": score, "name": name, "hand": jtiles}
 
     def convert_player_state_to_jpub(self, s: PlayerState):
         jmap = self.convert_map_to_jmap(s.current_map)

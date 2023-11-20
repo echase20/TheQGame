@@ -32,13 +32,13 @@ class ExnPlayer(Player):
             raise Exception("Name method in player errored out")
         return super().win(w)
 
-    def setup(self, given_map: Map, tiles: List[Tile]):
+    def setup(self, state: PlayerState, tiles: List[Tile]):
         """
         Raises an exception if called for. Otherwise runs the desired parents setup method.
         """
         if self.exn == "setup":
             raise Exception("Setup method in player errored out")
-        super().setup(given_map, tiles)
+        super().setup(state, tiles)
 
     def take_turn(self, s: PlayerState) -> Turn:
         """

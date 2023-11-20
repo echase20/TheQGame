@@ -33,7 +33,7 @@ class Player(ABC):
         return self._name
 
     @abstractmethod
-    def setup(self, given_map: Map, tiles: List[Tile]):
+    def setup(self, state: PlayerState, tiles: List[Tile]):
         """
         Sets up the game by giving the player their tiles. We do not need to use the given_map but are keeping the
         parameter as this is a public API.

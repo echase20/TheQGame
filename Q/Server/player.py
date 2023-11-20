@@ -1,7 +1,7 @@
 import threading
 import time
 from json import dumps
-from typing import List
+from typing import List, Optional
 
 from Q.Common.Board.tile import Tile
 from Q.Player.player import Player
@@ -15,7 +15,7 @@ from Q.Util.util import Util
 class ProxyPlayer(Player):
     def __init__(self, name: str, s: Connection):
         super().__init__(name)
-        self.name = name
+        self._name = name
         self.s = s
 
     def name(self) -> str:
@@ -29,8 +29,8 @@ class ProxyPlayer(Player):
         Sets up the game by giving the player their tiles. We do not need to use the given_map but are keeping the
         parameter as this is a public API.
         """
-        jstate = dumps(Util().convert_player_state_to_jpub(state))
-        jtiles = dumps(Util().convert_tiles_to_jtiles(tiles))
+        jstate = Util().convert_player_state_to_jpub(state)
+        jtiles = Util().convert_tiles_to_jtiles(tiles)
         self.s.send(PlayerFuncs.SETUP, [jstate, jtiles])
 
     def take_turn(self, s: PlayerState) -> Turn:
@@ -47,6 +47,8 @@ class ProxyPlayer(Player):
             get_turn = self.s.turn_updated()
         turn = self.s.recv()
         self.s.update_last_recv_turn()
+        if turn is None:
+            raise Exception("There was no turn provided in the allocated amount of time")
         return turn
 
     def win(self, w: bool) -> None:

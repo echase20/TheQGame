@@ -4,7 +4,7 @@ from Q.Server.states import States
 
 class Client(protocol.Protocol):
     def __init__(self):
-        self.data = []
+        self.packets = []
         self.newest_not_seen = 0
         self.state = States.SIGNUP
 
@@ -13,22 +13,27 @@ class Client(protocol.Protocol):
 
     def dataReceived(self, data):
         data = data.decode("utf-8")
+        print(data)
+        reactor.my
         if self.state == States.SIGNUP:
             print("Server said:", data)
             self.send_data(input())
-        if self.state == States.RUNGAME:
-            self.data.append(data)
+            self.state = States.RUNGAME
+        elif self.state == States.RUNGAME:
+            self.packets.append(data)
 
     def get_data(self):
-        if self.newest_not_seen >= len(self.data):
+        if self.newest_not_seen >= len(self.packets):
             return
-        val =  self.data[self.newest_not_seen]
+        val = self.packets[self.newest_not_seen]
         self.newest_not_seen += 1
         return val
 
     def send_data(self, data):
-        self.factory.write(data.encode())
+        self.transport.write(data.encode())
 
 
 class ClientFactory(protocol.ClientFactory):
-    protocol = Client
+    def buildProtocol(self, addr):
+        print('Connected.')
+        return Client()

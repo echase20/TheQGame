@@ -1,9 +1,8 @@
 import json
 
-from Q.Client.client import Client
+from Q.Client.client import ClientFactory
 from Q.Player.player import Player
 from Q.Player.player_funcs import PlayerFuncs
-from Q.Referee.referee import Referee
 from Q.Util.util import Util
 
 
@@ -11,17 +10,20 @@ class ProxyRef:
     """
     Represents the proxy ref
     """
-    def __init__(self, client: Client, player: Player):
-        self.c = client
+    def __init__(self, factory: ClientFactory, player: Player):
+        self.fac = factory
+        self.c = factory.protocol
         self.player = player
-        self.listen()
+        #self.listen()
 
     def listen(self):
         while True:
             data = self.c.get_data()
+            #print(data)
             if data is None:
                 pass
             else:
+                print(data)
                 func = data[0]
                 args = data[1]
                 if func == PlayerFuncs.WIN.value:

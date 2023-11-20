@@ -120,8 +120,8 @@ class CheatPlayer(Player, ABC):
     def newTiles(self, st: List[Tile]):
         super().newTiles(st)
 
-    def setup(self, given_map: Map, tiles: List[Tile]):
-        super().setup(given_map, tiles)
+    def setup(self, state: PlayerState, tiles: List[Tile]):
+        super().setup(state, tiles)
 
     def win(self, w: bool):
         super().win(w)

@@ -1,4 +1,5 @@
 jsonstream
 Pillow
 twisted
+failure
 ..
