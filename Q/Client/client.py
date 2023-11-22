@@ -14,7 +14,6 @@ class Client(protocol.Protocol):
     def dataReceived(self, data):
         data = data.decode("utf-8")
         print(data)
-        reactor.my
         if self.state == States.SIGNUP:
             print("Server said:", data)
             self.send_data(input())
@@ -37,3 +36,5 @@ class ClientFactory(protocol.ClientFactory):
     def buildProtocol(self, addr):
         print('Connected.')
         return Client()
+
+

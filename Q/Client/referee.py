@@ -14,12 +14,10 @@ class ProxyRef:
         self.fac = factory
         self.c = factory.protocol
         self.player = player
-        #self.listen()
 
     def listen(self):
         while True:
             data = self.c.get_data()
-            #print(data)
             if data is None:
                 pass
             else:

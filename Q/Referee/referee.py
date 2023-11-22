@@ -174,7 +174,9 @@ class Referee:
         for player in player_list:
             try:
                 player.setup(game_state.extract_player_state(player.name()), game_state.players[player.name()].hand.copy())
-            except:
+            except Exception as e:
+                print(e)
+
                 Referee().remove_current_player(game_state, player, player_list)
 
     @staticmethod

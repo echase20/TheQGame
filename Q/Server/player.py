@@ -3,6 +3,8 @@ import time
 from json import dumps
 from typing import List, Optional
 
+from twisted.internet import defer
+
 from Q.Common.Board.tile import Tile
 from Q.Player.player import Player
 from Q.Player.player_funcs import PlayerFuncs
@@ -18,6 +20,13 @@ class ProxyPlayer(Player):
         self._name = name
         self.s = s
 
+    def listen(self):
+        t = time.time()
+        while time.time() - t < 6:
+            #jrep = self.s.see_if_received()
+            #if rep: return rep
+            pass
+
     def name(self) -> str:
         """
         Returns the player's name
@@ -32,6 +41,10 @@ class ProxyPlayer(Player):
         jstate = Util().convert_player_state_to_jpub(state)
         jtiles = Util().convert_tiles_to_jtiles(tiles)
         self.s.send(PlayerFuncs.SETUP, [jstate, jtiles])
+        response = self.s.see_if_received(d)
+        if response:
+            print(response)
+            raise Exception("no void return")
 
     def take_turn(self, s: PlayerState) -> Turn:
         """
@@ -40,16 +53,13 @@ class ProxyPlayer(Player):
         :return: the turn the player does
         """
         jpub = Util().convert_player_state_to_jpub(s)
-        self.s.send(PlayerFuncs.TAKE_TURN, [jpub])
-        get_turn = False
-        started_loop = time.time()
-        while started_loop + 6 > time.time() and not get_turn:
-            get_turn = self.s.turn_updated()
-        turn = self.s.recv()
-        self.s.update_last_recv_turn()
-        if turn is None:
-            raise Exception("There was no turn provided in the allocated amount of time")
-        return turn
+        test = self.s.send(PlayerFuncs.TAKE_TURN, [jpub])
+        response = self.listen()
+        if response != "void":
+            raise Exception("no void return")
+
+        print(test)
+        return test
 
     def win(self, w: bool) -> None:
         """
@@ -57,6 +67,9 @@ class ProxyPlayer(Player):
         :param w: boolean value to be used to inform the player whether they won
         """
         self.s.send(PlayerFuncs.WIN, [w])
+        response = self.listen()
+        if response != "void":
+            raise Exception("no void return")
 
     def newTiles(self, st: List[Tile]):
         """
@@ -65,3 +78,6 @@ class ProxyPlayer(Player):
         """
         tiles = Util().convert_tiles_to_jtiles(st)
         self.s.send(PlayerFuncs.SETUP, [tiles])
+        response = self.listen()
+        if response != "void":
+            raise Exception("no void return")
