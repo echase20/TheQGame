@@ -1,60 +1,64 @@
 import json
 
-from Q.Client.client import ClientFactory
+from Q.Client.client import Client
 from Q.Player.player import Player
 from Q.Player.player_funcs import PlayerFuncs
 from Q.Util.util import Util
 
-
+VOID = 'void'
 class ProxyRef:
     """
     Represents the proxy ref
     """
-    def __init__(self, factory: ClientFactory, player: Player):
-        self.fac = factory
-        self.c = factory.protocol
+    def __init__(self, client: Client, player: Player):
+        self.client = client
         self.player = player
+        self.main()
 
-    def listen(self):
+    def main(self):
+        """
+        listens for data, performs some function on that data, and sends that processed data back to the server
+        """
         while True:
-            data = self.c.get_data()
-            if data is None:
-                pass
-            else:
-                print(data)
-                func = data[0]
-                args = data[1]
-                if func == PlayerFuncs.WIN.value:
-                    self.call_win(args)
-                    self.c.send_data('void')
-                if func == PlayerFuncs.SETUP.value:
-                    self.call_setup(args)
-                    self.c.send_data('void')
-                if func == PlayerFuncs.TAKE_TURN.value:
-                    val = self.call_take_turn(args)
-                    self.c.send_data(val)
-                if func == PlayerFuncs.NEW_TILES.value:
-                    self.call_new_tiles(args)
-                    self.c.send_data('void')
+            data = self.client.recv()
+            if data:
+                ret = self.process(data)
+                self.client.send(ret)
 
-    def call_take_turn(self, args) :
-        ps = json.loads(args[0])
-        return self.player.take_turn(ps)
+    def process(self, data: str) -> str:
+        data = json.loads(data)
+        func = data[0]
+        print(data[1])
+        args = data[1]
 
-    def call_new_tiles(self, args):
-        tiles = json.loads(args[0])
-        converted_tiles = Util().convert_jtiles_to_tiles(tiles)
-        self.player.newTiles(converted_tiles)
+        if func == PlayerFuncs.WIN.value:
+            return self.call_win(args)
+        if func == PlayerFuncs.SETUP.value:
+            return self.call_setup(args)
+        if func == PlayerFuncs.TAKE_TURN.value:
+            val = self.call_take_turn(args)
+            return val
+        if func == PlayerFuncs.NEW_TILES.value:
+            return self.call_new_tiles(args)
 
+    def call_take_turn(self, args) -> str:
+        ps = Util().convert_jpub_to_player_state(args[0])
+        turn = self.player.take_turn(ps)
+        return json.dumps(Util().convert_single_turn_to_j_action(turn.turn_outcome, turn.placements))
 
-    def call_setup(self, args):
-        ps = json.loads(args[0])
-        tiles = json.loads(args[1])
-        Util().convert_jpub_json_to_game_state(ps)
-        Util().convert_jtiles_to_tiles(tiles)
+    def call_new_tiles(self, args) -> str:
+        tiles = Util().convert_jtiles_to_tiles(args[0])
+        self.player.newTiles(tiles)
+        return VOID
+
+    def call_setup(self, args) -> str:
+        ps = Util().convert_jpub_to_player_state(args[0])
+        tiles = Util().convert_jtiles_to_tiles(args[1])
         self.player.setup(ps, tiles)
+        return VOID
 
-    def call_win(self, args):
+    def call_win(self, args) -> str:
         b = args[0]
         self.player.win(b)
+        return VOID
 

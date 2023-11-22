@@ -33,7 +33,7 @@ class Referee:
         Referee.signup_players(player_list, game_state)
         print(player_list, 'after signup')
         Referee.setup_players(player_list, game_state)
-
+        print(player_list, 'after year')
         return self.run_game(game_state, player_list)
 
     def run_game(self, game_state: GameState, player_list: List[Player]) -> Results:

@@ -183,11 +183,18 @@ class Util:
                 map_rep[pos] = map_tile
         return Map(config=map_rep)
 
+    def convert_jplayer_to_public_player_data(self, jplayer):
+        score = jplayer['score']
+        name = jplayer['name']
+        tiles = self.convert_jtiles_to_tiles(jplayer['tile*'])
+
+        return PublicPlayerData(score, name, tiles)
+
     def convert_pubic_player_data_to_jplayer(self, player: PublicPlayerData):
         score = player.score
         name = player.name
         jtiles = self.convert_tiles_to_jtiles(player.tiles)
-        return {"score": score, "name": name, "hand": jtiles}
+        return {"score": score, "name": name, "tile*": jtiles}
 
     def convert_player_state_to_jpub(self, s: PlayerState):
         jmap = self.convert_map_to_jmap(s.current_map)
@@ -207,7 +214,7 @@ class Util:
         We take this information and return a GameState object with it.
         """
         names = self.create_names(len(python_json["players"]))
-        player_public_data = self.convert_player_json_to_player_public_data(python_json, names)
+        player_public_data = self.convert_jpub_to_player_state(python_json, names)
         game_state = GameState(config=player_public_data)
         return game_state
 
@@ -243,7 +250,7 @@ class Util:
 
         return j_map
 
-    def convert_player_json_to_player_public_data(self, python_json, names) -> PlayerState:
+    def convert_jpub_to_player_state(self, python_json) -> PlayerState:
         """
         converts player json to the public player data representation
         :param python_json: JSON representation of Q players
@@ -255,9 +262,10 @@ class Util:
         score = python_json["players"][0]["score"]
         other_points = python_json["players"][1:]
         other_points.insert(0, score)
-        points = dict(zip(names, other_points))
+        curr_player = python_json["players"][0]
+        player = self.convert_jplayer_to_public_player_data(curr_player)
 
-        ppd = PlayerState(referee_deck_length, map_board, points)
+        ppd = PlayerState(referee_deck_length, map_board, player, other_points)
         return ppd
 
     def create_names(self, num_of_players: int):

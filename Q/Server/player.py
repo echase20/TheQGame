@@ -1,21 +1,17 @@
-import threading
 import time
-from json import dumps
-from typing import List, Optional
+from typing import List
 
-from twisted.internet import defer
 
 from Q.Common.Board.tile import Tile
 from Q.Player.player import Player
 from Q.Player.player_funcs import PlayerFuncs
 from Q.Player.player_state import PlayerState
 from Q.Player.turn import Turn
-from Q.Server.server import Connection
 from Q.Util.util import Util
 
 
 class ProxyPlayer(Player):
-    def __init__(self, name: str, s: Connection):
+    def __init__(self, name: str, s):
         super().__init__(name)
         self._name = name
         self.s = s
@@ -23,8 +19,6 @@ class ProxyPlayer(Player):
     def listen(self):
         t = time.time()
         while time.time() - t < 6:
-            #jrep = self.s.see_if_received()
-            #if rep: return rep
             pass
 
     def name(self) -> str:
@@ -40,11 +34,27 @@ class ProxyPlayer(Player):
         """
         jstate = Util().convert_player_state_to_jpub(state)
         jtiles = Util().convert_tiles_to_jtiles(tiles)
-        self.s.send(PlayerFuncs.SETUP, [jstate, jtiles])
-        response = self.s.see_if_received(d)
-        if response:
-            print(response)
-            raise Exception("no void return")
+
+        self.s.write_method(PlayerFuncs.SETUP.value, [jstate, jtiles])
+        sent_time = time.time()
+        while time.time() - sent_time < 6:
+            pass
+            #data = self.s.recv()
+            #if self.isValid(data):
+            #    return
+            #else:
+            #    raise Exception("invalid json")
+
+
+    def wait(self):
+        while True:
+            pass
+
+    def blockingMethod(self):
+        t = time.time()
+        while time.time() - t < 6:
+            pass
+        return "hello"
 
     def take_turn(self, s: PlayerState) -> Turn:
         """
@@ -52,13 +62,16 @@ class ProxyPlayer(Player):
         :param s: the public state
         :return: the turn the player does
         """
+        print("HELLO")
         jpub = Util().convert_player_state_to_jpub(s)
         test = self.s.send(PlayerFuncs.TAKE_TURN, [jpub])
-        response = self.listen()
-        if response != "void":
-            raise Exception("no void return")
 
-        print(test)
+        #response = self.listen()
+        #if response != "void":
+        #    raise Exception("no void return")
+
+        #print(test)
+        #return test
         return test
 
     def win(self, w: bool) -> None:
