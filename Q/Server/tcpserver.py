@@ -6,7 +6,6 @@ from threading import Timer
 from typing import Any
 
 from Q.Server.server_callback import ServerCallbacks
-from Q.Server.states import States
 
 ServerAddress = ("127.0.0.1", 8000)
 names = {}
@@ -69,6 +68,5 @@ if __name__ == "__main__":
     t1.start()
     t2.start()
     t3.start()
-    print("ARE WE IN HERE LIKE MULTIPLE TIMES?")
     TCPServerInstance.serve_forever()
 

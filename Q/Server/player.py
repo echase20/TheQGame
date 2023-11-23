@@ -54,7 +54,6 @@ class ProxyPlayer(Player):
         self.s.write_method(PlayerFuncs.TAKE_TURN.value, [jpub])
         msg = self.listen()
         if msg:
-            print("LMAO")
             try:
                 print(msg)
                 data = json.loads(msg)

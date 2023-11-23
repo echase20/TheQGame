@@ -26,6 +26,7 @@ class ProxyRef:
                 self.client.send(ret)
 
     def process(self, data: str) -> str:
+        print(data)
         data = json.loads(data)
         func = data[0]
         print(data)
