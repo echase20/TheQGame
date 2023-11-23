@@ -1,7 +1,9 @@
 import json
 import socketserver
+import sys
 import threading
 from threading import Timer
+from typing import Any
 
 from Q.Server.server_callback import ServerCallbacks
 from Q.Server.states import States
@@ -15,6 +17,7 @@ def check_players(should_close: bool):
         callback.start_game(names)
         t1.cancel()
         t2.cancel()
+        sys.exit()
     elif should_close:
         t1.cancel()
         t2.cancel()
@@ -26,6 +29,7 @@ def should_start_game():
             callback.start_game(names)
             t1.cancel()
             t2.cancel()
+            sys.exit()
 
 t1 = Timer(20, check_players, args=[False], kwargs=None)
 t2 = Timer(40, check_players, args=[True], kwargs=None)
@@ -33,22 +37,38 @@ t3 = threading.Thread(target=should_start_game)
 
 
 class MyTCPClientHandler(socketserver.StreamRequestHandler):
+    def __init__(self, request: Any, client_address: Any, server: socketserver.BaseServer):
+        self.latest = ""
+        self.first_message = True
+        super().__init__(request, client_address, server)
+
+    def get_latest_message(self):
+        latest = self.latest
+        self.latest = ""
+        return latest
+
     def write_method(self, func, args):
         data = json.dumps([func, args])
         self.wfile.write(data.encode())
 
     def handle(self):
-        self.state = States.SIGNUP
         while True:
-            msg = self.rfile.readline().strip()
-            print(msg, '= received message')
-            if self.state == States.SIGNUP and msg not in names.keys():
-                names[msg.decode()] = self
+            msg = self.rfile.readline().strip().decode()
+
+            if msg and self.first_message and msg not in names.keys():
+                names[msg] = self
+                self.first_message = False
+                continue
+            if msg and not self.first_message:
+                print(msg)
+                self.latest = msg
+
 
 if __name__ == "__main__":
     TCPServerInstance = socketserver.ThreadingTCPServer(ServerAddress, MyTCPClientHandler)
     t1.start()
     t2.start()
     t3.start()
+    print("ARE WE IN HERE LIKE MULTIPLE TIMES?")
     TCPServerInstance.serve_forever()
 

@@ -1,3 +1,4 @@
+import json
 import time
 from typing import List
 
@@ -17,9 +18,12 @@ class ProxyPlayer(Player):
         self.s = s
 
     def listen(self):
-        t = time.time()
-        while time.time() - t < 6:
-            pass
+        sent_time = time.time()
+        while time.time() - sent_time < 6:
+            msg = self.s.get_latest_message()
+            if msg:
+                return msg
+        return None
 
     def name(self) -> str:
         """
@@ -36,25 +40,9 @@ class ProxyPlayer(Player):
         jtiles = Util().convert_tiles_to_jtiles(tiles)
 
         self.s.write_method(PlayerFuncs.SETUP.value, [jstate, jtiles])
-        sent_time = time.time()
-        while time.time() - sent_time < 6:
-            pass
-            #data = self.s.recv()
-            #if self.isValid(data):
-            #    return
-            #else:
-            #    raise Exception("invalid json")
-
-
-    def wait(self):
-        while True:
-            pass
-
-    def blockingMethod(self):
-        t = time.time()
-        while time.time() - t < 6:
-            pass
-        return "hello"
+        response = self.listen()
+        if response != "void":
+            raise Exception("no void return")
 
     def take_turn(self, s: PlayerState) -> Turn:
         """
@@ -62,24 +50,26 @@ class ProxyPlayer(Player):
         :param s: the public state
         :return: the turn the player does
         """
-        print("HELLO")
         jpub = Util().convert_player_state_to_jpub(s)
-        test = self.s.send(PlayerFuncs.TAKE_TURN, [jpub])
-
-        #response = self.listen()
-        #if response != "void":
-        #    raise Exception("no void return")
-
-        #print(test)
-        #return test
-        return test
+        self.s.write_method(PlayerFuncs.TAKE_TURN.value, [jpub])
+        msg = self.listen()
+        if msg:
+            print("LMAO")
+            try:
+                print(msg)
+                data = json.loads(msg)
+                return Util().convert_jaction_to_turn(data)
+            except Exception as e:
+                print(e)
+        else:
+            raise Exception("Reply message was not valid")
 
     def win(self, w: bool) -> None:
         """
         From specs: the player is informed whether it won or not
         :param w: boolean value to be used to inform the player whether they won
         """
-        self.s.send(PlayerFuncs.WIN, [w])
+        self.s.write_method(PlayerFuncs.WIN.value, [w])
         response = self.listen()
         if response != "void":
             raise Exception("no void return")
@@ -90,7 +80,7 @@ class ProxyPlayer(Player):
         :param st: set of tiles to be handed to the player
         """
         tiles = Util().convert_tiles_to_jtiles(st)
-        self.s.send(PlayerFuncs.SETUP, [tiles])
+        self.s.write_method(PlayerFuncs.NEW_TILES.value, tiles)
         response = self.listen()
         if response != "void":
             raise Exception("no void return")

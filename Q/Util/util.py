@@ -19,6 +19,7 @@ from Q.Player.public_player_data import PublicPlayerData
 from Q.Player.strategy import PlayerStrategy
 from Q.Player.in_housep_player import InHousePlayer
 from Q.Player.player_state import PlayerState
+from Q.Player.turn import Turn
 from Q.Player.turn_outcome import TurnOutcome
 from Q.Player.exn_player import ExnPlayer
 from Q.Referee.pair_results import Results
@@ -28,6 +29,36 @@ class Util:
     """
     # Represents a utility class used mainly for json parsing
     """
+    def convert_turn_to_j_turn(self, turn: Turn):
+        if turn.turn_outcome == TurnOutcome.PASSED or turn.turn_outcome == TurnOutcome.REPLACED:
+            return turn.turn_outcome.value
+        if turn.turn_outcome == TurnOutcome.PLACED:
+            return self.convert_placements_to_jplacements(turn.placements)
+
+    def convert_jaction_to_turn(self, jaction):
+        print(jaction)
+        if jaction == "pass":
+            return Turn(TurnOutcome.PASSED)
+        if jaction == "replace":
+            return Turn(TurnOutcome.REPLACED)
+
+        tiles = self.convert_j_placements_to_placements(jaction)
+
+        return Turn(TurnOutcome.PLACED, tiles)
+
+    def convert_j_placements_to_placements(self, jplacements) -> Dict[Pos, Tile]:
+        placements = {}
+        print(jplacements, "jplacements")
+        print(type(jplacements))
+        for placement in jplacements:
+            print("WE AERE IN THIS CORRECT ONE")
+            print(placement)
+            coord = self.convert_coorindate_to_pos(placement["coordinate"])
+            print("WE AERE IN THIS CORRECT ONE2")
+            tile = self.json_to_tile(placement["1tile"])
+            placements[coord] = tile
+        return placements
+
     def pair_results_to_jresults(self, pair_results: Results):
         jwinners = sorted(list(pair_results.winners))
         jmisbehaved = sorted(list(pair_results.misbehaved))
@@ -124,7 +155,15 @@ class Util:
         if outcome == TurnOutcome.REPLACED:
             return "replace"
         if outcome == TurnOutcome.PLACED:
-            return self.convert_placement_to_jplacement(placement)
+            return self.convert_placements_to_jplacements(placement)
+
+    def convert_placements_to_jplacements(self, placements: Dict[Pos, Tile]):
+        jplacements = []
+        for pos, tile in placements.items():
+            print("WE ARE IN HERE?")
+            jplacement = {"coordinate": self.__create_json_pos(pos), "1tile": self.convert_tile_to_json(tile)}
+            jplacements.append(jplacement)
+        return jplacements
 
     def convert_placement_to_jplacement(self, placement: Dict[Pos, Tile]) -> dict:
         """

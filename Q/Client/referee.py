@@ -28,7 +28,8 @@ class ProxyRef:
     def process(self, data: str) -> str:
         data = json.loads(data)
         func = data[0]
-        print(data[1])
+        print(data)
+        print()
         args = data[1]
 
         if func == PlayerFuncs.WIN.value:
@@ -36,18 +37,18 @@ class ProxyRef:
         if func == PlayerFuncs.SETUP.value:
             return self.call_setup(args)
         if func == PlayerFuncs.TAKE_TURN.value:
-            val = self.call_take_turn(args)
-            return val
+            return self.call_take_turn(args)
         if func == PlayerFuncs.NEW_TILES.value:
             return self.call_new_tiles(args)
 
     def call_take_turn(self, args) -> str:
         ps = Util().convert_jpub_to_player_state(args[0])
         turn = self.player.take_turn(ps)
-        return json.dumps(Util().convert_single_turn_to_j_action(turn.turn_outcome, turn.placements))
+        return json.dumps(Util().convert_turn_to_j_turn(turn))
 
     def call_new_tiles(self, args) -> str:
-        tiles = Util().convert_jtiles_to_tiles(args[0])
+        #print(args)
+        tiles = Util().convert_jtiles_to_tiles(args)
         self.player.newTiles(tiles)
         return VOID
 
