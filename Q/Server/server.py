@@ -6,6 +6,7 @@ from threading import Timer
 from typing import Any
 
 from Q.Server.server_callback import ServerCallbacks
+from Q.Server.states import States
 
 ServerAddress = ("127.0.0.1", 8001)
 names = {}
@@ -40,8 +41,13 @@ t3 = threading.Thread(target=should_start_game)
 class MyTCPClientHandler(socketserver.StreamRequestHandler):
     def __init__(self, request: Any, client_address: Any, server: socketserver.BaseServer):
         self.latest = ""
-        self.first_message = True
+        self.state = States.SIGNUP
+        self.check_for_name_thread = Timer(3, self.check_for_name)
         super().__init__(request, client_address, server)
+
+    def check_for_name(self):
+        if self.state == States.SIGNUP:
+            self.state = States.NO_NAME_GIVEN
 
     def get_latest_message(self):
         latest = self.latest
@@ -55,12 +61,12 @@ class MyTCPClientHandler(socketserver.StreamRequestHandler):
     def handle(self):
         while True:
             msg = self.rfile.readline().strip().decode()
-
-            if msg and self.first_message and msg not in names.keys():
+            if msg and self.state.SIGNUP and msg not in names.keys():
                 names[msg] = self
-                self.first_message = False
+                self.state = States.RUNGAME
                 continue
-            if msg and not self.first_message:
+
+            if msg and self.state.RUNGAME:
                 self.latest = msg
 
 
