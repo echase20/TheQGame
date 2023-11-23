@@ -59,7 +59,7 @@ class Referee:
             Referee.remove_current_player(game_state, current_player, player_list)
             print("WE ARE IN HERE")
 
-    #@timeout(6)
+    @timeout(6)
     def player_func(self, func, args, current_player: Player, game_state: GameState, player_list: List[Player]):
         function_mapping = {"take_turn": current_player.take_turn,
                             "setup": current_player.setup,
@@ -84,6 +84,7 @@ class Referee:
         """
         while not Referee.is_game_over(game_state, player_list):
             current_player = player_list.pop(0)
+            print(current_player)
             player_list.append(current_player)
             player_name = current_player.name()
             pub_data = game_state.extract_player_state(player_name)

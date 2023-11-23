@@ -26,6 +26,7 @@ class timeout(object):
     def __call__(self, f):
         def wrapped_f(*args, **kwargs):
             it = InterruptableThread(f, *args, **kwargs)
+            it.daemon = True
             it.start()
             it.join(self._sec)
             if not it.is_alive():
