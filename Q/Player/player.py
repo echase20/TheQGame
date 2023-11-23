@@ -58,7 +58,7 @@ class Player(ABC):
         pass
 
     @abstractmethod
-    def newTiles(self, st: List[Tile]):
+    def new_tiles(self, st: List[Tile]):
         """
         From specs: The player is handed a new set of tiles
         :param st: set of tiles to be handed to the player

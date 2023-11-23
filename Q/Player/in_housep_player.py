@@ -26,8 +26,8 @@ class InHousePlayer(Player, ABC):
         """
         super().__init__(name=name, strategy=strategy, hand=hand,rulebook=rulebook)
 
-    def newTiles(self, st: List[Tile]):
-        super().newTiles(st)
+    def new_tiles(self, st: List[Tile]):
+        super().new_tiles(st)
 
     def setup(self, state: PlayerState, tiles: List[Tile]):
         super().setup(state, tiles)

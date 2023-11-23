@@ -18,12 +18,10 @@ class ProxyPlayer(Player):
         self.s = s
 
     def listen(self):
-        sent_time = time.time()
-        while time.time() - sent_time < 6:
+        while True:
             msg = self.s.get_latest_message()
             if msg:
                 return msg
-        return None
 
     def name(self) -> str:
         """
@@ -70,7 +68,7 @@ class ProxyPlayer(Player):
         if response != "void":
             raise Exception("no void return")
 
-    def newTiles(self, st: List[Tile]):
+    def new_tiles(self, st: List[Tile]):
         """
         From specs: The player is handed a new set of tiles
         :param st: set of tiles to be handed to the player

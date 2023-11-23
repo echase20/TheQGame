@@ -1,5 +1,10 @@
+from __future__ import print_function
+
+import sys
+from concurrent.futures import thread
 from copy import deepcopy
 from typing import List, Set, Dict
+import multiprocessing.pool
 
 from Q.Common.Board.tile import Tile
 from Q.Common.map import Map
@@ -11,6 +16,17 @@ from Q.Player.turn_outcome import TurnOutcome
 from Q.Referee.pair_results import Results
 from Q.Player.in_housep_player import InHousePlayer
 from Q.Common.game_state import GameState
+import sys
+import threading
+from time import sleep
+
+from Q.Referee.timeout import timeout
+
+try:
+    import thread
+except ImportError:
+    import _thread as thread
+TIMEOUT_PLAYER = 6
 
 
 class Referee:
@@ -19,7 +35,8 @@ class Referee:
     We plan to add implementation for timeouts when there is more clarity
     Represents a referee for the Q game
     """
-    def __init__(self, observer = None):
+
+    def __init__(self, observer=None):
         self.observer = observer
 
     def main(self, player_list: List[Player]) -> Results:
@@ -34,6 +51,30 @@ class Referee:
         Referee.setup_players(player_list, game_state)
         return self.run_game(game_state, player_list)
 
+    def player_action(self, func, args, current_player: Player, game_state: GameState, player_list: List[Player]):
+        try:
+            return self.player_func(func, args, current_player, game_state, player_list)
+        except Exception as e:
+            print(e)
+            Referee.remove_current_player(game_state, current_player, player_list)
+            print("WE ARE IN HERE")
+
+    #@timeout(6)
+    def player_func(self, func, args, current_player: Player, game_state: GameState, player_list: List[Player]):
+        function_mapping = {"take_turn": current_player.take_turn,
+                            "setup": current_player.setup,
+                            "new_tiles": current_player.new_tiles,
+                            "win": current_player.win}
+
+        try:
+            if len(args) == 2:
+                return function_mapping[func](args[0], args[1])
+            if len(args) == 1:
+                return function_mapping[func](args[0])
+        except Exception as e:
+            print(e)
+            Referee.remove_current_player(game_state, current_player, player_list)
+
     def run_game(self, game_state: GameState, player_list: List[Player]) -> Results:
         """
         Runs the given game state to completion
@@ -47,12 +88,12 @@ class Referee:
             player_name = current_player.name()
             pub_data = game_state.extract_player_state(player_name)
             if self.observer: self.observer.receive_a_state(deepcopy(game_state), player_name)
-            try:
-                turn = current_player.take_turn(pub_data)
-            except Exception as E:
-                Referee.remove_current_player(game_state, current_player, player_list)
+            turn = self.player_action('take_turn', [pub_data], current_player, game_state, player_list)
+            print(turn, "TURN?")
+            if not turn:
                 continue
-            if not Referee.is_valid_move(turn, game_state.rulebook, deepcopy(game_state.map), game_state.players[player_name], pub_data.num_ref_tiles):
+            if not Referee.is_valid_move(turn, game_state.rulebook, deepcopy(game_state.map),
+                                         game_state.players[player_name], pub_data.num_ref_tiles):
                 Referee.remove_current_player(game_state, current_player, player_list)
             else:
                 players_old_hand = len(game_state.players[player_name].hand)
@@ -87,20 +128,15 @@ class Referee:
         """
         results = game_state.return_pair_of_results()
         for name in results.winners:
+            num_of_players_before = len(players_left)
             player = list(filter(lambda n: n.name() == name, players_left))[0]
-            try:
-                player.win(True)
-            except:
-                Referee.remove_current_player(game_state, player, players_left)
+            Referee().player_action("win", [True], player, game_state, players_left)
+            if num_of_players_before != len(players_left):
                 Referee.send_results(players_left, game_state)
-                return
 
         for name in results.losers:
             player = list(filter(lambda n: n.name() == name, players_left))[0]
-            try:
-                player.win(False)
-            except:
-                Referee.remove_current_player(game_state, player, players_left)
+            Referee().player_action("win", [False], player, game_state, players_left)
 
     @staticmethod
     def send_player_tiles(new_tiles: List[Tile], player: Player, game_state: GameState, player_list: [InHousePlayer]):
@@ -112,13 +148,11 @@ class Referee:
         """
         if not new_tiles:
             return
-        try:
-            player.newTiles(new_tiles)
-        except:
-            Referee.remove_current_player(game_state, player, player_list)
+        Referee().player_action("new_tiles", [new_tiles], player, game_state, player_list)
 
     @staticmethod
-    def is_valid_move(turn: Turn, rulebook: Rulebook, given_map: Map, current_player: PlayerGameState, num_of_ref_tiles: int):
+    def is_valid_move(turn: Turn, rulebook: Rulebook, given_map: Map, current_player: PlayerGameState,
+                      num_of_ref_tiles: int):
         """
         is this a valid move according to the rulebook?
         :param turn: the turn the player wants to perform
@@ -169,11 +203,13 @@ class Referee:
         :param player_list: the players to be setup
         :param game_state: the state of the game
         """
+
         for player in player_list:
-            try:
-                player.setup(game_state.extract_player_state(player.name()), game_state.players[player.name()].hand.copy())
-            except Exception as e:
-                Referee().remove_current_player(game_state, player, player_list)
+            print(player)
+            ps = game_state.extract_player_state(player.name())
+            print(ps)
+            hand = game_state.players[player.name()].hand.copy()
+            Referee().player_action("setup", [ps, hand], player, game_state, player_list)
 
     @staticmethod
     def remove_current_player(game_state: GameState, current_player: Player, player_list: [Player]):

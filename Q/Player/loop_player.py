@@ -28,9 +28,9 @@ class LoopPlayer(Player, ABC):
         while True:
             pass
 
-    def newTiles(self, st: List[Tile]):
+    def new_tiles(self, st: List[Tile]):
         if self.exn != "new-tiles":
-            return super().newTiles(st)
+            return super().new_tiles(st)
         self.count -= 1
         if self.count == 0:
             self.loop()

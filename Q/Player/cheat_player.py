@@ -117,8 +117,8 @@ class CheatPlayer(Player, ABC):
         raise Exception("Not a valid cheat")
 
 
-    def newTiles(self, st: List[Tile]):
-        super().newTiles(st)
+    def new_tiles(self, st: List[Tile]):
+        super().new_tiles(st)
 
     def setup(self, state: PlayerState, tiles: List[Tile]):
         super().setup(state, tiles)

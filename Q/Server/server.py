@@ -8,7 +8,7 @@ from typing import Any
 from Q.Server.server_callback import ServerCallbacks
 from Q.Server.states import States
 
-ServerAddress = ("127.0.0.1", 8001)
+ServerAddress = ("127.0.0.1", 8000)
 names = {}
 callback = ServerCallbacks()
 

@@ -48,10 +48,10 @@ class ExnPlayer(Player):
             raise Exception("take turn method in player errored out")
         return super().take_turn(s)
 
-    def newTiles(self, st: List[Tile]):
+    def new_tiles(self, st: List[Tile]):
         """
         Raises an exception if called for. Otherwise runs the desired parents newTiles method.
         """
         if self.exn  == "new-tiles":
             raise Exception("new tiles method in player errored out")
-        super().newTiles(st)
+        super().new_tiles(st)

@@ -5,7 +5,7 @@ from Q.Client.referee import ProxyRef
 from Q.Player.in_housep_player import InHousePlayer
 
 HOST = 'localhost'
-PORT = 8001
+PORT = 8000
 if __name__ == "__main__":
     name = input()
     player = InHousePlayer(name)

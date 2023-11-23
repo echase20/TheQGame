@@ -46,7 +46,7 @@ class ProxyRef:
 
     def call_new_tiles(self, args) -> str:
         tiles = Util().convert_jtiles_to_tiles(args)
-        self.player.newTiles(tiles)
+        self.player.new_tiles(tiles)
         return VOID
 
     def call_setup(self, args) -> str:
