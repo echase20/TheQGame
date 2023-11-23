@@ -54,12 +54,9 @@ class ProxyPlayer(Player):
         self.s.write_method(PlayerFuncs.TAKE_TURN.value, [jpub])
         msg = self.listen()
         if msg:
-            try:
-                print(msg)
-                data = json.loads(msg)
-                return Util().convert_jaction_to_turn(data)
-            except Exception as e:
-                print(e)
+            data = json.loads(msg)
+            turn = Util().convert_jaction_to_turn(data)
+            return turn
         else:
             raise Exception("Reply message was not valid")
 

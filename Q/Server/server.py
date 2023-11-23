@@ -7,7 +7,7 @@ from typing import Any
 
 from Q.Server.server_callback import ServerCallbacks
 
-ServerAddress = ("127.0.0.1", 8000)
+ServerAddress = ("127.0.0.1", 8001)
 names = {}
 callback = ServerCallbacks()
 
@@ -18,13 +18,15 @@ def check_players(should_close: bool):
         t2.cancel()
         sys.exit()
     elif should_close:
+        end_result = json.dumps([[],[]])
+        print(end_result)
         t1.cancel()
         t2.cancel()
         t3.join()
 
 def should_start_game():
     while True:
-        if len(names) == 1:
+        if len(names) == 4:
             callback.start_game(names)
             t1.cancel()
             t2.cancel()
@@ -59,7 +61,6 @@ class MyTCPClientHandler(socketserver.StreamRequestHandler):
                 self.first_message = False
                 continue
             if msg and not self.first_message:
-                print(msg)
                 self.latest = msg
 
 

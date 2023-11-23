@@ -26,11 +26,8 @@ class ProxyRef:
                 self.client.send(ret)
 
     def process(self, data: str) -> str:
-        print(data)
         data = json.loads(data)
         func = data[0]
-        print(data)
-        print()
         args = data[1]
 
         if func == PlayerFuncs.WIN.value:
@@ -48,7 +45,6 @@ class ProxyRef:
         return json.dumps(Util().convert_turn_to_j_turn(turn))
 
     def call_new_tiles(self, args) -> str:
-        #print(args)
         tiles = Util().convert_jtiles_to_tiles(args)
         self.player.newTiles(tiles)
         return VOID

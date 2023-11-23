@@ -36,7 +36,6 @@ class Util:
             return self.convert_placements_to_jplacements(turn.placements)
 
     def convert_jaction_to_turn(self, jaction):
-        print(jaction)
         if jaction == "pass":
             return Turn(TurnOutcome.PASSED)
         if jaction == "replace":
@@ -48,13 +47,8 @@ class Util:
 
     def convert_j_placements_to_placements(self, jplacements) -> Dict[Pos, Tile]:
         placements = {}
-        print(jplacements, "jplacements")
-        print(type(jplacements))
         for placement in jplacements:
-            print("WE AERE IN THIS CORRECT ONE")
-            print(placement)
             coord = self.convert_coorindate_to_pos(placement["coordinate"])
-            print("WE AERE IN THIS CORRECT ONE2")
             tile = self.json_to_tile(placement["1tile"])
             placements[coord] = tile
         return placements
@@ -160,7 +154,6 @@ class Util:
     def convert_placements_to_jplacements(self, placements: Dict[Pos, Tile]):
         jplacements = []
         for pos, tile in placements.items():
-            print("WE ARE IN HERE?")
             jplacement = {"coordinate": self.__create_json_pos(pos), "1tile": self.convert_tile_to_json(tile)}
             jplacements.append(jplacement)
         return jplacements

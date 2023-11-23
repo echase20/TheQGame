@@ -31,9 +31,7 @@ class Referee:
         game_state = GameState()
         game_state.setup_state()
         Referee.signup_players(player_list, game_state)
-        print(player_list, 'after signup')
         Referee.setup_players(player_list, game_state)
-        print(player_list, 'after year')
         return self.run_game(game_state, player_list)
 
     def run_game(self, game_state: GameState, player_list: List[Player]) -> Results:
@@ -175,8 +173,6 @@ class Referee:
             try:
                 player.setup(game_state.extract_player_state(player.name()), game_state.players[player.name()].hand.copy())
             except Exception as e:
-                print(e)
-
                 Referee().remove_current_player(game_state, player, player_list)
 
     @staticmethod
