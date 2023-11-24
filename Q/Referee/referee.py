@@ -57,7 +57,6 @@ class Referee:
         except Exception as e:
             print(e)
             Referee.remove_current_player(game_state, current_player, player_list)
-            print("WE ARE IN HERE")
 
     @timeout(6)
     def player_func(self, func, args, current_player: Player, game_state: GameState, player_list: List[Player]):
@@ -84,13 +83,11 @@ class Referee:
         """
         while not Referee.is_game_over(game_state, player_list):
             current_player = player_list.pop(0)
-            print(current_player)
             player_list.append(current_player)
             player_name = current_player.name()
             pub_data = game_state.extract_player_state(player_name)
             if self.observer: self.observer.receive_a_state(deepcopy(game_state), player_name)
             turn = self.player_action('take_turn', [pub_data], current_player, game_state, player_list)
-            print(turn, "TURN?")
             if not turn:
                 continue
             if not Referee.is_valid_move(turn, game_state.rulebook, deepcopy(game_state.map),
@@ -206,9 +203,7 @@ class Referee:
         """
 
         for player in player_list:
-            print(player)
             ps = game_state.extract_player_state(player.name())
-            print(ps)
             hand = game_state.players[player.name()].hand.copy()
             Referee().player_action("setup", [ps, hand], player, game_state, player_list)
 
