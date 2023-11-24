@@ -238,20 +238,19 @@ class GameState:
                 misbehaved.add(name)
         return misbehaved
 
-    def return_pair_of_results(self) -> Results:
-        """
-        returns the pair of winners and players that have been kicked
-        """
+    def get_winners(self):
         scores = self.get_scores()
-        valid_scores = {k:v for k,v in scores.items() if not self.players[k].misbehaved}
+        valid_scores = {k: v for k, v in scores.items() if not self.players[k].misbehaved}
         max_points = max(valid_scores.values()) if len(valid_scores) else -1
         winners = set()
         for name, points in scores.items():
             if points == max_points and not self.players[name].misbehaved:
                 winners.add(name)
-        losers = set(self.players.keys()).difference((self.get_misbehaved().union(winners)))
+        return winners
 
-        return Results(winners=winners, losers=losers, misbehaved=self.get_misbehaved())
+    def get_losers(self):
+        winners = self.get_winners()
+        return set(self.players.keys()).difference((self.get_misbehaved().union(winners)))
 
     def render(self, player_name):
         """

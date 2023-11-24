@@ -16,7 +16,7 @@ def main():
     players = Util().jactors_to_players(j_actors)
     referee = Referee(observer=Observer()) if show_command() else Referee()
     pair_results = referee.start_from_state(players, game_state)
-    print(json.dumps(Util().pair_results_to_jresults(pair_results)))
+    print(json.dumps(pair_results))
 
 
 def show_command():
