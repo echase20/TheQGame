@@ -52,6 +52,10 @@ class ProxyPlayer(Player):
         self.s.write_method(PlayerFuncs.TAKE_TURN.value, [jpub])
         msg = self.listen()
         if msg:
+            valid = self.checkJAction(json.loads(msg))
+            if not valid:
+                raise Exception("Bad Json was given")
+        if msg:
             data = json.loads(msg)
             turn = Util().convert_jaction_to_turn(data)
             return turn
@@ -78,3 +82,13 @@ class ProxyPlayer(Player):
         response = self.listen()
         if response != "void":
             raise Exception("no void return")
+
+    def checkJAction(self, jaction) -> bool:
+        if jaction == "pass":
+            return True
+        if jaction == "replace":
+            return True
+        if jaction[0].has_key('coordinate') and jaction[0].has_key('1tile'):
+            return True
+        else:
+            return False

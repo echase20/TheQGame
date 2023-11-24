@@ -68,7 +68,10 @@ class MyTCPClientHandler(socketserver.StreamRequestHandler):
 
             if msg and self.state == States.RUNGAME:
                 self.latest = msg
-
+            try:
+                json.loads(msg)
+            except:
+                self.latest = "Bad Json"
 
 if __name__ == "__main__":
     TCPServerInstance = socketserver.ThreadingTCPServer(ServerAddress, MyTCPClientHandler)
