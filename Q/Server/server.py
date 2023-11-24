@@ -8,7 +8,7 @@ from typing import Any
 from Q.Server.server_callback import ServerCallbacks
 from Q.Server.states import States
 
-ServerAddress = ("127.0.0.1", 8000)
+ServerAddress = ("127.0.0.1", 8001)
 names = {}
 callback = ServerCallbacks()
 
@@ -61,12 +61,12 @@ class MyTCPClientHandler(socketserver.StreamRequestHandler):
     def handle(self):
         while True:
             msg = self.rfile.readline().strip().decode()
-            if msg and self.state.SIGNUP and msg not in names.keys():
+            if msg and self.state == States.SIGNUP and msg not in names.keys():
                 names[msg] = self
                 self.state = States.RUNGAME
                 continue
 
-            if msg and self.state.RUNGAME:
+            if msg and self.state == States.RUNGAME:
                 self.latest = msg
 
 

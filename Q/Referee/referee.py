@@ -16,9 +16,6 @@ from Q.Player.turn_outcome import TurnOutcome
 from Q.Referee.pair_results import Results
 from Q.Player.in_housep_player import InHousePlayer
 from Q.Common.game_state import GameState
-import sys
-import threading
-from time import sleep
 
 from Q.Referee.timeout import timeout
 
@@ -55,7 +52,6 @@ class Referee:
         try:
             return self.player_func(func, args, current_player, game_state, player_list)
         except Exception as e:
-            print(e)
             Referee.remove_current_player(game_state, current_player, player_list)
 
     @timeout(6)
@@ -70,8 +66,7 @@ class Referee:
                 return function_mapping[func](args[0], args[1])
             if len(args) == 1:
                 return function_mapping[func](args[0])
-        except Exception as e:
-            print(e)
+        except Exception:
             Referee.remove_current_player(game_state, current_player, player_list)
 
     def run_game(self, game_state: GameState, player_list: List[Player]) -> Results:
