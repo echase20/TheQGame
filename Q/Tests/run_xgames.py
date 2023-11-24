@@ -21,7 +21,7 @@ def main():
     game_state.players = name_to_player_game
     referee = Referee()
     pair_results = referee.start_from_state(players, game_state)
-    print(json.dumps(util.pair_results_to_jresults(pair_results)))
+    print(json.dumps(pair_results))
 
 
 if __name__ == "__main__":
