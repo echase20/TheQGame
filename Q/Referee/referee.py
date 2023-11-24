@@ -122,11 +122,8 @@ class Referee:
         winners = game_state.get_winners()
         losers = game_state.get_losers()
         for name in winners:
-            num_of_players_before = len(players_left)
             player = list(filter(lambda n: n.name() == name, players_left))[0]
             self.player_action("win", [True], player, game_state, players_left)
-            if num_of_players_before != len(players_left):
-                self.send_results(players_left, game_state)
 
         for name in losers:
             player = list(filter(lambda n: n.name() == name, players_left))[0]
