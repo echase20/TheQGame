@@ -70,7 +70,7 @@ class MyTCPClientHandler(socketserver.StreamRequestHandler):
                 self.latest = msg
             try:
                 json.loads(msg)
-            except:
+            except ValueError:
                 self.latest = "Bad Json"
 
 if __name__ == "__main__":
