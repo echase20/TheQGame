@@ -33,7 +33,9 @@ It waits until the the server is up
 - does it shut down gracefully (acceptable now, but switch to the first option for 10)
 
 For `Q/Server/server`, explain how the code implements the two waiting periods. 
+https://github.khoury.northeastern.edu/CS4500-F23/quirky-armadillos/blob/d30b95e9e9fb0ac78f5f2e2d8e513b398604ec1a/Q/Server/server.py#L15-L38
 
+We start two threads timers. One timer expires in 20 seconds and the other at 40 seconds. Both call the same function when the time expires and check if 2 or more players are in the player list. We add a boolean to the function paramters checking if we should close the server and the empty results are outputted. 
 The ideal feedback for each of these three points is a GitHub
 perma-link to the range of lines in a specific file or a collection of
 files.
