@@ -11,17 +11,24 @@ Indicate below each bullet which file/unit takes care of each task.
 For `Q/Server/player`,
 
 - explain how it implements the exact same interface as `Q/Player/player`
+It is a subclass of Q/Player/player.
+https://github.khoury.northeastern.edu/CS4500-F23/quirky-armadillos/blob/d30b95e9e9fb0ac78f5f2e2d8e513b398604ec1a/Q/Server/player.py#L14
 - explain how it receives the TCP connection that enables it to communicate with a client
+When signing up players, we store their name and connection in a dictionary. Once the game starts, we use that dictionary and pass in the connection to the init of the ProxyPlayer.
+https://github.khoury.northeastern.edu/CS4500-F23/quirky-armadillos/blob/d30b95e9e9fb0ac78f5f2e2d8e513b398604ec1a/Q/Server/server_callback.py#L12
 - point to unit tests that check whether it writes (proper) JSON to a mock output device
-
+We do not have a unit test for that check.
 For `Q/Client/referee`,
 
 - explain how it implements the same interface as `Q/Referee/referee`
+The proxy referee listens for data on a main loop that runs until the game ends. However, it does not directly implement the interface for Q/Referee/referee.
 - explain how it receives the TCP connection that enables it to communicate with a server
+https://github.khoury.northeastern.edu/CS4500-F23/quirky-armadillos/blob/d30b95e9e9fb0ac78f5f2e2d8e513b398604ec1a/Q/Client/run_client.py#L12-L13
+We create a client and then pass it in to the initalizer of the ProxyRef.
 - point to unit tests that check whether it reads (possibly broken) JSON from a mock input device
-
+We do not have a check for this.
 For `Q/Client/client`, explain what happens when the client is started _before_ the server is up and running:
-
+It waits until the the server is up
 - does it wait until the server is up (best solution)
 - does it shut down gracefully (acceptable now, but switch to the first option for 10)
 
