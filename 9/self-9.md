@@ -29,7 +29,7 @@ We create a client and then pass it in to the initalizer of the ProxyRef.
 We do not have a check for this.
 For `Q/Client/client`, explain what happens when the client is started _before_ the server is up and running:
 It waits until the the server is up
-- does it wait until the server is up (best solution)
+- does it wait until the server is up (best solution) - yes.
 - does it shut down gracefully (acceptable now, but switch to the first option for 10)
 
 For `Q/Server/server`, explain how the code implements the two waiting periods. 
