@@ -2,7 +2,9 @@ import json
 from collections import defaultdict
 from typing import Set, Dict, List, Union
 
+from Q.Client.client_config import ClientConfig
 from Q.Common.player_game_state import PlayerGameState
+from Q.Common.referee_state_config import RefereeStateConfig
 from Q.Common.rulebook import Rulebook
 from Q.Common.game_state import GameState
 from Q.Common.Board.pos import Pos
@@ -23,12 +25,47 @@ from Q.Player.turn import Turn
 from Q.Player.turn_outcome import TurnOutcome
 from Q.Player.exn_player import ExnPlayer
 from Q.Referee.pair_results import Results
+from Q.Referee.referee_config import RefereeConfig
+from Q.Server.server_config import ServerConfig
 
 
 class Util:
     """
     # Represents a utility class used mainly for json parsing
     """
+    def convert_jserver_config_to_server_config(self, jserver_config) -> ServerConfig:
+        port = jserver_config["port"]
+        server_tries = jserver_config["server-tries"]
+        server_waits = jserver_config["server-wait"]
+        wait_for_signup = jserver_config["wait-for-signup"]
+        quiet = jserver_config["quiet"]
+        ref_spec = self.convert_j_ref_spec_to_ref_spec(jserver_config["ref-spec"])
+        return ServerConfig(port, server_tries, server_waits, wait_for_signup, quiet, ref_spec)
+
+    def convert_j_ref_spec_to_ref_spec(self, jref_spec) -> RefereeConfig:
+        state0 = self.convert_jstate_to_gamestate(jref_spec["state0"])
+        quiet = jref_spec["quiet"]
+        config_s = self.convert_j_ref_state_to_ref_state(jref_spec["config-s"])
+        per_turn = jref_spec["per-turn"]
+        observe = jref_spec["observe"]
+        return RefereeConfig(state0, quiet, config_s, per_turn, observe)
+
+    def convert_j_ref_state_to_ref_state(self, j_ref) -> RefereeStateConfig:
+        qbo = j_ref["qbo"]
+        fbo =j_ref["fbo"]
+        return RefereeStateConfig(qbo, fbo)
+
+    def convert_j_client_config_to_client_config(self, j_client_config) -> ClientConfig:
+        port = j_client_config["port"]
+        host = j_client_config["host"]
+        wait = j_client_config["wait"]
+        quiet = j_client_config["quiet"]
+        players = self.jactors_to_players(j_client_config["players"])
+        return ClientConfig(port, host, wait, quiet, players)
+
+
+
+
     def convert_turn_to_j_turn(self, turn: Turn):
         if turn.turn_outcome == TurnOutcome.PASSED or turn.turn_outcome == TurnOutcome.REPLACED:
             return turn.turn_outcome.value

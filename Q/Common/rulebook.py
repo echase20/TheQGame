@@ -7,17 +7,18 @@ from Q.Common.map import Map
 from Q.Common.Board.pos import Pos
 
 
-
 class Rulebook:
     def __init__(self, point_bonuses: RefereeStateConfig):
-        self.q_score = point_bonuses.q_score
-        self.end_game_bonus = point_bonuses.end_game_bonus
+        self.q_score = point_bonuses.qbo
+        self.end_game_bonus = point_bonuses.fbo
+
     """
     Represents the game rules which the referee and players may consult
     Source of truth of all dynamically changeable items of the game
     """
 
-    def get_legal_positions(self, given_map: Map, given_tile: Tile, placed_positions: List[Pos], break_early: bool = False) -> Set[Pos]:
+    def get_legal_positions(self, given_map: Map, given_tile: Tile, placed_positions: List[Pos],
+                            break_early: bool = False) -> Set[Pos]:
         """
         Computes all of the legal positions to place the given tile onto the given map
         :param placed_positions: the positions that have already been placed

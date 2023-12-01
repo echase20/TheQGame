@@ -3,49 +3,50 @@ import socketserver
 import sys
 import threading
 from threading import Timer
-from typing import Any
+from typing import Any, Callable, Tuple
 
 from Q.Server.server_callback import ServerCallbacks
 from Q.Server.server_config import ServerConfig
 from Q.Server.states import States
 
-ServerAddress = ("127.0.0.1", 8001)
-names = {}
-callback = ServerCallbacks()
-serverconfig = ServerConfig
-check_counter = 0
 
+class Server(socketserver.ThreadingTCPServer):
+    def __init__(self, server_config: ServerConfig, server_address: Tuple[str, int],
+                 RequestHandlerClass: Callable[..., socketserver.BaseRequestHandler]):
+        super().__init__(server_address, RequestHandlerClass)
+        self.__slots__ = "names"
 
-def check_players(should_close: bool):
-    if len(names) >= 2:
-        callback.start_game(names, serverconfig.ref_spec)
-        t.cancel()
-        t3.join()
-        sys.exit()
-    timer()
+        self.server_config = server_config
+        self.callback = ServerCallbacks()
+        self.check_counter = 0
+        self.names = {}
+        self.t = Timer(self.server_config.server_wait, self.check_players, args=[False], kwargs=None)
+        self.t3 = threading.Thread(target=self.should_start_game)
 
-
-def should_start_game():
-    while True:
-        if len(names) == 4:
-            callback.start_game(names, serverconfig.ref_spec)
-            t.cancel()
+    def check_players(self):
+        if len(self.names) >= 2:
+            self.callback.start_game(self.names, self.server_config.ref_spec)
+            self.t.cancel()
+            self.t3.join()
             sys.exit()
+        self.timer()
+
+    def should_start_game(self):
+        while True:
+            if len(self.names) == 4:
+                self.callback.start_game(self.names, self.server_config.ref_spec)
+                self.t.cancel()
+                sys.exit()
+
+    def timer(self):
+        self.check_counter += 1
+        if self.check_counter > self.server_config.server_tries:
+            self.t.start()
+        end_result = json.dumps([[], []])
+        print(end_result)
 
 
-def timer():
-    global check_counter
-    check_counter += 1
-    if check_counter > serverconfig.server_tries:
-        t.start()
-    end_result = json.dumps([[], []])
-    print(end_result)
-
-t = Timer(serverconfig.server_wait, check_players, args=[False], kwargs=None)
-t3 = threading.Thread(target=should_start_game)
-
-
-class MyTCPClientHandler(socketserver.StreamRequestHandler):
+class Connection(socketserver.StreamRequestHandler):
     def __init__(self, request: Any, client_address: Any, server: socketserver.BaseServer):
         self.latest = ""
         self.state = States.SIGNUP
@@ -68,8 +69,8 @@ class MyTCPClientHandler(socketserver.StreamRequestHandler):
     def handle(self):
         while True:
             msg = self.rfile.readline().strip().decode()
-            if msg and self.state == States.SIGNUP and msg not in names.keys():
-                names[msg] = self
+            if msg and self.state == States.SIGNUP and msg not in self.server.names.keys():
+                self.server.names[msg] = self
                 self.state = States.RUNGAME
                 continue
 
@@ -80,8 +81,4 @@ class MyTCPClientHandler(socketserver.StreamRequestHandler):
             except ValueError:
                 self.latest = "Bad Json"
 
-if __name__ == "__main__":
-    TCPServerInstance = socketserver.ThreadingTCPServer(ServerAddress, MyTCPClientHandler)
-    timer()
-    TCPServerInstance.serve_forever()
 
