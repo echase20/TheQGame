@@ -6,35 +6,42 @@ from threading import Timer
 from typing import Any
 
 from Q.Server.server_callback import ServerCallbacks
+from Q.Server.server_config import ServerConfig
 from Q.Server.states import States
 
 ServerAddress = ("127.0.0.1", 8001)
 names = {}
 callback = ServerCallbacks()
+serverconfig = ServerConfig
+check_counter = 0
+
 
 def check_players(should_close: bool):
     if len(names) >= 2:
-        callback.start_game(names)
-        t1.cancel()
-        t2.cancel()
-        sys.exit()
-    elif should_close:
-        end_result = json.dumps([[],[]])
-        print(end_result)
-        t1.cancel()
-        t2.cancel()
+        callback.start_game(names, serverconfig.ref_spec)
+        t.cancel()
         t3.join()
+        sys.exit()
+    timer()
+
 
 def should_start_game():
     while True:
         if len(names) == 4:
-            callback.start_game(names)
-            t1.cancel()
-            t2.cancel()
+            callback.start_game(names, serverconfig.ref_spec)
+            t.cancel()
             sys.exit()
 
-t1 = Timer(20, check_players, args=[False], kwargs=None)
-t2 = Timer(40, check_players, args=[True], kwargs=None)
+
+def timer():
+    global check_counter
+    check_counter += 1
+    if check_counter > serverconfig.server_tries:
+        t.start()
+    end_result = json.dumps([[], []])
+    print(end_result)
+
+t = Timer(serverconfig.server_wait, check_players, args=[False], kwargs=None)
 t3 = threading.Thread(target=should_start_game)
 
 
@@ -75,8 +82,6 @@ class MyTCPClientHandler(socketserver.StreamRequestHandler):
 
 if __name__ == "__main__":
     TCPServerInstance = socketserver.ThreadingTCPServer(ServerAddress, MyTCPClientHandler)
-    t1.start()
-    t2.start()
-    t3.start()
+    timer()
     TCPServerInstance.serve_forever()
 

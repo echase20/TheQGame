@@ -1,14 +1,17 @@
 from typing import Dict, Set, Callable, List
 
+from Q.Common.referee_state_config import RefereeStateConfig
 from Q.Util.pos_funcs import PosFuncs
 from Q.Common.Board.tile import Tile
 from Q.Common.map import Map
 from Q.Common.Board.pos import Pos
 
-END_SCORE_BONUS = 4
-Q_SCORE_BONUS = 6
+
 
 class Rulebook:
+    def __init__(self, point_bonuses: RefereeStateConfig):
+        self.q_score = point_bonuses.q_score
+        self.end_game_bonus = point_bonuses.end_game_bonus
     """
     Represents the game rules which the referee and players may consult
     Source of truth of all dynamically changeable items of the game
@@ -162,7 +165,7 @@ class Rulebook:
         :return the points to be scored
         """
         if not len(player_hand):
-            return END_SCORE_BONUS
+            return self.end_game_bonus
         else:
             return 0
 
@@ -191,7 +194,7 @@ class Rulebook:
             seen_component_color.add(curr_map.tiles.get(position).color)
             if (len(seen_component_shape) == 6 and len(seen_component_color) == 1) or \
                     (len(seen_component_color) == 6 and len(seen_component_shape) == 1):
-                points += Q_SCORE_BONUS
+                points += self.q_score
         return points
 
     def get_completing_q_points(self, curr_map: Map, positions: List[Pos]) -> int:

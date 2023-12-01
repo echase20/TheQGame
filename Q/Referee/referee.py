@@ -29,7 +29,8 @@ class Referee:
     Represents a referee for the Q game
     """
 
-    def __init__(self, observer=None):
+    def __init__(self, per_turn=TIMEOUT_PLAYER, observer=None):
+        self.per_turn = per_turn
         self.observer = observer
         self.kicked = []
 
@@ -51,7 +52,7 @@ class Referee:
         except Exception as e:
             self.remove_current_player(game_state, current_player, player_list)
 
-    @timeout(6)
+    @timeout(TIMEOUT_PLAYER)
     def player_func(self, func, args, current_player: Player, game_state: GameState, player_list: List[Player]):
         function_mapping = {"take_turn": current_player.take_turn,
                             "setup": current_player.setup,
