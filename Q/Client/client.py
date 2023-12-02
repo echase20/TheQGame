@@ -14,6 +14,7 @@ class Client:
 
     def recv(self):
         received = str(self.sock.recv(4096), "utf-8")
+        print(received, "received")
         return received
 
     def send(self, data):
@@ -22,4 +23,5 @@ class Client:
         :param data: json data
         """
         encoded_json_data = (data+"\n").encode()
+        print(encoded_json_data, "received")
         self.sock.sendall(encoded_json_data)

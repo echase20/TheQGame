@@ -40,7 +40,6 @@ class Server(socketserver.ThreadingTCPServer):
         self.shutdown()
         self.server_close()
 
-
     def check_players(self):
         if len(self.names) >= 2:
             self.start_game(self.names, self.server_config.ref_spec)
@@ -82,6 +81,7 @@ class Connection(socketserver.StreamRequestHandler):
 
     def write_method(self, func, args):
         data = json.dumps([func, args])
+        print(data, "writing")
         self.wfile.write(data.encode())
 
     def handle(self):
@@ -98,4 +98,4 @@ class Connection(socketserver.StreamRequestHandler):
                 self.latest = msg
                 if not self.quiet:
                     print()
-                    print(msg, "MESSAGE SENT OVER")
+                    print(msg, "recieved")
