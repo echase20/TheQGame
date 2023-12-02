@@ -61,10 +61,12 @@ class Referee:
                             "win": current_player.win}
 
         #try:
+
         if len(args) == 2:
             return function_mapping[func](args[0], args[1])
         if len(args) == 1:
             return function_mapping[func](args[0])
+        print("ARE WE IN HERE????????")
         #except Exception as e:
         #    print(e, "excpetion over here")
         # self.remove_current_player(game_state, current_player, player_list)
