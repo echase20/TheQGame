@@ -21,6 +21,7 @@ class ProxyRef:
         listens for data, performs some function on that data, and sends that processed data back to the server
         """
         while True:
+            print("LOOPING OVER HERE")
             data = self.client.recv()
             if data:
                 ret = self.process(data)
