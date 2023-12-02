@@ -23,5 +23,5 @@ class Client:
         :param data: json data
         """
         encoded_json_data = (data+"\n").encode()
-        print(encoded_json_data, "received")
+        print(encoded_json_data, "sent")
         self.sock.sendall(encoded_json_data)

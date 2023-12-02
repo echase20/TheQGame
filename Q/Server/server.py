@@ -75,9 +75,10 @@ class Connection(socketserver.StreamRequestHandler):
             self.state = States.NO_NAME_GIVEN
 
     def get_latest_message(self):
-        latest = self.latest
-        self.latest = ""
-        return latest
+        new = self.latest
+        if new:
+            self.latest = ""
+        return new
 
     def write_method(self, func, args):
         data = json.dumps([func, args])
