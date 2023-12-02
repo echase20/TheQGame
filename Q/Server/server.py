@@ -20,9 +20,9 @@ class Server(socketserver.ThreadingTCPServer):
         self.__slots__ = "names, server_config"
         self.daemon_threads = True
         self.server_config = server_config
-        self.check_counter = 0
         self.names = {}
-        self.t = Timer(self.server_config.server_wait, self.check_players, args=[False], kwargs=None)
+        self.server_tries = self.server_config.server_tries
+        self.t = Timer(self.server_config.server_wait, self.check_players)
         self.t.daemon = True
         self.t3 = threading.Thread(target=self.should_start_game)
         self.t3.daemon = True
@@ -54,8 +54,8 @@ class Server(socketserver.ThreadingTCPServer):
                 self.start_game(self.names, self.server_config.ref_spec)
 
     def timer(self):
-        self.check_counter += 1
-        if self.check_counter > self.server_config.server_tries:
+        self.server_tries -= 1
+        if self.server_tries == 0:
             self.t.start()
         end_result = json.dumps([[], []])
         print(end_result)
@@ -82,7 +82,8 @@ class Connection(socketserver.StreamRequestHandler):
 
     def write_method(self, func, args):
         data = json.dumps([func, args])
-        print(data, "writing")
+        if not self.quiet:
+            print(data, "writing")
         self.wfile.write(data.encode())
 
     def handle(self):
@@ -98,5 +99,4 @@ class Connection(socketserver.StreamRequestHandler):
             if msg and self.state == States.RUNGAME:
                 self.latest = msg
                 if not self.quiet:
-                    print()
-                    print(msg, "recieved")
+                    print(msg, "received")

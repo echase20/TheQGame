@@ -42,8 +42,6 @@ class ProxyPlayer(Player):
         print(self.name())
         print(response, "RESPONSE")
         if response != "void":
-            print(response)
-            print("THIS IS IN SETUP")
             raise Exception("no void return")
 
     def take_turn(self, s: PlayerState) -> Turn:

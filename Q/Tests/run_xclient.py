@@ -15,13 +15,13 @@ def main():
     for player in config.players:
         if not config.quiet:
             print("Next Player")
-        t = threading.Thread(target=create_player,args=[player, config.host])
+        t = threading.Thread(target=create_player,args=[player, config.host, config.quiet])
         t.start()
         time.sleep(config.wait)
 
 
-def create_player(player: Player, host: str):
-    c = Client(player.name(), host, get_port())
+def create_player(player: Player, host: str, quiet: bool):
+    c = Client(player.name(), host, get_port(), quiet)
     ProxyRef(c, player)
 
 
