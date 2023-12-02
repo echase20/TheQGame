@@ -7,10 +7,12 @@ from Q.Common.map import Map
 from Q.Common.Board.pos import Pos
 
 
+config = RefereeStateConfig(qbo=6, fbo=6)
+
 class Rulebook:
-    def __init__(self, point_bonuses: RefereeStateConfig):
-        self.q_score = point_bonuses.qbo
-        self.end_game_bonus = point_bonuses.fbo
+    def __init__(self, rsc: RefereeStateConfig = config):
+        self.q_score = rsc.qbo
+        self.end_game_bonus = rsc.fbo
 
     """
     Represents the game rules which the referee and players may consult

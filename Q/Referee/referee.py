@@ -50,6 +50,7 @@ class Referee:
         try:
             return self.player_func(func, args, current_player, game_state, player_list)
         except Exception as e:
+            print(e)
             self.remove_current_player(game_state, current_player, player_list)
 
     @timeout(TIMEOUT_PLAYER)
@@ -59,13 +60,14 @@ class Referee:
                             "new_tiles": current_player.new_tiles,
                             "win": current_player.win}
 
-        try:
-            if len(args) == 2:
-                return function_mapping[func](args[0], args[1])
-            if len(args) == 1:
-                return function_mapping[func](args[0])
-        except Exception:
-            self.remove_current_player(game_state, current_player, player_list)
+        #try:
+        if len(args) == 2:
+            return function_mapping[func](args[0], args[1])
+        if len(args) == 1:
+            return function_mapping[func](args[0])
+        #except Exception as e:
+        #    print(e, "excpetion over here")
+        # self.remove_current_player(game_state, current_player, player_list)
 
     def run_game(self, game_state: GameState, player_list: List[Player]) -> List[List[str]]:
         """
@@ -172,6 +174,8 @@ class Referee:
         :return: winners and kicked players
         """
         self.setup_players(player_list, game_state)
+        print("setup players")
+        print(player_list)
         return self.run_game(game_state, player_list)
 
     def signup_players(self, player_list: List[Player], game_state: GameState):

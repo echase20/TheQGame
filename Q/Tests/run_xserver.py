@@ -4,8 +4,9 @@ from jsonstream import loads
 from Q.Server.server import Server, Connection
 from Q.Util.util import Util
 
+address = "localhost"
 
-address = "127.0.0.1"
+
 def main():
     stream = loads(sys.stdin.read())
     config = Util().convert_jserver_config_to_server_config(next(stream))
@@ -19,6 +20,6 @@ def get_port() -> int:
     except Exception:
         raise Exception("no port number provided")
 
+
 if __name__ == "__main__":
     main()
-

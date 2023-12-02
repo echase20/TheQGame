@@ -12,5 +12,8 @@ class ServerCallbacks():
     def start_game(self, names: Dict, ref_config: RefereeConfig):
         ref = RefereeWithConfig(ref_config)
         player_list = [ProxyPlayer(name, conn) for name, conn in names.items()]
+        if not ref_config.quiet:
+            print(player_list)
         res = ref.main(player_list)
+
         print(json.dumps(res))

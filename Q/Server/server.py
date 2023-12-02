@@ -10,11 +10,12 @@ from Q.Server.server_config import ServerConfig
 from Q.Server.states import States
 
 
+
 class Server(socketserver.ThreadingTCPServer):
     def __init__(self, server_config: ServerConfig, server_address: Tuple[str, int],
                  RequestHandlerClass: Callable[..., socketserver.BaseRequestHandler]):
         super().__init__(server_address, RequestHandlerClass)
-        self.__slots__ = "names"
+        self.__slots__ = "names, server_config"
 
         self.server_config = server_config
         self.callback = ServerCallbacks()
@@ -22,6 +23,8 @@ class Server(socketserver.ThreadingTCPServer):
         self.names = {}
         self.t = Timer(self.server_config.server_wait, self.check_players, args=[False], kwargs=None)
         self.t3 = threading.Thread(target=self.should_start_game)
+        self.t.start()
+        self.t3.start()
 
     def check_players(self):
         if len(self.names) >= 2:
@@ -34,6 +37,8 @@ class Server(socketserver.ThreadingTCPServer):
     def should_start_game(self):
         while True:
             if len(self.names) == 4:
+                if not self.server_config:
+                    print("Starting game with four players")
                 self.callback.start_game(self.names, self.server_config.ref_spec)
                 self.t.cancel()
                 sys.exit()
@@ -50,7 +55,9 @@ class Connection(socketserver.StreamRequestHandler):
     def __init__(self, request: Any, client_address: Any, server: socketserver.BaseServer):
         self.latest = ""
         self.state = States.SIGNUP
-        self.check_for_name_thread = Timer(3, self.check_for_name)
+        self.server = server
+        self.quiet = self.server.server_config.quiet
+        self.check_for_name_thread = Timer(self.server.server_config.server_wait, self.check_for_name)
         super().__init__(request, client_address, server)
 
     def check_for_name(self):
@@ -70,15 +77,16 @@ class Connection(socketserver.StreamRequestHandler):
         while True:
             msg = self.rfile.readline().strip().decode()
             if msg and self.state == States.SIGNUP and msg not in self.server.names.keys():
+                if not self.quiet:
+                    print("CONNECTION MADE")
                 self.server.names[msg] = self
                 self.state = States.RUNGAME
                 continue
 
             if msg and self.state == States.RUNGAME:
                 self.latest = msg
-            try:
-                json.loads(msg)
-            except ValueError:
-                self.latest = "Bad Json"
+                if not self.quiet:
+                    print()
+                    print(msg, "MESSAGE SENT OVER")
 
 
