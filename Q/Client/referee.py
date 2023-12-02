@@ -24,6 +24,7 @@ class ProxyRef:
             print("LOOPING OVER HERE")
             data = self.client.recv()
             if data:
+                print(data, "data")
                 ret = self.process(data)
                 self.client.send(ret)
                 if self.close_thread_after_win(data):
