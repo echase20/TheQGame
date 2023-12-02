@@ -13,7 +13,7 @@ class Client:
         self.send(name)
 
     def recv(self):
-        received = str(self.sock.recv(1024), "utf-8")
+        received = str(self.sock.recv(4096), "utf-8")
         return received
 
     def send(self, data):
