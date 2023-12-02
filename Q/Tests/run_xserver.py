@@ -1,9 +1,8 @@
 import sys
-from jsonstream import loads
 
+from jsonstream import loads
 from Q.Server.server import Server, Connection
 from Q.Util.util import Util
-
 address = "localhost"
 
 
@@ -12,7 +11,7 @@ def main():
     config = Util().convert_jserver_config_to_server_config(next(stream))
     TCPServerInstance = Server(config, (address, get_port()), Connection)
     TCPServerInstance.serve_forever()
-
+    sys.exit()
 
 def get_port() -> int:
     try:

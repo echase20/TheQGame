@@ -19,6 +19,7 @@ def main():
         t.start()
         time.sleep(config.wait)
 
+
 def create_player(player: Player, host: str):
     c = Client(player.name(), host, get_port())
     ProxyRef(c, player)

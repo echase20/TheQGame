@@ -1,4 +1,5 @@
 import json
+import sys
 
 from Q.Client.client import Client
 from Q.Player.player import Player
@@ -24,6 +25,20 @@ class ProxyRef:
             if data:
                 ret = self.process(data)
                 self.client.send(ret)
+                if self.close_thread_after_win(data):
+                    sys.exit()
+
+    def close_thread_after_win(self, data):
+        """
+        close the thread if the win method is called
+        :param data: the data given over the socket
+        :return:
+        """
+        data = json.loads(data)
+        func = data[0]
+        if func == PlayerFuncs.WIN.value:
+            return True
+
 
     def process(self, data: str) -> str:
         data = json.loads(data)

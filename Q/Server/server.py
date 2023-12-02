@@ -1,14 +1,16 @@
 import json
+import os
 import socketserver
 import sys
 import threading
 from threading import Timer
-from typing import Any, Callable, Tuple
+from typing import Any, Callable, Tuple, Dict
 
-from Q.Server.server_callback import ServerCallbacks
+from Q.Referee.ref_with_config import RefereeWithConfig
+from Q.Referee.referee_config import RefereeConfig
+from Q.Server.player import ProxyPlayer
 from Q.Server.server_config import ServerConfig
 from Q.Server.states import States
-
 
 
 class Server(socketserver.ThreadingTCPServer):
@@ -16,22 +18,33 @@ class Server(socketserver.ThreadingTCPServer):
                  RequestHandlerClass: Callable[..., socketserver.BaseRequestHandler]):
         super().__init__(server_address, RequestHandlerClass)
         self.__slots__ = "names, server_config"
-
+        self.daemon_threads = True
         self.server_config = server_config
-        self.callback = ServerCallbacks()
         self.check_counter = 0
         self.names = {}
         self.t = Timer(self.server_config.server_wait, self.check_players, args=[False], kwargs=None)
+        self.t.daemon = True
         self.t3 = threading.Thread(target=self.should_start_game)
+        self.t3.daemon = True
         self.t.start()
         self.t3.start()
 
+    def start_game(self, names: Dict, ref_config: RefereeConfig):
+        self.t.cancel()
+        ref = RefereeWithConfig(ref_config)
+        player_list = [ProxyPlayer(name, conn) for name, conn in names.items()]
+        if not ref_config.quiet:
+            print(player_list)
+        res = ref.main(player_list)
+        print(json.dumps(res))
+        self.shutdown()
+        self.server_close()
+
+
     def check_players(self):
         if len(self.names) >= 2:
-            self.callback.start_game(self.names, self.server_config.ref_spec)
-            self.t.cancel()
-            self.t3.join()
-            sys.exit()
+            self.start_game(self.names, self.server_config.ref_spec)
+            return
         self.timer()
 
     def should_start_game(self):
@@ -39,9 +52,7 @@ class Server(socketserver.ThreadingTCPServer):
             if len(self.names) == 4:
                 if not self.server_config:
                     print("Starting game with four players")
-                self.callback.start_game(self.names, self.server_config.ref_spec)
-                self.t.cancel()
-                sys.exit()
+                self.start_game(self.names, self.server_config.ref_spec)
 
     def timer(self):
         self.check_counter += 1
@@ -88,5 +99,3 @@ class Connection(socketserver.StreamRequestHandler):
                 if not self.quiet:
                     print()
                     print(msg, "MESSAGE SENT OVER")
-
-
