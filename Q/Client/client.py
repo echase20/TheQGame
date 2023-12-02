@@ -14,7 +14,7 @@ class Client:
         self.send(name)
 
     def recv(self):
-        received = str(self.sock.recv(4096), "utf-8")
+        received = str(self.sock.recv(40 * 1080), "utf-8")
         if not self.quiet:
             print(received, "received")
         return received
