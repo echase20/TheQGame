@@ -59,14 +59,10 @@ class Referee:
                             "setup": current_player.setup,
                             "new_tiles": current_player.new_tiles,
                             "win": current_player.win}
-
-        #try:
-
         if len(args) == 2:
             return function_mapping[func](args[0], args[1])
         if len(args) == 1:
             return function_mapping[func](args[0])
-        print("ARE WE IN HERE????????")
         #except Exception as e:
         #    print(e, "excpetion over here")
         # self.remove_current_player(game_state, current_player, player_list)
@@ -125,7 +121,10 @@ class Referee:
         :param game_state: the current game state
         """
         winners = game_state.get_winners()
-        losers = game_state.get_losers()
+        name_list = []
+        for player in players_left:
+            name_list.append(player.name())
+        losers = game_state.get_losers(name_list)
         for name in winners:
             player = list(filter(lambda n: n.name() == name, players_left))[0]
             self.player_action("win", [True], player, game_state, players_left)
@@ -176,8 +175,6 @@ class Referee:
         :return: winners and kicked players
         """
         self.setup_players(player_list, game_state)
-        print("setup players")
-        print(player_list)
         return self.run_game(game_state, player_list)
 
     def signup_players(self, player_list: List[Player], game_state: GameState):

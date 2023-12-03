@@ -8,6 +8,7 @@ from Q.Common.Board.tile import Tile
 from Q.Common.map import Map
 from Q.Common.Board.pos import Pos
 from Q.Common.render import Render
+from Q.Player.player import Player
 from Q.Player.public_player_data import PublicPlayerData
 from Q.Player.turn import Turn
 from Q.Player.turn_outcome import TurnOutcome
@@ -248,9 +249,9 @@ class GameState:
                 winners.add(name)
         return winners
 
-    def get_losers(self):
+    def get_losers(self, name_list: List[str]):
         winners = self.get_winners()
-        return set(self.players.keys()).difference((self.get_misbehaved().union(winners)))
+        return set(name_list).difference((self.get_misbehaved().union(winners)))
 
     def render(self, player_name):
         """

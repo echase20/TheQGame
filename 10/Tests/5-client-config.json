@@ -3,22 +3,26 @@
     "players": [
         [
             "A",
-            "dag"
+            "ldasg"
         ],
         [
             "B",
-            "dag"
+            "dag",
+            "take-turn"
         ],
         [
             "C",
-            "dag"
+            "dag",
+            "win"
         ],
         [
             "D",
-            "dag"
+            "dag",
+            "take-turn",
+            5
         ]
     ],
     "port": 25326,
     "quiet": true,
-    "wait": 3
+    "wait": 6
 }

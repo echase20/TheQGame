@@ -3,22 +3,27 @@
     "players": [
         [
             "A",
-            "dag"
+            "ldasg"
         ],
         [
             "B",
-            "dag"
+            "dag",
+            "take-turn"
         ],
         [
             "C",
-            "dag"
+            "dag",
+            "a cheat",
+            "tile-not-owned"
         ],
         [
             "D",
-            "dag"
+            "dag",
+            "take-turn",
+            2
         ]
     ],
     "port": 25326,
     "quiet": true,
-    "wait": 3
+    "wait": 2
 }

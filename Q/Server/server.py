@@ -54,10 +54,12 @@ class Server(socketserver.ThreadingTCPServer):
     def timer(self):
         self.server_tries -= 1
         if self.server_tries == 0:
+            end_result = json.dumps([[], []])
+            print(end_result)
+            self.shutdown()
+            self.server_close()
+        else:
             self.t.start()
-        end_result = json.dumps([[], []])
-        print(end_result)
-
 
 class Connection(socketserver.StreamRequestHandler):
     def __init__(self, request: Any, client_address: Any, server: socketserver.BaseServer):

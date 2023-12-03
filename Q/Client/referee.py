@@ -21,7 +21,6 @@ class ProxyRef:
         listens for data, performs some function on that data, and sends that processed data back to the server
         """
         while True:
-            print("LOOPING OVER HERE")
             data = self.client.recv()
             if data:
                 ret = self.process(data)
@@ -57,22 +56,36 @@ class ProxyRef:
 
     def call_take_turn(self, args) -> str:
         ps = Util().convert_jpub_to_player_state(args[0])
-        turn = self.player.take_turn(ps)
-        return json.dumps(Util().convert_turn_to_j_turn(turn))
+        try:
+            turn = self.player.take_turn(ps)
+            return json.dumps(Util().convert_turn_to_j_turn(turn))
+        except Exception as e:
+            return "bad player"
+
 
     def call_new_tiles(self, args) -> str:
         tiles = Util().convert_jtiles_to_tiles(args)
-        self.player.new_tiles(tiles)
-        return VOID
+        try:
+            self.player.new_tiles(tiles)
+            return VOID
+        except Exception as e:
+            return "bad player"
+
 
     def call_setup(self, args) -> str:
         ps = Util().convert_jpub_to_player_state(args[0])
         tiles = Util().convert_jtiles_to_tiles(args[1])
-        self.player.setup(ps, tiles)
-        return VOID
+        try:
+            self.player.setup(ps, tiles)
+            return VOID
+        except Exception as e:
+            return "bad player"
 
     def call_win(self, args) -> str:
         b = args[0]
-        self.player.win(b)
-        return VOID
+        try:
+            self.player.win(b)
+            return VOID
+        except Exception as e:
+            return "bad player"
 

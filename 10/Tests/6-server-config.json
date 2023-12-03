@@ -16,8 +16,8 @@
                     [
                         0,
                         {
-                            "color": "green",
-                            "shape": "clover"
+                            "color": "yellow",
+                            "shape": "star"
                         }
                     ]
                 ]
@@ -28,23 +28,23 @@
                     "score": 0,
                     "tile*": [
                         {
-                            "color": "green",
-                            "shape": "circle"
-                        },
-                        {
-                            "color": "green",
-                            "shape": "8star"
-                        },
-                        {
                             "color": "red",
+                            "shape": "star"
+                        },
+                        {
+                            "color": "orange",
+                            "shape": "star"
+                        },
+                        {
+                            "color": "yellow",
+                            "shape": "star"
+                        },
+                        {
+                            "color": "purple",
                             "shape": "clover"
                         },
                         {
-                            "color": "green",
-                            "shape": "diamond"
-                        },
-                        {
-                            "color": "green",
+                            "color": "purple",
                             "shape": "square"
                         },
                         {
@@ -58,16 +58,20 @@
                     "score": 0,
                     "tile*": [
                         {
-                            "color": "red",
-                            "shape": "star"
-                        },
-                        {
                             "color": "blue",
-                            "shape": "star"
+                            "shape": "clover"
                         },
                         {
-                            "color": "yellow",
-                            "shape": "star"
+                            "color": "red",
+                            "shape": "clover"
+                        },
+                        {
+                            "color": "green",
+                            "shape": "diamond"
+                        },
+                        {
+                            "color": "purple",
+                            "shape": "circle"
                         },
                         {
                             "color": "orange",
@@ -75,11 +79,7 @@
                         },
                         {
                             "color": "purple",
-                            "shape": "star"
-                        },
-                        {
-                            "color": "green",
-                            "shape": "star"
+                            "shape": "clover"
                         }
                     ]
                 },
@@ -88,28 +88,28 @@
                     "score": 0,
                     "tile*": [
                         {
-                            "color": "red",
-                            "shape": "diamond"
+                            "color": "green",
+                            "shape": "8star"
                         },
                         {
-                            "color": "orange",
+                            "color": "red",
+                            "shape": "8star"
+                        },
+                        {
+                            "color": "purple",
+                            "shape": "star"
+                        },
+                        {
+                            "color": "green",
+                            "shape": "8star"
+                        },
+                        {
+                            "color": "green",
+                            "shape": "8star"
+                        },
+                        {
+                            "color": "green",
                             "shape": "circle"
-                        },
-                        {
-                            "color": "blue",
-                            "shape": "clover"
-                        },
-                        {
-                            "color": "green",
-                            "shape": "square"
-                        },
-                        {
-                            "color": "green",
-                            "shape": "8star"
-                        },
-                        {
-                            "color": "red",
-                            "shape": "8star"
                         }
                     ]
                 },
@@ -118,43 +118,43 @@
                     "score": 0,
                     "tile*": [
                         {
-                            "color": "green",
+                            "color": "purple",
+                            "shape": "diamond"
+                        },
+                        {
+                            "color": "yellow",
                             "shape": "star"
                         },
                         {
-                            "color": "green",
-                            "shape": "clover"
+                            "color": "blue",
+                            "shape": "square"
                         },
                         {
-                            "color": "red",
+                            "color": "purple",
+                            "shape": "diamond"
+                        },
+                        {
+                            "color": "green",
                             "shape": "8star"
                         },
                         {
                             "color": "yellow",
                             "shape": "8star"
-                        },
-                        {
-                            "color": "orange",
-                            "shape": "circle"
-                        },
-                        {
-                            "color": "blue",
-                            "shape": "circle"
                         }
                     ]
                 }
             ],
             "tile*": [
                 {
-                    "color": "purple",
-                    "shape": "circle"
+                    "color": "green",
+                    "shape": "clover"
                 },
                 {
-                    "color": "green",
-                    "shape": "8star"
+                    "color": "red",
+                    "shape": "clover"
                 },
                 {
-                    "color": "green",
+                    "color": "yellow",
                     "shape": "clover"
                 }
             ]

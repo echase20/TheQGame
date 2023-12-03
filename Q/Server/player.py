@@ -39,8 +39,6 @@ class ProxyPlayer(Player):
 
         self.s.write_method(PlayerFuncs.SETUP.value, [jstate, jtiles])
         response = self.listen()
-        print(self.name())
-        print(response, "RESPONSE")
         if response != "void":
             raise Exception("no void return")
 
@@ -53,15 +51,18 @@ class ProxyPlayer(Player):
         jpub = Util().convert_player_state_to_jpub(s)
         self.s.write_method(PlayerFuncs.TAKE_TURN.value, [jpub])
         msg = self.listen()
-        if msg:
-            pass
+
+        #if msg:
             #valid = self.checkJAction(json.loads(msg))
             #if not valid:
             #raise Exception("Bad Json was given")
         if msg:
-            data = json.loads(msg)
-            turn = Util().convert_jaction_to_turn(data)
-            return turn
+            try:
+                data = json.loads(msg)
+                turn = Util().convert_jaction_to_turn(data)
+                return turn
+            except Exception as e:
+                raise Exception("Json was not valid")
         else:
             raise Exception("Reply message was not valid")
 

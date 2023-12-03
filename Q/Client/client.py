@@ -24,7 +24,7 @@ class Client:
         sends data over to the server
         :param data: json data
         """
-        encoded_json_data = (data+"\n").encode()
+        encoded_json_data = (data + "\n").encode()
         if not self.quiet:
             print(encoded_json_data, "sent")
         self.sock.sendall(encoded_json_data)
