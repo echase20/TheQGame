@@ -16,7 +16,7 @@
                     [
                         0,
                         {
-                            "color": "green",
+                            "color": "yellow",
                             "shape": "star"
                         }
                     ]
@@ -25,31 +25,31 @@
             "players": [
                 {
                     "name": "A",
-                    "score": 0,
+                    "score": 200,
                     "tile*": [
                         {
-                            "color": "yellow",
-                            "shape": "circle"
-                        },
-                        {
-                            "color": "green",
+                            "color": "blue",
                             "shape": "star"
                         },
                         {
-                            "color": "blue",
-                            "shape": "diamond"
-                        },
-                        {
-                            "color": "orange",
-                            "shape": "clover"
-                        },
-                        {
-                            "color": "green",
+                            "color": "red",
                             "shape": "8star"
                         },
                         {
                             "color": "green",
-                            "shape": "star"
+                            "shape": "square"
+                        },
+                        {
+                            "color": "yellow",
+                            "shape": "diamond"
+                        },
+                        {
+                            "color": "orange",
+                            "shape": "circle"
+                        },
+                        {
+                            "color": "green",
+                            "shape": "clover"
                         }
                     ]
                 },
@@ -58,49 +58,49 @@
                     "score": 0,
                     "tile*": [
                         {
-                            "color": "yellow",
-                            "shape": "star"
+                            "color": "purple",
+                            "shape": "8star"
                         },
                         {
-                            "color": "purple",
+                            "color": "blue",
                             "shape": "star"
                         },
                         {
                             "color": "green",
-                            "shape": "diamond"
-                        },
-                        {
-                            "color": "yellow",
-                            "shape": "circle"
-                        },
-                        {
-                            "color": "orange",
-                            "shape": "square"
+                            "shape": "clover"
                         },
                         {
                             "color": "red",
-                            "shape": "diamond"
+                            "shape": "circle"
+                        },
+                        {
+                            "color": "red",
+                            "shape": "circle"
+                        },
+                        {
+                            "color": "green",
+                            "shape": "clover"
                         }
                     ]
                 }
             ],
             "tile*": [
                 {
-                    "color": "green",
-                    "shape": "star"
+                    "color": "yellow",
+                    "shape": "8star"
                 },
                 {
                     "color": "purple",
                     "shape": "circle"
                 },
                 {
-                    "color": "green",
-                    "shape": "diamond"
+                    "color": "yellow",
+                    "shape": "star"
                 }
             ]
         }
     },
-    "server-tries": 1,
-    "server-wait": 10,
+    "server-tries": 2,
+    "server-wait": 20,
     "wait-for-signup": 3
 }
