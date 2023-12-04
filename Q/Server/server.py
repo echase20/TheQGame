@@ -59,7 +59,7 @@ class Server(socketserver.ThreadingTCPServer):
             self.shutdown()
             self.server_close()
         else:
-            self.t.start()
+            Timer(self.server_config.server_wait, self.check_players).start()
 
 class Connection(socketserver.StreamRequestHandler):
     def __init__(self, request: Any, client_address: Any, server: socketserver.BaseServer):
