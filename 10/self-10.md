@@ -26,7 +26,7 @@ Each configuration is represented by a struct so that it has a fixed set of prop
 
 https://github.khoury.northeastern.edu/CS4500-F23/quirky-armadillos/blob/427143d433d1f08474be536dd4e1fb24ba5ad0a9/Q/Referee/ref_with_config.py#L9-L10
 
-the abstracted functionalities take the configurations as input, such the example of the abstracted referee above. The abstracted referee then can retrieve the
+The abstracted functionalities take the configurations as input, such the example of the abstracted referee above. The abstracted referee then can retrieve the
 properties when it needs to.
 
 - sets properties (what happens when the property shouldn't exist?) 
