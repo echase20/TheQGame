@@ -12,6 +12,7 @@ The data representation of configurations clearly needs the following
 pieces of functionality. Explain how your chosen data representation 
 
 - implements creation within programs _and_ from JSON specs 
+- https://github.khoury.northeastern.edu/CS4500-F23/quirky-armadillos/blob/427143d433d1f08474be536dd4e1fb24ba5ad0a9/Q/Util/util.py#L36-L64
 
 - enforces that each configuration specifies a fixed set of properties (no more, no less)
 
