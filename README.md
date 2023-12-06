@@ -18,3 +18,16 @@ There are a few scripts that one might wish to run to simulate some functionalit
 - `xclients` and `xserver` in `/10` simulates a server client relationship over TCP between the referee and the players. 
 
 <p> For all the scripts above, there is examples of input into the script in their respective /Tests/ folder. 
+
+# Scoring
+
+If the player requests a placement, the referee checks whether it is legal and constructs the extended map. Based on this new map, the referee assigns points for a turn as follows:
+- A player receives one point per tile placed.
+
+- A player receives one point per tile in a contiguous sequence of tiles (in a row or column) that contains at least one of its newly placed tiles extends.
+
+- A player receives 6 bonus points for completing a Q, which is a contiguous sequence of tiles that contains all shapes or all colors and nothing else.
+
+- A player also receives 6 bonus points for placing all tiles in its possession.
+
+- The referee keeps track of the scores on a per turn basis and shares the scores of all players with the player to whom it grants a turn.
