@@ -2,7 +2,7 @@
 
 The Q game is a spinoff of the board game Qwirkle. The Q Game involves 2-4 players who try to earn as many points as possible by placing their tiles. Each tile placement earns points and potentially bonus points by placing in contigious sequences, completing a Q or placing the rest of the players tiles. The game ends when either a player places all their tiles, all players in a round pass or exchange, or all players are kicked because of invalid moves.
 
-## Run Game
+# Run Game
 
 To work on this project and run the program through a terminal one must use the command:
 ```
@@ -31,3 +31,16 @@ If the player requests a placement, the referee checks whether it is legal and c
 - A player also receives 6 bonus points for placing all tiles in its possession.
 
 - The referee keeps track of the scores on a per turn basis and shares the scores of all players with the player to whom it grants a turn.
+  
+  
+# Ending a Game
+
+The game ends if one of the following condition holds:
+
+at the end of a round if all remaining players pass or replace their tiles;
+
+at the end of a turn if a player has placed all tiles in its possession; or
+
+there are no players left after a turn.
+
+
