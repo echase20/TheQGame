@@ -44,3 +44,27 @@ There are a few scripts that one might wish to run to simulate some functionalit
 
 <p> For all the scripts above, there is examples of input into the script in their respective /Tests/ folder. 
 
+
+  
+```
++-------------------+                                                                                 +--------------------+   
+|                   |                                                                                 |                    |   
+|    run_xserver    |                                                                                 |    run_xclient     |   
+|                   |                                                                                 |                    |   
++-------------------+                                                                                 +--------------------+   
+          |                                                                                                      |             
+          |                                                                                                      |             
++-------------------+                                                                                            |             
+|                   |                                                                                            |             
+|      Server       |                                                                                            |             
+|                   |                                                                                            |             
++-------------------+                                                                                            |             
+          |                                                                                                      |             
+          |                                                                                                      |             
++---------|---------+            +-------------------+                 +---------------------+        +--------------------+   
+|                   |            |                   |                 |                     |        |                    |   
+|    Connection     |------------|    PlayerProxy    |                 |      RefProxy       |--------|      Client        |   
+|                   |            |                   |                 |                     |        |                    |   
++-------------------+            +-------------------+                 +---------------------+        +--------------------+   
+                                                                                                                               
+```
