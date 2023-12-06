@@ -12,9 +12,9 @@ This command allows for all of the dependices to reference each other, allowing 
 
 There are a few scripts that one might wish to run to simulate some functionality during the game. <br>
 
+- `xgames` in /7 which simualtes a game with some players.
+- `xgames-with-observer` in /8 which simualtes a game with some players and an observer GUI if you wish by using the --show command.
+- `xbaddies` in /9 which simulates a game with some good behaving players and some not so nice players that attempt to cheat. 
+- `xclients` and `xserver` in /10 simulates a server client relationship over TCP between the referee and the players. 
 
-<p> In /7, there exists a script xgames. To run this script, </p>
-<p> In /8, there exists a script xgames-with-observer. To run this script, you can write --show to show the observer when the game is finished </p>
-<p> In /9, there exists a runnable xbaddies script.
-
-<p> for all the scripts above, there is examples of input into the script in their respective /Tests/ folder. 
+<p> For all the scripts above, there is examples of input into the script in their respective /Tests/ folder. 
