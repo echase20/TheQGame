@@ -6,6 +6,9 @@ from Q.Referee.referee_config import RefereeConfig
 
 
 class RefereeWithConfig(Referee):
+    """
+    represents a referee with some sort of configuration
+    """
     def __init__(self, referee_config: RefereeConfig):
         self.referee_config = referee_config
 

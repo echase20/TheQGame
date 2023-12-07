@@ -13,7 +13,7 @@ from Q.Player.turn_outcome import TurnOutcome
 from Q.Player.in_housep_player import InHousePlayer
 from Q.Common.game_state import GameState
 
-from Q.Referee.timeout import timeout
+from Q.Referee.timeout import InlineTimeout
 
 try:
     import thread
@@ -30,8 +30,8 @@ class Referee:
     """
 
     def __init__(self, per_turn=TIMEOUT_PLAYER, observer=None):
-        self.per_turn = per_turn
         self.observer = observer
+        self.per_turn = per_turn
         self.kicked = []
 
     def main(self, player_list: List[Player]) -> List[List[str]]:
@@ -48,24 +48,23 @@ class Referee:
 
     def player_action(self, func, args, current_player: Player, game_state: GameState, player_list: List[Player]):
         try:
-            return self.player_func(func, args, current_player, game_state, player_list)
+            return InlineTimeout(self.per_turn).timeout(self.player_func, func, args, current_player, game_state, player_list)
         except Exception as e:
             print(e)
             self.remove_current_player(game_state, current_player, player_list)
 
-    #@timeout(TIMEOUT_PLAYER)
-    def player_func(self, func, args, current_player: Player, game_state: GameState, player_list: List[Player]):
+    def player_func(self, func, args, current_player, game_state, player_list):
         function_mapping = {"take_turn": current_player.take_turn,
                             "setup": current_player.setup,
                             "new_tiles": current_player.new_tiles,
                             "win": current_player.win}
-        if len(args) == 2:
-            return function_mapping[func](args[0], args[1])
-        if len(args) == 1:
-            return function_mapping[func](args[0])
-        #except Exception as e:
-        #    print(e, "excpetion over here")
-        # self.remove_current_player(game_state, current_player, player_list)
+        try:
+            if len(args) == 2:
+                return function_mapping[func](args[0], args[1])
+            if len(args) == 1:
+                return function_mapping[func](args[0])
+        except:
+            self.remove_current_player(game_state, current_player, player_list)
 
     def run_game(self, game_state: GameState, player_list: List[Player]) -> List[List[str]]:
         """

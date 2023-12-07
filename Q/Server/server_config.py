@@ -4,6 +4,9 @@ from Q.Referee.referee_config import RefereeConfig
 
 @dataclass
 class ServerConfig:
+    """
+    config values for the server
+    """
 
     port: int
     server_tries: int

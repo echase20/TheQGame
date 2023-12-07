@@ -19,17 +19,15 @@ class InterruptableThread(threading.Thread):
         return self._result
 
 
-class timeout(object):
+class InlineTimeout:
     def __init__(self, sec):
         self._sec = sec
 
-    def __call__(self, f):
-        def wrapped_f(*args, **kwargs):
-            it = InterruptableThread(f, *args, **kwargs)
-            it.daemon = True
-            it.start()
-            it.join(self._sec)
-            if not it.is_alive():
-                return it.result
-            raise TimeoutError('execution expired')
-        return wrapped_f
+    def timeout(self, f, *args, **kwargs):
+        it = InterruptableThread(f, *args, **kwargs)
+        it.daemon = True
+        it.start()
+        it.join(self._sec)
+        if not it.is_alive():
+            return it.result
+        raise TimeoutError('execution expired')

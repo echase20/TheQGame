@@ -8,10 +8,12 @@ from Q.Referee.ref_with_config import RefereeWithConfig
 from Q.Referee.referee_config import RefereeConfig
 from Q.Server.player import ProxyPlayer
 from Q.Server.server_config import ServerConfig
-from Q.Server.states import States
 
 
 class Server(socketserver.ThreadingTCPServer):
+    """
+    represents the server that holds all of the connectoions of players and starts the game
+    """
     def __init__(self, server_config: ServerConfig, server_address: Tuple[str, int],
                  RequestHandlerClass: Callable[..., socketserver.BaseRequestHandler]):
         super().__init__(server_address, RequestHandlerClass)
@@ -28,6 +30,11 @@ class Server(socketserver.ThreadingTCPServer):
         self.t3.start()
 
     def start_game(self, names: Dict, ref_config: RefereeConfig):
+        """
+        start the Q game with some given config and player names mapped to connections
+        :param names: the string names mapped to connections
+        :param ref_config: the config of the referee
+        """
         self.t.cancel()
         ref = RefereeWithConfig(ref_config)
         player_list = [ProxyPlayer(name, conn) for name, conn in names.items()]
@@ -39,12 +46,20 @@ class Server(socketserver.ThreadingTCPServer):
         self.server_close()
 
     def check_players(self):
+        """
+        checks if the length of the players is greater than two, if so starts the game else calls some timer to run again.
+        """
+
         if len(self.names) >= 2:
             self.start_game(self.names, self.server_config.ref_spec)
             return
         self.timer()
 
     def should_start_game(self):
+        """
+        continues to check if there are four players to start the game
+        """
+
         while True:
             if len(self.names) == 4:
                 if not self.server_config:
@@ -52,6 +67,10 @@ class Server(socketserver.ThreadingTCPServer):
                 self.start_game(self.names, self.server_config.ref_spec)
 
     def timer(self):
+        """
+        a method that is called after each successive server-tries call.
+        """
+
         self.server_tries -= 1
         if self.server_tries == 0:
             end_result = json.dumps([[], []])
@@ -61,42 +80,3 @@ class Server(socketserver.ThreadingTCPServer):
         else:
             Timer(self.server_config.server_wait, self.check_players).start()
 
-class Connection(socketserver.StreamRequestHandler):
-    def __init__(self, request: Any, client_address: Any, server: socketserver.BaseServer):
-        self.latest = ""
-        self.state = States.SIGNUP
-        self.server = server
-        self.quiet = self.server.server_config.quiet
-        self.check_for_name_thread = Timer(self.server.server_config.server_wait, self.check_for_name)
-        super().__init__(request, client_address, server)
-
-    def check_for_name(self):
-        if self.state == States.SIGNUP:
-            self.state = States.NO_NAME_GIVEN
-
-    def get_latest_message(self):
-        new = self.latest
-        if new:
-            self.latest = ""
-        return new
-
-    def write_method(self, func, args):
-        data = json.dumps([func, args])
-        if not self.quiet:
-            print(data, "writing")
-        self.wfile.write(data.encode())
-
-    def handle(self):
-        while True:
-            msg = self.rfile.readline().strip().decode()
-            if msg and self.state == States.SIGNUP and msg not in self.server.names.keys():
-                if not self.quiet:
-                    print("CONNECTION MADE")
-                self.server.names[msg] = self
-                self.state = States.RUNGAME
-                continue
-
-            if msg and self.state == States.RUNGAME:
-                self.latest = msg
-                if not self.quiet:
-                    print(msg, "received")

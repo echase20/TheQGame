@@ -18,6 +18,10 @@ class ProxyPlayer(Player):
         self.s = s
 
     def listen(self):
+        """
+        listens for new data
+        :return: the new data
+        """
         while True:
             msg = self.s.get_latest_message()
             if msg:
@@ -51,11 +55,6 @@ class ProxyPlayer(Player):
         jpub = Util().convert_player_state_to_jpub(s)
         self.s.write_method(PlayerFuncs.TAKE_TURN.value, [jpub])
         msg = self.listen()
-
-        #if msg:
-            #valid = self.checkJAction(json.loads(msg))
-            #if not valid:
-            #raise Exception("Bad Json was given")
         if msg:
             try:
                 data = json.loads(msg)
@@ -88,11 +87,19 @@ class ProxyPlayer(Player):
             raise Exception("no void return")
 
     def checkJAction(self, jaction) -> bool:
+        """
+        checks if a jaction action is valid
+        :param jaction: the action we are checking if is alid
+        :return: true if the jaction is valid else false
+        """
         if jaction == "pass":
             return True
         if jaction == "replace":
             return True
-        #if jaction[0].has_key('coordinate') and jaction[0].has_key('1tile'):
-        #    return True
+        if type(jaction) != List:
+            return False
+        for action in jaction:
+            if action.get('coordinate') is not None and action.get('1tile') is not None:
+                return True
         else:
             return False
