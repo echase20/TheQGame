@@ -71,7 +71,7 @@ There are a few scripts that one might wish to run to simulate some functionalit
                                                                                                                                
 ```
 ## Player Interface Diagram
-                                                                                                                                        
+```                                                                                                                  
                                                                                                      
                                          +-------------------+                                       
                                          |                   |                                       
@@ -89,3 +89,4 @@ There are a few scripts that one might wish to run to simulate some functionalit
 |    CheatPlayer    |     |     ExnPlayer     |      |     LoopPlayer    |    |   InHousePlayer   |  
 |                   |     |                   |      |                   |    |                   |  
 +-------------------+     +-------------------+      +-------------------+    +-------------------+
+```
