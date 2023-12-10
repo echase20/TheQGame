@@ -11,8 +11,7 @@ config = RefereeStateConfig(qbo=6, fbo=6)
 
 class Rulebook:
     def __init__(self, rsc: RefereeStateConfig = config):
-        self.q_score = rsc.qbo
-        self.end_game_bonus = rsc.fbo
+        self.rsc = rsc
 
     """
     Represents the game rules which the referee and players may consult
@@ -168,7 +167,7 @@ class Rulebook:
         :return the points to be scored
         """
         if not len(player_hand):
-            return self.end_game_bonus
+            return self.rsc.fbo
         else:
             return 0
 
@@ -197,7 +196,7 @@ class Rulebook:
             seen_component_color.add(curr_map.tiles.get(position).color)
             if (len(seen_component_shape) == 6 and len(seen_component_color) == 1) or \
                     (len(seen_component_color) == 6 and len(seen_component_shape) == 1):
-                points += self.q_score
+                points += self.rsc.qbo
         return points
 
     def get_completing_q_points(self, curr_map: Map, positions: List[Pos]) -> int:
