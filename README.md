@@ -152,7 +152,7 @@ There are a few scripts that one might wish to run to simulate some functionalit
       |                            |                |      |                             |                        |                           
       |                            |   set_latest() |      |                             |                        |                           
       |                            |                |      |                             |                        |                           
-      |                            |                ------>|                             |                        |                           
+      |                            |                +----->|                             |                        |                           
       |                            |                       |           data              |                        |                           
       |                            |                       |---------------------------->|    deserialized data   |                           
       |                            |                       |                             |----------------------> |                           
