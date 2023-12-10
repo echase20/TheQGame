@@ -181,7 +181,7 @@ There are a few scripts that one might wish to run to simulate some functionalit
 ```
   
   
-## Misc
+## Misc.
 ```
                                                                                                     
               +---------------------+                              +----------------------+        
