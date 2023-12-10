@@ -73,7 +73,7 @@ There are a few scripts that one might wish to run to simulate some functionalit
             |                       |         |                 |                    |    Client     |                          
             |      Connection       |---------|   PlayerProxy   |      (The wire)    |               |                          
             -------------------------         -------------------   --  --  --  --   -----------------                          
-            |      var latest       |         |     send()      | --   --  --   --  -|     recv()   |                          
+            |      var latest       |         |     send()      | --   --  --   --  -|     recv()    |                          
             |                       |         |                 |                    |     send()    |                          
             +-----------------------+         +-----------------+                    +---------------+             
                                                                                                                                
