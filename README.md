@@ -131,7 +131,7 @@ There are a few scripts that one might wish to run to simulate some functionalit
       |                            |       add_name()      | handle()                    |        data            |                           
       |                            | <---------------------|----------------------------------------------------------------------------------
       |                 players    |                       |                             |                        |                           
-      |                 init after |                       |           init()            |                        |                           
+      |                 init after |                       |           init(name, conn)  |                        |                           
       |                 timer or   |  -------------------------------------------------->|                        |                           
       |                 4 players  |                       |                             |                        |                           
       |                            |                       |        main()               |                        |                           
