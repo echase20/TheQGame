@@ -117,6 +117,46 @@ There are a few scripts that one might wish to run to simulate some functionalit
 ```
 ## Server Interactions
 ```
+                                                                                                                                              
+ run_xserver                     Server                Connection                    ProxyPlayer               Referee                        
+                                                                                                                                              
+      | init(config, addr, port)   |                       |                             |                        |                           
+      |----------------------------|                       |                             |                        |                           
+      |                            |                       |                             |                        |                           
+      |      serve_forever()       |                       |                             |                        |                           
+      |--------------------------  |                       |                             |                        |                           
+      |                            |                       |                             |                        |                           
+      |                            |                       |                             |                        |                           
+      |                            |       add_name()      | handle()                    |        data            |                           
+      |                            |  ---------------------|----------------------------------------------------------------------------------
+      |                 players    |                       |                             |                        |                           
+      |                 init after |                       |           init()            |                        |                           
+      |                 timer or   |  -------------------------------------------------- |                        |                           
+      |                 4 players  |                       |                             |                        |                           
+      |                            |                       |                             |                        |                           
+      |                            |---+                   |                             |                        |                           
+      |                            |   | start_game()      |                             |                        |                           
+      |                            |----                   |                             |   PlayerAPI Method     |                           
+      |                            |                       |                             |------------------------|                           
+      |                            |                       |                             |                        |                           
+      |                            |                       |                  send(data) |                        |                           
+      |                            |                       | ----------------------------|                        |                           
+      |                            |                       |                             |                        |                           
+      |                            |                       |                             |---+                    |                           
+      |                            |                       |                             |   | listen()           |                           
+      |                            |                       |                             |----                    |                           
+      |                            |                       |                             |                        |                           
+      |                            |                OR     | handle()                    |          data          |                           
+      |                            |                +------|------------------------------------------------------|-------------------------  
+      |                            |                |      |                             |                        |                           
+      |                            |   set_latest() |      |                             |                        |                           
+      |                            |                |      |                             |                        |                           
+      |                            |                -------|                             |                        |                           
+      |                            |                       |           data              |                        |                           
+      |                            |                       |-----------------------------|    deserialized data   |                           
+      |                            |                       |                             |----------------------- |                           
+      |                            |                       |                             |                        |                           
+                      
 ``` 
 ## Player Interface Diagram
 ```                                                                                                                  
