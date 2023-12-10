@@ -133,10 +133,10 @@ There are a few scripts that one might wish to run to simulate some functionalit
       |                 init after |                       |           init()            |                        |                           
       |                 timer or   |  -------------------------------------------------->|                        |                           
       |                 4 players  |                       |                             |                        |                           
+      |                            |                       |        main()               |                        |                           
+      |                            |----------------------------------------------------------------------------->                                              |                           |                       |                             |                        |
       |                            |                       |                             |                        |                           
-      |                            |---+                   |                             |                        |                           
-      |                            |   |start_game(players)|                             |                        |                           
-      |                            |<---                   |                             |   PlayerAPI Method     |                           
+      |                            |                       |                             |   PlayerAPI Method     |                           
       |                            |                       |                             |<-----------------------|                           
       |                            |                       |                             |                        |                           
       |                            |                       |                  send(data) |                        |                           
