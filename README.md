@@ -65,13 +65,13 @@ There are a few scripts that one might wish to run to simulate some functionalit
             ------------------------                                                |                 |                         
             |    serve_forever()   |                     +------------+             |   RefereeProxy  |          -              
             +----------------------+               +---->| PlayerAPI  |             -------------------                         
-                        |                          |     +------------+             |    listen()     |                         
-   -                    |                          |                                +--------|--------+                         
-                        |                          |                                         |                                  
-                        ◆                          |                                         ◆                                  
+                        \                          |     +------------+             |    listen()     |                         
+   -                    /                          |                                +--------|--------+                         
+                        \                          |                                         |                                  
+                        /                          |                                         ◆                                  
             +-----------------------+         +----|------------+                    +---------------+                          
             |                       |         |                 |                    |    Client     |                          
-            |      Connection       |---------|   PlayerProxy   |      (The wire)    |               |                          
+            |      Connection       |◆--------|   PlayerProxy   |      (The wire)    |               |                          
             -------------------------         -------------------   --  --  --  --   -----------------                          
             |  get_latest_message() |         |     send()      | --   --  --   --  -|     recv()    |                          
             |                       |         |                 |                    |     send()    |                          
