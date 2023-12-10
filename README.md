@@ -147,7 +147,7 @@ There are a few scripts that one might wish to run to simulate some functionalit
       |                            |                       |                LOOPING      |   | listen()           |                           
       |                            |                       |                             |<---                    |                           
       |                            |                       |                             |                        |                           
-      |                            |                OR     | handle()                    |          data          |                           
+      |                            |                       | handle()                    |          data          |                           
       |                            |                +------|<-----------------------------------------------------|-------------------------  
       |                            |                |      |                             |                        |                           
       |                            |   set_latest() |      |                             |                        |                           
