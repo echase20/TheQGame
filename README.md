@@ -51,9 +51,9 @@ There are a few scripts that one might wish to run to simulate some functionalit
 ```
             +----------------------+                                                                                            
             |                      |                                       |                                                     
-            |     run_xserver      |                                       |                                                    
+  config    |     run_xserver      |                                       |                                                    
 --------->  ------------------------                                       |        +-----------------+                         
-            |        main()        |                                       |        |                 |                         
+            |        main()        |                                       | config |                 |                         
             +----------------------+                                       |------->|   run_xclient   |                         
                         |                                                  |        -------------------                         
                         |                                                  |        |      main()     |                         
