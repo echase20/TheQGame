@@ -135,7 +135,7 @@ There are a few scripts that one might wish to run to simulate some functionalit
       |                 4 players  |                       |                             |                        |                           
       |                            |                       |                             |                        |                           
       |                            |---+                   |                             |                        |                           
-      |                            |   | start_game()      |                             |                        |                           
+      |                            |   |start_game(players |                             |                        |                           
       |                            |----                   |                             |   PlayerAPI Method     |                           
       |                            |                       |                             |------------------------|                           
       |                            |                       |                             |                        |                           
