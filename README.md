@@ -128,7 +128,7 @@ There are a few scripts that one might wish to run to simulate some functionalit
       |--------------------------> |                       |                             |                        |                           
       |                            |                       |                             |                        |                           
       |                            |                       |                             |                        |                           
-      |                            |       add_name()      | handle()                    |        data            |                           
+      |                            |       add_name()      | handle(name)                |                        |         data                  
       |                            | <---------------------|----------------------------------------------------------------------------------
       |                 players    |                       |                             |                        |                           
       |                 init after |                       |           init(name, conn)  |                        |                           
@@ -147,7 +147,7 @@ There are a few scripts that one might wish to run to simulate some functionalit
       |                            |                       |                LOOPING      |   | listen()           |                           
       |                            |                       |                             |<---                    |                           
       |                            |                       |                             |                        |                           
-      |                            |                       | handle()                    |          data          |                           
+      |                            |                       | handle(reponse)             |                        |          data           
       |                            |                +------|<-----------------------------------------------------|-------------------------  
       |                            |                |      |                             |                        |                           
       |                            |   set_latest() |      |                             |                        |                           
