@@ -71,12 +71,13 @@ There are a few scripts that one might wish to run to simulate some functionalit
                         /                          |                                         ◆                                  
             +-----------------------+         +----|------------+                    +---------------+                          
             |                       |         |                 |                    |    Client     |                          
-            |      Connection       |◆--------|   PlayerProxy   |      (The wire)    |               |                          
-            -------------------------         -------------------   --  --  --  --   -----------------                          
-            | get_latest_message()  |         |                 | --   --  --   --  -|     recv()    |                          
+            |      Connection       |◆--------|   PlayerProxy   |                    |               |                          
+            -------------------------         -------------------                    -----------------                          
+            | get_latest_message()  |         |                 |                    |     recv()    |                          
             |write_method(meth,args)|         +-----------------+                    |     send()    |                          
             +-----------------------+                                                +---------------+             
-                                                                                                                               
+                 |                                the wire                               |
+                 |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
 ```
 ## Client Interactions
 ```
