@@ -89,7 +89,7 @@ There are a few scripts that one might wish to run to simulate some functionalit
                                                                                
     run_xclient                      RefereeProxy          Client              
                                                                                
-         |         init()                |                     | 
+         |         init(host, port, name)|                     | 
          |---------------------------------------------------->|
          |    init(client, strategy)     |                     |                                 
          |------------------------------>|                     |               
