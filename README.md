@@ -78,6 +78,7 @@ There are a few scripts that one might wish to run to simulate some functionalit
             +-----------------------+         +-----------------+                    +---------------+             
                                                                                                                                
 ```
+## Client Interactions
 ```
                                                                                
                                                                                
@@ -114,6 +115,9 @@ There are a few scripts that one might wish to run to simulate some functionalit
          |                               |                     |               
          |                               |                     |               
 ```
+## Server Interactions
+```
+``` 
 ## Player Interface Diagram
 ```                                                                                                                  
                                                                                                      
