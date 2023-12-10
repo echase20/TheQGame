@@ -1,7 +1,10 @@
 import sys
 
 from jsonstream import loads
-from Q.Server.server import Server, Connection
+
+from Q.Server.connection import Connection
+from Q.Server.server import Server
+
 from Q.Util.util import Util
 address = "localhost"
 

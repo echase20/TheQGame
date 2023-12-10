@@ -7,16 +7,15 @@ from Q.Player.player_funcs import PlayerFuncs
 from Q.Util.util import Util
 
 VOID = 'void'
-class ProxyRef:
+class RefereeProxy:
     """
     Represents the proxy ref
     """
     def __init__(self, client: Client, player: Player):
         self.client = client
         self.player = player
-        self.main()
 
-    def main(self):
+    def listen(self):
         """
         listens for data, performs some function on that data, and sends that processed data back to the server
         """

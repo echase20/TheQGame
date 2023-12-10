@@ -4,7 +4,7 @@ import time
 
 from jsonstream import loads
 from Q.Client.client import Client
-from Q.Client.referee import ProxyRef
+from Q.Client.referee import RefereeProxy
 from Q.Player.player import Player
 from Q.Util.util import Util
 
@@ -22,7 +22,8 @@ def main():
 
 def create_player(player: Player, host: str, quiet: bool):
     c = Client(player.name(), host, get_port(), quiet)
-    ProxyRef(c, player)
+    rp = RefereeProxy(c, player)
+    rp.listen()
 
 
 def get_port() -> int:
