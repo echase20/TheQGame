@@ -98,7 +98,7 @@ There are a few scripts that one might wish to run to simulate some functionalit
          |                               |     recv()          |               
          |                               |-------------------->|               
          |                               |                     |               
-         |                               |      data           |               
+         |                               |      _data_         |               
          |                               | <-------------------|               
          |                               |                     |               
          |                               | ---+                |               
@@ -107,7 +107,7 @@ There are a few scripts that one might wish to run to simulate some functionalit
          |                               |                     |               
          |                               |     send(json)      |               
          |                               |-------------------->|               
-         |                               |                     |  over the wire
+         |                               |                     |  over the wire 
          |                               |                     |---------->     
          |                               |                     |               
          |                               |                     |               
