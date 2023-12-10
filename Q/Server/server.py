@@ -22,12 +22,15 @@ class Server(socketserver.ThreadingTCPServer):
         self.server_config = server_config
         self.names = {}
         self.server_tries = self.server_config.server_tries
+
+    def serve_forever(self, poll_interval=0.5):
         self.t = Timer(self.server_config.server_wait, self.check_players)
         self.t.daemon = True
         self.t3 = threading.Thread(target=self.should_start_game)
         self.t3.daemon = True
         self.t.start()
         self.t3.start()
+        super().serve_forever(poll_interval)
 
     def start_game(self, names: Dict, ref_config: RefereeConfig):
         """
